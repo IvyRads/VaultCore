@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Accounts | VaultCore Banking</title>
+
+<style>
+body{
+background:linear-gradient(135deg,#F8F6F2,#E7DED3);
+font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+margin:0;
+color:#20262E;
+}
+.container{
+width:90%;
+max-width:1100px;
+margin:30px auto;
+background:#fff;
+padding:40px;
+border-radius:20px;
+box-shadow:0 10px 30px rgba(90,101,114,.12);
+border:1px solid #E7DED3;
+}
+.nav{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin:25px 0;}
+.nav button{width:100%;height:42px;background:#5A6572;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;transition:.3s;}
+.nav button:hover{background:#20262E;transform:translateY(-2px);}
+.logout{background:#8A1538!important;}
+.logout:hover{background:#B1124D!important;}
+fieldset{border:2px solid #E7DED3;border-radius:12px;padding:20px;margin-bottom:25px;}
+legend{background:#D4AF37;color:#20262E;padding:6px 15px;border-radius:20px;font-weight:bold;font-size:13px;}
+table{width:100%;border-collapse:collapse;}
+th,td{padding:12px;border:1px solid #E7DED3;}
+th{background:#F8F6F2;}
+.balance{color:#8A1538;font-weight:bold;}
+.action-btn{background:#8A1538;color:white;padding:10px 18px;border:none;border-radius:8px;cursor:pointer;margin:8px;}
+.action-btn:hover{background:#B1124D;}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<h1 style="color:#8A1538;text-align:center;">VAULTCORE <span style="color:#D4AF37;">BANKING</span></h1>
+<h2 style="text-align:center;color:#5A6572;">My Accounts</h2>
+
+<div class="nav">
+<a href="user_dashboard.html"><button>🏠 Home</button></a>
+<a href="profile.html"><button>👤 Profile</button></a>
+<a href="account.html"><button>🏦 Accounts</button></a>
+<a href="transactions.html"><button>📜 Records</button></a>
+<a href="support.html"><button>📞 Support</button></a>
+<a href="index.html"><button class="logout">🚪 Logout</button></a>
+</div>
+
+<fieldset>
+<legend>ACCOUNT SUMMARY</legend>
+
+<table>
+<tr>
+<th>Account Type</th>
+<th>Account Number</th>
+<th>Branch</th>
+<th>Balance</th>
+<th>Status</th>
+</tr>
+
+<tr><td>Savings</td><td>XXXX4582</td><td>Kochi Main</td><td class="balance">₹2,45,800</td><td>Active</td></tr>
+<tr><td>Current</td><td>XXXX8974</td><td>Trivandrum</td><td class="balance">₹1,12,500</td><td>Active</td></tr>
+<tr><td>Fixed Deposit</td><td>FD009621</td><td>Kochi Main</td><td class="balance">₹1,16,700</td><td>Locked</td></tr>
+</table>
+
+</fieldset>
+
+<fieldset>
+<legend>SAVINGS ACCOUNT DETAILS</legend>
+
+<table>
+<tr><th>IFSC</th><td>VBMS0001021</td></tr>
+<tr><th>Minimum Balance</th><td>₹5,000</td></tr>
+<tr><th>Interest Rate</th><td>3.25% p.a.</td></tr>
+<tr><th>Nominee</th><td>Anna Shibu</td></tr>
+</table>
+
+<br>
+
+<center>
+<button class="action-btn">Download Statement</button>
+<button class="action-btn">Request Cheque Book</button>
+<button class="action-btn">View Passbook</button>
+<button class="action-btn">Open New Account</button>
+</center>
+
+</fieldset>
+
+<p style="text-align:center;color:#5A6572;">© 2026 VaultCore Banking Management System</p>
+
+</div>
+
+</body>
+</html>
