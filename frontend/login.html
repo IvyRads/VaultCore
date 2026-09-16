@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | VaultCore Banking</title>
+</head>
+<body style="background: linear-gradient(135deg, #F8F6F2 0%, #E7DED3 100%); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #20262E; margin: 0; padding: 0; min-height: 100vh; display: flex; justify-content: center; align-items: center;">
+
+    <center style="width: 100%; max-width: 600px; padding: 30px 20px; box-sizing: border-box;">
+
+        <!-- Main Card Container -->
+        <div style="background-color: #FFFFFF; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(90, 101, 114, 0.12); border: 1px solid #E7DED3;">
+
+            <div style="font-size: 40px; margin-bottom: 5px;">🏦</div>
+
+            <h1 style="color: #8A1538; font-size: 24px; font-weight: 800; letter-spacing: 0.5px; margin: 0 0 5px 0; text-transform: uppercase;">
+                VAULTCORE <span style="color: #D4AF37;">BANKING</span>
+            </h1>
+            
+            <h2 style="color: #5A6572; font-size: 18px; font-weight: 500; margin-top: 0; margin-bottom: 25px;">
+                Secure Portal Login
+            </h2>
+
+            <form id="loginForm" onsubmit="handleLogin(event)">
+
+                <table cellpadding="10" style="margin: 0 auto; text-align: left; width: 100%;">
+
+                    <tr>
+                        <td style="color: #20262E; font-weight: 600; font-size: 14px;"><label>Login As:</label></td>
+                        <td>
+                            <label style="color: #5A6572; cursor: pointer; margin-right: 15px; font-weight: 500;">
+                                <input type="radio" name="role" value="Admin" required style="accent-color: #8A1538;"> Admin
+                            </label>
+                            <label style="color: #5A6572; cursor: pointer; font-weight: 500;">
+                                <input type="radio" name="role" value="User" style="accent-color: #8A1538;"> User
+                            </label>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="color: #20262E; font-weight: 600; font-size: 14px;"><label>Email / Username:</label></td>
+                        <td>
+                            <input type="text" name="username" id="username" placeholder="Enter Email or Username" required
+                                style="width: 100%; padding: 12px 15px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #F8F6F2; color: #20262E; outline: none; transition: border-color 0.3s;"
+                                onfocus="this.style.borderColor='#8A1538'; this.style.backgroundColor='#FFFFFF';"
+                                onblur="this.style.borderColor='#E7DED3'; this.style.backgroundColor='#F8F6F2';">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="color: #20262E; font-weight: 600; font-size: 14px;"><label>Password:</label></td>
+                        <td>
+                            <input type="password" name="password" id="password" placeholder="Enter Password" required
+                                style="width: 100%; padding: 12px 15px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #F8F6F2; color: #20262E; outline: none; transition: border-color 0.3s;"
+                                onfocus="this.style.borderColor='#8A1538'; this.style.backgroundColor='#FFFFFF';"
+                                onblur="this.style.borderColor='#E7DED3'; this.style.backgroundColor='#F8F6F2';">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td></td>
+                        <td>
+                            <a href="forgot_password.html" style="color: #B1124D; font-size: 13px; text-decoration: none; font-weight: 600;" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">
+                                Forgot Password?
+                            </a>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="color: #20262E; font-weight: 600; font-size: 14px;"><label>CAPTCHA:</label></td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span id="captchaDisplay" style="background: linear-gradient(135deg, #E7DED3, #F8F6F2); color: #8A1538; font-size: 20px; font-weight: 800; letter-spacing: 5px; padding: 8px 15px; border-radius: 6px; border: 1px dashed #5A6572; user-select: none;"></span>
+                                <button type="button" onclick="generateCaptcha()" title="Refresh Captcha" style="background: none; border: none; cursor: pointer; font-size: 16px; transition: transform 0.4s;" onmouseover="this.style.transform='rotate(180deg)';" onmouseout="this.style.transform='rotate(0deg)';">🔄</button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="color: #20262E; font-weight: 600; font-size: 14px;"><label>Enter CAPTCHA:</label></td>
+                        <td>
+                            <input type="text" name="captcha" id="captchaInput" placeholder="Enter CAPTCHA code" required
+                                style="width: 100%; padding: 12px 15px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #F8F6F2; color: #20262E; outline: none; transition: border-color 0.3s;"
+                                onfocus="this.style.borderColor='#8A1538'; this.style.backgroundColor='#FFFFFF';"
+                                onblur="this.style.borderColor='#E7DED3'; this.style.backgroundColor='#F8F6F2';">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td colspan="2" align="center" style="padding-top: 15px;">
+                            <br>
+                            <button type="submit" 
+                                style="width: 130px; height: 42px; background-color: #8A1538; color: #FFFFFF; border: none; border-radius: 25px; font-size: 15px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(138, 21, 56, 0.3); transition: all 0.3s;"
+                                onmouseover="this.style.backgroundColor='#B1124D'; this.style.transform='translateY(-2px)';"
+                                onmouseout="this.style.backgroundColor='#8A1538'; this.style.transform='translateY(0)';">
+                                Login
+                            </button>
+                            &nbsp;&nbsp;
+                            <button type="reset" onclick="generateCaptcha()"
+                                style="width: 130px; height: 42px; background-color: #E7DED3; color: #20262E; border: none; border-radius: 25px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s;"
+                                onmouseover="this.style.backgroundColor='#D4AF37'; this.style.transform='translateY(-2px)';"
+                                onmouseout="this.style.backgroundColor='#E7DED3'; this.style.transform='translateY(0)';">
+                                Clear
+                            </button>
+                        </td>
+                    </tr>
+
+                </table>
+
+            </form>
+
+            <br>
+            <p style="margin: 15px 0 0 0; font-size: 13px; color: #5A6572;">
+                Don't have an account? <a href="Sign_up.html" style="color: #8A1538; font-weight: 600; text-decoration: none;" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">Sign Up here</a>
+            </p>
+
+        </div>
+
+        <div style="margin-top: 20px;">
+            <a href="index.html" style="color: #5A6572; font-size: 13px; text-decoration: none; font-weight: 600;" onmouseover="this.style.color='#8A1538';" onmouseout="this.style.color='#5A6572';">
+                &larr; Back to Home
+            </a>
+        </div>
+
+    </center>
+
+    <!-- JavaScript for Dynamic Captcha & Interactive Validation -->
+    <script>
+        let currentCaptcha = "";
+
+        function generateCaptcha() {
+            const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+            let captcha = "";
+            for (let i = 0; i < 5; i++) {
+                captcha += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            currentCaptcha = captcha;
+            document.getElementById("captchaDisplay").innerText = currentCaptcha;
+        }
+
+        // Run captcha generator on window load
+        window.onload = function() {
+            generateCaptcha();
+        };
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const userEnteredCaptcha = document.getElementById("captchaInput").value;
+            
+            if (userEnteredCaptcha !== currentCaptcha) {
+                alert("❌ Invalid CAPTCHA code. Please try again.");
+                generateCaptcha();
+                document.getElementById("captchaInput").value = "";
+                return;
+            }
+
+            const role = document.querySelector('input[name="role"]:checked').value;
+            const username = document.getElementById("username").value;
+
+            // Success feedback (Simulating backend connection hookup point for Python/PostgreSQL)
+            alert(`✅ Success! Authenticating as ${role}: ${username}.\nConnecting to VaultCore Backend...`);
+            
+            // Example redirect routing template:
+            // if(role === 'Admin') { window.location.href = 'admin_dashboard.html'; } else { window.location.href = 'user_dashboard.html'; }
+        }
+    </script>
+</body>
+</html>

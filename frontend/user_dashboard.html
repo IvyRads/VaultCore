@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Dashboard | VaultCore Banking</title>
+
+    <style>
+        .btn-effect {
+            background: #F8F6F2;
+            border: 1.5px solid #E7DED3;
+            color: #20262E;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            height: 110px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn-effect:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(138,21,56,0.15);
+            background: #FFFFFF;
+        }
+
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .quick-grid a {
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body style="background: linear-gradient(135deg, #F8F6F2 0%, #E7DED3 100%); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #20262E; margin: 0; padding: 0;">
+
+<center style="width: 100%; padding: 30px 0; box-sizing: border-box;">
+
+<!-- Main Container Wrapper -->
+<div style="width: 90%; max-width: 1100px; background-color: #FFFFFF; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(90, 101, 114, 0.12); border: 1px solid #E7DED3; text-align: center;">
+
+    <!-- Top Header Title -->
+    <div style="margin-bottom: 20px;">
+        <h1 style="color: #8A1538; font-size: 24px; font-weight: 800; margin: 0 0 5px 0; letter-spacing: 0.5px; text-transform: uppercase;">
+            VAULTCORE <span style="color: #D4AF37;">BANKING</span>
+        </h1>
+        <h2 style="color: #5A6572; font-size: 16px; font-weight: 600; margin: 0;">
+            Customer Portal Dashboard
+        </h2>
+    </div>
+
+    <hr style="border: none; height: 2px; background-color: #E7DED3; width: 100%; margin: 25px 0;">
+
+    <!-- Customer Details Info Table -->
+    <table width="100%" cellpadding="10" style="background-color: #F8F6F2; border-radius: 10px; border: 1px solid #E7DED3; font-size: 14px; color: #20262E; margin-bottom: 25px;">
+        <tr>
+            <td style="text-align: left;"><b>Welcome :</b> <span style="color: #8A1538; font-weight: 600;">[Customer Name]</span></td>
+            <td style="text-align: right;"><b>Customer ID :</b> <span style="color: #5A6572; font-weight: 600;">CUST10001</span></td>
+        </tr>
+        <tr>
+            <td style="text-align: left;"><b>Total Accounts :</b> <span style="color: #20262E; font-weight: 700;">3</span></td>
+            <td style="text-align: right;"><b>Last Login :</b> <span id="lastLoginTime" style="color: #D4AF37; font-weight: 600;">Loading...</span></td>
+        </tr>
+        <tr>
+            <td style="text-align: left;"><b>Customer Since :</b> <span style="color: #5A6572;">15-01-2024</span></td>
+            <td style="text-align: right;"><b>Status :</b> <span style="background-color: #E7DED3; color: #8A1538; padding: 2px 8px; border-radius: 6px; font-weight: 700; font-size: 12px;">Active</span></td>
+        </tr>
+    </table>
+
+    <!-- Navigation Bar Matrix/Flex -->
+    <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 25px;">
+        <a href="user_dashboard.html" style="text-decoration: none;">
+            <button style="width: 100%; height: 42px; background-color: #5A6572; color: #FFFFFF; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s;"
+                onmouseover="this.style.backgroundColor='#20262E'; this.style.transform='translateY(-2px)';" onmouseout="this.style.backgroundColor='#5A6572'; this.style.transform='translateY(0)';">
+                🏠 Home
+            </button>
+        </a>
+        <a href="profile.html" style="text-decoration: none;">
+            <button style="width: 100%; height: 42px; background-color: #5A6572; color: #FFFFFF; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s;"
+                onmouseover="this.style.backgroundColor='#20262E'; this.style.transform='translateY(-2px)';" onmouseout="this.style.backgroundColor='#5A6572'; this.style.transform='translateY(0)';">
+                👤 Profile
+            </button>
+        </a>
+        <a href="account.html" style="text-decoration: none;">
+            <button style="width: 100%; height: 42px; background-color: #5A6572; color: #FFFFFF; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s;"
+                onmouseover="this.style.backgroundColor='#20262E'; this.style.transform='translateY(-2px)';" onmouseout="this.style.backgroundColor='#5A6572'; this.style.transform='translateY(0)';">
+                🏦 Accounts
+            </button>
+        </a>
+        <a href="transactions.html" style="text-decoration: none;">
+            <button style="width: 100%; height: 42px; background-color: #5A6572; color: #FFFFFF; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s;"
+                onmouseover="this.style.backgroundColor='#20262E'; this.style.transform='translateY(-2px)';" onmouseout="this.style.backgroundColor='#5A6572'; this.style.transform='translateY(0)';">
+                📜 Records
+            </button>
+        </a>
+        <a href="support.html" style="text-decoration: none;">
+            <button style="width: 100%; height: 42px; background-color: #5A6572; color: #FFFFFF; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s;"
+                onmouseover="this.style.backgroundColor='#20262E'; this.style.transform='translateY(-2px)';" onmouseout="this.style.backgroundColor='#5A6572'; this.style.transform='translateY(0)';">
+                📞 Support
+            </button>
+        </a>
+        <a href="index.html" style="text-decoration: none;">
+            <button style="width: 100%; height: 42px; background-color: #8A1538; color: #FFFFFF; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s;"
+                onmouseover="this.style.backgroundColor='#B1124D'; this.style.transform='translateY(-2px)';" onmouseout="this.style.backgroundColor='#8A1538'; this.style.transform='translateY(0)';">
+                🚪 Logout
+            </button>
+        </a>
+    </div>
+
+    <!-- Customer Summary Fieldset -->
+    <fieldset style="border: 2px solid #E7DED3; border-radius: 12px; padding: 20px; background-color: #FFFFFF; text-align: left; margin-bottom: 25px;">
+        <legend style="background-color: #8A1538; color: #FFFFFF; padding: 6px 15px; border-radius: 20px; font-size: 13px; font-weight: bold; letter-spacing: 0.5px;">CUSTOMER SUMMARY</legend>
+
+        <table width="100%" cellpadding="12" style="border-collapse: collapse; border: 1px solid #E7DED3; font-size: 14px;">
+            <tr style="border-bottom: 1px solid #E7DED3;">
+                <th style="background-color: #F8F6F2; color: #20262E; width: 25%; text-align: left; padding-left: 15px;">Customer Name</th>
+                <td style="width: 25%; color: #20262E; font-weight: 600;">[Customer Name]</td>
+                <th style="background-color: #F8F6F2; color: #20262E; width: 25%; text-align: left; padding-left: 15px;">Customer ID</th>
+                <td style="width: 25%; color: #5A6572; font-weight: 600;">CUST10001</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #E7DED3;">
+                <th style="background-color: #F8F6F2; color: #20262E; text-align: left; padding-left: 15px;">Total Accounts</th>
+                <td style="color: #20262E; font-weight: 700;">3</td>
+                <th style="background-color: #F8F6F2; color: #20262E; text-align: left; padding-left: 15px;">Combined Balance</th>
+                <td style="color: #8A1538; font-weight: 700; font-size: 15px;">₹4,75,000</td>
+            </tr>
+            <tr>
+                <th style="background-color: #F8F6F2; color: #20262E; text-align: left; padding-left: 15px;">Registered Mobile Number</th>
+                <td style="color: #5A6572;">1234567890</td>
+                <th style="background-color: #F8F6F2; color: #20262E; text-align: left; padding-left: 15px;">Registered Mail ID</th>
+                <td style="color: #5A6572;">someone@gmail.com</td>
+            </tr>
+        </table>
+    </fieldset>
+
+    <!-- Quick Services Fieldset (2x3 Matrix Grid) -->
+    <fieldset style="border: 2px solid #E7DED3; border-radius: 12px; padding: 20px; background-color: #FFFFFF; text-align: left; margin-bottom: 25px;">
+        <legend style="background-color: #D4AF37; color: #20262E; padding: 6px 15px; border-radius: 20px; font-size: 13px; font-weight: bold; letter-spacing: 0.5px;">QUICK SERVICES</legend>
+
+        <div class="quick-grid">
+            <a href="deposit.html">
+                <button class="btn-effect">
+                    <span style="font-size: 24px; margin-bottom: 4px;">💰</span>
+                    <span style="font-weight: 700; font-size: 14px; color: #8A1538; margin-bottom: 2px;">Deposit</span>
+                    <span style="font-size: 12px; color: #5A6572;">Deposit Money</span>
+                </button>
+            </a>
+
+            <a href="withdraw.html">
+                <button class="btn-effect">
+                    <span style="font-size: 24px; margin-bottom: 4px;">💸</span>
+                    <span style="font-weight: 700; font-size: 14px; color: #8A1538; margin-bottom: 2px;">Withdraw</span>
+                    <span style="font-size: 12px; color: #5A6572;">Withdraw Money</span>
+                </button>
+            </a>
+
+            <a href="transfer.html">
+                <button class="btn-effect">
+                    <span style="font-size: 24px; margin-bottom: 4px;">🔄</span>
+                    <span style="font-weight: 700; font-size: 14px; color: #8A1538; margin-bottom: 2px;">Transfer</span>
+                    <span style="font-size: 12px; color: #5A6572;">Transfer Funds</span>
+                </button>
+            </a>
+
+            <a href="open_account.html">
+                <button class="btn-effect">
+                    <span style="font-size: 24px; margin-bottom: 4px;">🏦</span>
+                    <span style="font-weight: 700; font-size: 14px; color: #8A1538; margin-bottom: 2px;">Open Account</span>
+                    <span style="font-size: 12px; color: #5A6572;">Create New Account</span>
+                </button>
+            </a>
+
+            <a href="account.html">
+                <button class="btn-effect">
+                    <span style="font-size: 24px; margin-bottom: 4px;">📂</span>
+                    <span style="font-weight: 700; font-size: 14px; color: #8A1538; margin-bottom: 2px;">My Accounts</span>
+                    <span style="font-size: 12px; color: #5A6572;">View All Accounts</span>
+                </button>
+            </a>
+
+            <a href="loan.html">
+                <button class="btn-effect">
+                    <span style="font-size: 24px; margin-bottom: 4px;">💳</span>
+                    <span style="font-weight: 700; font-size: 14px; color: #8A1538; margin-bottom: 2px;">Loans</span>
+                    <span style="font-size: 12px; color: #5A6572;">Loan Services</span>
+                </button>
+            </a>
+        </div>
+    </fieldset>
+
+    <!-- Recent Transactions Fieldset -->
+    <fieldset style="border: 2px solid #E7DED3; border-radius: 12px; padding: 20px; background-color: #FFFFFF; text-align: left; margin-bottom: 25px;">
+        <legend style="background-color: #8A1538; color: #FFFFFF; padding: 6px 15px; border-radius: 20px; font-size: 13px; font-weight: bold; letter-spacing: 0.5px;">RECENT TRANSACTIONS</legend>
+
+        <table width="100%" cellpadding="10" style="border-collapse: collapse; border: 1px solid #E7DED3; font-size: 14px;">
+            <tr style="background-color: #F8F6F2; border-bottom: 2px solid #E7DED3; color: #20262E;">
+                <th style="text-align: left; padding-left: 15px;">Date</th>
+                <th style="text-align: left;">Account</th>
+                <th style="text-align: left;">Transaction</th>
+                <th style="text-align: left;">Amount</th>
+                <th style="text-align: left;">Status</th>
+            </tr>
+            <tr style="border-bottom: 1px solid #E7DED3;" onmouseover="this.style.backgroundColor='#F8F6F2'" onmouseout="this.style.backgroundColor='transparent'">
+                <td style="padding-left: 15px; color: #5A6572;">24-07-2026</td>
+                <td style="color: #20262E;">********4582</td>
+                <td style="color: #20262E; font-weight: 500;">Deposit</td>
+                <td style="color: #27ae60; font-weight: 700;">₹5,000</td>
+                <td><span style="color: #27ae60; font-weight: 600;">✔ Success</span></td>
+            </tr>
+            <tr style="border-bottom: 1px solid #E7DED3;" onmouseover="this.style.backgroundColor='#F8F6F2'" onmouseout="this.style.backgroundColor='transparent'">
+                <td style="padding-left: 15px; color: #5A6572;">23-07-2026</td>
+                <td style="color: #20262E;">********4582</td>
+                <td style="color: #20262E; font-weight: 500;">Transfer</td>
+                <td style="color: #B1124D; font-weight: 700;">₹2,500</td>
+                <td><span style="color: #27ae60; font-weight: 600;">✔ Success</span></td>
+            </tr>
+            <tr onmouseover="this.style.backgroundColor='#F8F6F2'" onmouseout="this.style.backgroundColor='transparent'">
+                <td style="padding-left: 15px; color: #5A6572;">22-07-2026</td>
+                <td style="color: #20262E;">********8974</td>
+                <td style="color: #20262E; font-weight: 500;">Withdrawal</td>
+                <td style="color: #B1124D; font-weight: 700;">₹1,000</td>
+                <td><span style="color: #27ae60; font-weight: 600;">✔ Success</span></td>
+            </tr>
+        </table>
+    </fieldset>
+
+    <!-- Notifications Fieldset -->
+    <fieldset style="border: 2px solid #E7DED3; border-radius: 12px; padding: 20px; background-color: #FFFFFF; text-align: left; margin-bottom: 25px;">
+        <legend style="background-color: #D4AF37; color: #20262E; padding: 6px 15px; border-radius: 20px; font-size: 13px; font-weight: bold; letter-spacing: 0.5px;">NOTIFICATIONS</legend>
+        
+        <div style="background-color: #F8F6F2; padding: 15px 20px; border-radius: 8px; border: 1px solid #E7DED3;">
+            <ul style="margin: 0; padding-left: 20px; color: #5A6572; font-size: 14px; line-height: 1.8;">
+                <li><strong style="color: #8A1538;">Welcome to Banking Management System.</strong></li>
+                <li>No pending notifications.</li>
+                <li>Your profile is up to date.</li>
+                <li>Thank you for banking with us.</li>
+            </ul>
+        </div>
+    </fieldset>
+
+    <hr style="border: none; height: 1px; background-color: #E7DED3; width: 100%; margin: 25px 0;">
+
+    <!-- Dashboard Footer -->
+    <p style="color: #5A6572; font-size: 13px; line-height: 1.6; margin: 0;">
+        <strong style="color: #20262E;">VaultCore Banking Management System</strong><br>
+        Customer Portal Dashboard<br><br>
+        <span style="color: #8A1538; font-weight: 600;">© 2026 Banking Management System. All Rights Reserved.</span>
+    </p>
+
+</div>
+
+</center>
+
+<!-- Interactive JavaScript Engine -->
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const now = new Date();
+        const formattedDate = String(now.getDate()).padStart(2, '0') + '-' + 
+                              String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                              now.getFullYear() + ' ' + 
+                              String(now.getHours()).padStart(2, '0') + ':' + 
+                              String(now.getMinutes()).padStart(2, '0');
+        
+        document.getElementById('lastLoginTime').innerText = formattedDate;
+        console.log("VaultCore Customer Dashboard Loaded with Modern UI Theme.");
+    });
+</script>
+
+</body>
+
+</html>
