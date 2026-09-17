@@ -32,7 +32,9 @@ input:not([type="checkbox"]):not([type="radio"])::placeholder { color: #6B7280; 
 .secondary-btn { background: #5A6572; color: white; transition: .2s; }
 .secondary-btn:hover { background: #20262E; }
 .error { min-height: 18px; color: #B91C1C; font-size: .85rem; margin-top: 5px; }
+.account-layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr); gap: 24px; align-items: start; }
 body { padding-left: 250px; box-sizing: border-box; }
+@media (max-width: 1000px) { .account-layout { grid-template-columns: 1fr; } }
 @media (max-width: 800px) { body { padding-left: 76px; } .sidebar { width: 76px; padding: 18px 10px; } .brand { padding: 0 10px 22px; justify-content: center; } .brand-text, .side-nav .label { display: none; } .side-nav a { text-align: center; padding: 12px 6px; } .container { padding: 18px; } }
 </style>
 </head>
@@ -57,7 +59,6 @@ body { padding-left: 250px; box-sizing: border-box; }
   <header class="text-center mb-8">
     <h1 class="text-3xl font-bold text-[#8A1538]">VAULTCORE <span class="text-[#D4AF37]">BANKING</span></h1>
     <h2 class="text-xl text-gray-600 mt-2">Open New Account</h2>
-    <p class="text-gray-500 mt-2">Customer Dashboard / Open Account</p>
     <p class="text-gray-600 mt-2">Create a new bank account with VaultCore.</p>
   </header>
 
@@ -70,7 +71,8 @@ body { padding-left: 250px; box-sizing: border-box; }
     </div>
   </section>
 
-  <section id="formCard" class="card p-6 md:p-8 max-w-3xl mx-auto">
+  <div class="account-layout">
+  <section id="formCard" class="card p-6 md:p-8">
     <div class="flex items-center gap-3 mb-8">
       <div class="w-10 h-10 rounded-xl bg-[#8A1538] text-white grid place-items-center text-lg">+</div>
       <div><h3 class="text-2xl font-bold text-[#8A1538]">Account Opening Form</h3><p class="text-sm text-gray-500 mt-1">Choose an account type and provide the opening details.</p></div>
@@ -129,7 +131,7 @@ body { padding-left: 250px; box-sizing: border-box; }
     </form>
   </section>
 
-  <section id="successCard" class="hidden card p-8 max-w-2xl mx-auto text-center">
+  <section id="successCard" class="hidden card p-8 text-center">
     <div class="w-16 h-16 mx-auto rounded-full bg-green-100 text-green-700 grid place-items-center text-3xl">✓</div>
     <h3 class="text-3xl font-bold text-green-700 mt-4">Account Created Successfully</h3>
     <p class="text-gray-600 mt-2">Your new VaultCore account is ready to use.</p>
@@ -143,12 +145,18 @@ body { padding-left: 250px; box-sizing: border-box; }
     <div class="flex flex-col sm:flex-row gap-4 mt-8"><a href="account.html" class="secondary-btn rounded-xl px-6 py-3 font-semibold flex-1">View My Accounts</a><a href="user_dashboard.html" class="primary-btn rounded-xl px-6 py-3 font-semibold flex-1">Back to Dashboard</a></div>
   </section>
 
-  <section class="card p-6 mt-10 max-w-3xl mx-auto">
+  <section class="card p-6">
     <div class="flex flex-wrap justify-between items-center gap-3 mb-5"><h3 class="text-2xl font-bold text-[#8A1538]">Existing Accounts</h3><a href="account.html" class="font-semibold text-[#8A1538] hover:underline">View All Accounts</a></div>
-    <div class="border border-[#E7DED3] rounded-xl p-5 bg-[#FFFEFC]">
-      <div class="flex flex-wrap justify-between gap-4"><div><p class="font-bold text-[#8A1538]">Savings Account</p><p class="text-sm text-gray-600 mt-1">Account Number: 1000234567</p></div><div class="sm:text-right"><p class="font-bold">₹45,000</p><span class="text-xs font-semibold text-green-700 bg-green-100 px-2 py-1 rounded-full">Active</span></div></div>
+    <div class="space-y-4">
+      <div class="border border-[#E7DED3] rounded-xl p-5 bg-[#FFFEFC]">
+        <div class="flex flex-wrap justify-between gap-4"><div><p class="font-bold text-[#8A1538]">Savings Account</p><p class="text-sm text-gray-600 mt-1">Account Number: XXXX4582</p><p class="text-sm text-gray-500 mt-1">Kochi Main</p></div><div class="sm:text-right"><p class="font-bold">₹2,45,800</p><span class="text-xs font-semibold text-green-700 bg-green-100 px-2 py-1 rounded-full">Active</span></div></div>
+      </div>
+      <div class="border border-[#E7DED3] rounded-xl p-5 bg-[#FFFEFC]">
+        <div class="flex flex-wrap justify-between gap-4"><div><p class="font-bold text-[#8A1538]">Current Account</p><p class="text-sm text-gray-600 mt-1">Account Number: XXXX8974</p><p class="text-sm text-gray-500 mt-1">Trivandrum</p></div><div class="sm:text-right"><p class="font-bold">₹1,12,500</p><span class="text-xs font-semibold text-green-700 bg-green-100 px-2 py-1 rounded-full">Active</span></div></div>
+      </div>
     </div>
   </section>
+  </div>
 </main>
 
 <div id="confirmModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">

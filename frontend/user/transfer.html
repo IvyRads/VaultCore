@@ -111,6 +111,14 @@ font-size:14px;
 color:#B91C1C;
 margin-top:5px;
 }
+.transfer-layout{
+display:grid;
+grid-template-columns:minmax(0,1.15fr) minmax(500px,1fr);
+gap:24px;
+align-items:start;
+}
+.transfer-flow{min-width:0;}
+@media(max-width:1250px){.transfer-layout{grid-template-columns:1fr;}}
 @media(max-width:800px){
 .sidebar{width:76px;padding:18px 10px;}
 .brand{padding:0 10px 22px;justify-content:center;}
@@ -191,7 +199,10 @@ Transfer money securely between bank accounts
 
 <!-- TRANSFER FORM -->
 
-<div id="formCard" class="card p-8 max-w-3xl mx-auto">
+<div class="transfer-layout">
+<div class="transfer-flow">
+
+<div id="formCard" class="card p-8">
 
 <div class="flex items-center gap-3 mb-7">
 <div class="w-10 h-10 rounded-xl bg-[#8A1538] text-white grid place-items-center text-lg">↗</div>
@@ -290,7 +301,7 @@ Reset
 
 <!-- ERROR CARD -->
 
-<div id="failedCard" class="hidden card p-8 max-w-2xl mx-auto mt-8 text-center">
+<div id="failedCard" class="hidden card p-8 mt-8 text-center">
 
 <div class="text-5xl text-red-600">❌</div>
 
@@ -316,7 +327,7 @@ Return to Dashboard
 
 <!-- SUCCESS -->
 
-<div id="successCard" class="hidden card p-8 max-w-2xl mx-auto mt-8 text-center">
+<div id="successCard" class="hidden card p-8 mt-8 text-center">
 
 <div class="text-5xl text-green-600">✓</div>
 
@@ -351,7 +362,9 @@ Back to Dashboard
 
 <!-- RECENT TRANSFERS -->
 
-<div class="card p-6 mt-10">
+</div>
+
+<div class="card p-6 recent-transfers">
 
 <div class="flex justify-between items-center mb-5">
 
@@ -365,23 +378,33 @@ View All Transactions
 
 </div>
 
-<div class="overflow-auto">
+<div>
 
-<table class="w-full">
+<table class="w-full table-fixed">
+
+<colgroup>
+<col style="width:18%">
+<col style="width:25%">
+<col style="width:18%">
+<col style="width:18%">
+<col style="width:21%">
+</colgroup>
 
 <thead class="bg-[#F8F6F2]">
 <tr>
-<th class="p-3 text-left">Transaction ID</th>
-<th class="p-3 text-left">Recipient</th>
-<th class="p-3 text-left">Amount</th>
-<th class="p-3 text-left">Date</th>
-<th class="p-3 text-left">Status</th>
+<th class="p-2 text-left text-sm">Transaction ID</th>
+<th class="p-2 text-left text-sm">Recipient</th>
+<th class="p-2 text-left text-sm">Amount</th>
+<th class="p-2 text-left text-sm">Date</th>
+<th class="p-2 text-left text-sm">Status</th>
 </tr>
 </thead>
 
 <tbody id="recentTable"></tbody>
 
 </table>
+
+</div>
 
 </div>
 
@@ -461,11 +484,11 @@ recentTransfers.forEach(r=>{
 
 tbody.innerHTML+=`
 <tr class="border-b">
-<td class="p-3">${r[0]}</td>
-<td class="p-3">${r[1]}</td>
-<td class="p-3">${r[2]}</td>
-<td class="p-3">${r[3]}</td>
-<td class="p-3 ${r[4]=="Success"?"text-green-700":"text-red-700"}">${r[4]}</td>
+<td class="p-2 text-sm">${r[0]}</td>
+<td class="p-2 text-sm">${r[1]}</td>
+<td class="p-2 text-sm">${r[2]}</td>
+<td class="p-2 text-sm">${r[3]}</td>
+<td class="p-2 text-sm ${r[4]=="Success"?"text-green-700":"text-red-700"}">${r[4]}</td>
 </tr>`;
 
 });
