@@ -1,0 +1,630 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Transaction Monitoring | VaultCore Banking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        vault: '#8A1538',
+                        gold: '#D4AF37',
+                        cream: '#F8F6F2',
+                        line: '#E7DED3',
+                        slate: '#5A6572',
+                        ink: '#20262E'
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .glass-card { background: rgba(255, 255, 255, 0.9); }
+        .status-badge { display: inline-flex; align-items: center; border-radius: 9999px; padding: 0.3rem 0.7rem; font-size: 0.72rem; font-weight: 700; }
+        .type-pill { display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 9999px; padding: 0.3rem 0.7rem; font-size: 0.72rem; font-weight: 700; }
+        .table-scroll { scrollbar-width: thin; scrollbar-color: #d2c7bd #f8f6f2; }
+        .table-scroll::-webkit-scrollbar { height: 10px; }
+        .table-scroll::-webkit-scrollbar-thumb { background: #d2c7bd; border-radius: 9999px; }
+    </style>
+</head>
+<body class="min-h-screen bg-cream text-ink">
+    <div class="flex min-h-screen">
+        <aside class="hidden w-64 shrink-0 bg-ink p-5 text-white lg:flex lg:flex-col">
+            <a href="admin_dashboard.html" class="mb-10 flex items-center gap-3 px-3 text-white no-underline">
+                <span class="grid h-10 w-10 place-items-center rounded-xl bg-vault text-lg font-bold">V</span>
+                <span>
+                    <strong class="block tracking-wide">VAULTCORE</strong>
+                    <small class="text-gold">BANKING</small>
+                </span>
+            </a>
+
+            <nav class="flex flex-1 flex-col space-y-2 text-sm">
+                <a class="rounded-lg px-4 py-3 text-gray-300 hover:bg-white/10" href="admin_dashboard.html">🏠 &nbsp; Dashboard</a>
+                <a class="rounded-lg px-4 py-3 text-gray-300 hover:bg-white/10" href="customer_management.html">👥 &nbsp; Customer Management</a>
+                <a class="rounded-lg px-4 py-3 text-gray-300 hover:bg-white/10" href="branches.html">🏦 &nbsp; Multi-Branch Management</a>
+                <a class="rounded-lg px-4 py-3 text-gray-300 hover:bg-white/10" href="accounts.html">💳 &nbsp; Account Management</a>
+                <a class="rounded-lg bg-vault px-4 py-3 font-semibold text-white shadow-lg" href="transaction_monitoring.html">📜 &nbsp; Transaction Monitoring</a>
+                <a class="rounded-lg px-4 py-3 text-gray-300 hover:bg-white/10" href="global_search.html">🔍 &nbsp; Global Search</a>
+                <a class="rounded-lg px-4 py-3 text-gray-300 hover:bg-white/10" href="audit_logs.html">📝 &nbsp; Audit Log Monitoring</a>
+                <a class="mt-auto rounded-lg border border-white/20 px-4 py-3 text-gray-200 hover:bg-white/10" href="../index.html">🚪 &nbsp; Logout</a>
+            </nav>
+        </aside>
+
+        <main class="min-w-0 flex-1">
+            <header class="border-b border-line bg-white px-5 py-4 sm:px-8">
+                <div class="mx-auto max-w-7xl">
+                    <p class="text-xs text-slate">Admin Dashboard / Transaction Monitoring</p>
+                    <div class="mt-1 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h1 class="text-xl font-bold text-vault">Transaction Monitoring</h1>
+                            <p class="mt-1 text-sm text-slate">Monitor and review banking transactions</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="mx-auto max-w-7xl p-5 sm:p-8">
+                <section id="summaryCards" class="mb-6 grid grid-cols-2 gap-4 xl:grid-cols-4"></section>
+
+                <section class="mb-6 rounded-xl border border-line bg-white p-5 shadow-sm">
+                    <div class="mb-3 flex items-center justify-between gap-3">
+                        <div>
+                            <h2 class="text-lg font-bold text-ink">Search &amp; Filter Transactions</h2>
+                            <p class="text-xs text-slate">Ready for PostgreSQL queries using JOIN, WHERE, GROUP BY, DATE and AMOUNT filtering.</p>
+                        </div>
+                    </div>
+
+                    <form id="filterForm" class="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+                        <input id="searchInput" type="text" placeholder="Search by Transaction ID, Account Number or Customer ID..." class="rounded-lg border border-line bg-white px-3 py-2.5 text-sm text-ink outline-vault xl:col-span-2" />
+
+                        <select id="typeFilter" class="rounded-lg border border-line bg-white px-3 py-2.5 text-sm text-ink">
+                            <option value="All">Transaction Type: All</option>
+                            <option value="Deposit">Deposit</option>
+                            <option value="Withdrawal">Withdrawal</option>
+                            <option value="Transfer">Transfer</option>
+                        </select>
+
+                        <select id="statusFilter" class="rounded-lg border border-line bg-white px-3 py-2.5 text-sm text-ink">
+                            <option value="All">Status: All</option>
+                            <option value="Success">Success</option>
+                            <option value="Failed">Failed</option>
+                            <option value="Pending">Pending</option>
+                        </select>
+
+                        <select id="branchFilter" class="rounded-lg border border-line bg-white px-3 py-2.5 text-sm text-ink">
+                            <option value="All">Branch: All Branches</option>
+                            <option value="Trivandrum">Trivandrum</option>
+                            <option value="Kochi">Kochi</option>
+                            <option value="Kollam">Kollam</option>
+                            <option value="Kozhikode">Kozhikode</option>
+                        </select>
+
+                        <label class="text-sm text-slate">
+                            <span class="mb-1 block">From</span>
+                            <input id="fromDate" type="date" class="w-full rounded-lg border border-line bg-white px-3 py-2.5 text-sm text-ink outline-vault" />
+                        </label>
+
+                        <label class="text-sm text-slate">
+                            <span class="mb-1 block">To</span>
+                            <input id="toDate" type="date" class="w-full rounded-lg border border-line bg-white px-3 py-2.5 text-sm text-ink outline-vault" />
+                        </label>
+
+                        <label class="text-sm text-slate">
+                            <span class="mb-1 block">Minimum Amount</span>
+                            <input id="minAmount" type="number" min="0" step="100" placeholder="₹0" class="w-full rounded-lg border border-line bg-white px-3 py-2.5 text-sm text-ink outline-vault" />
+                        </label>
+
+                        <label class="text-sm text-slate">
+                            <span class="mb-1 block">Maximum Amount</span>
+                            <input id="maxAmount" type="number" min="0" step="100" placeholder="₹100000" class="w-full rounded-lg border border-line bg-white px-3 py-2.5 text-sm text-ink outline-vault" />
+                        </label>
+
+                        <div class="flex items-end gap-2 xl:col-span-1">
+                            <button type="submit" class="flex-1 rounded-lg bg-vault px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#6e102d]">Search</button>
+                            <button type="button" id="resetFilters" class="rounded-lg border border-line bg-white px-4 py-2.5 text-sm font-semibold text-slate hover:bg-cream">Reset</button>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="mb-6 rounded-xl border border-line bg-white shadow-sm">
+                    <div class="flex items-center justify-between border-b border-line px-5 py-4">
+                        <div>
+                            <h2 class="font-bold text-ink">Recent Activity</h2>
+                            <p class="text-xs text-slate">Latest 5 transaction records</p>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-[420px] text-left text-sm">
+                            <thead class="bg-cream text-ink">
+                                <tr>
+                                    <th class="px-4 py-3 font-semibold">Transaction ID</th>
+                                    <th class="px-4 py-3 font-semibold">Type</th>
+                                    <th class="px-4 py-3 font-semibold">Account</th>
+                                    <th class="px-4 py-3 font-semibold">Amount</th>
+                                    <th class="px-4 py-3 font-semibold">Time</th>
+                                    <th class="px-4 py-3 font-semibold">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentActivityBody"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="mb-6 rounded-xl border border-line bg-white shadow-sm">
+                    <div class="border-b border-line px-5 py-4">
+                        <h2 class="font-bold text-ink">Branch-wise Transaction Summary</h2>
+                        <p class="text-xs text-slate">Aggregated by branch using COUNT(*) and SUM(amount)</p>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-[520px] text-left text-sm">
+                            <thead class="bg-cream text-ink">
+                                <tr>
+                                    <th class="px-5 py-3 font-semibold">Branch</th>
+                                    <th class="px-5 py-3 font-semibold">Transactions</th>
+                                    <th class="px-5 py-3 font-semibold">Total Value</th>
+                                </tr>
+                            </thead>
+                            <tbody id="branchSummaryBody"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="overflow-hidden rounded-xl border border-line bg-white shadow-sm">
+                    <div class="flex items-center justify-between border-b border-line px-5 py-4">
+                        <div>
+                            <h2 class="font-bold text-ink">All Transactions</h2>
+                            <p id="recordCount" class="text-xs text-slate"></p>
+                        </div>
+                        <span class="rounded-full bg-cream px-3 py-1 text-xs font-semibold text-vault">Read-only audit trail</span>
+                    </div>
+
+                    <div class="table-scroll overflow-x-auto">
+                        <table class="w-full min-w-[1200px] text-left text-sm">
+                            <thead class="bg-cream text-ink">
+                                <tr>
+                                    <th class="px-4 py-3 font-semibold">Transaction ID</th>
+                                    <th class="px-4 py-3 font-semibold">Account Number</th>
+                                    <th class="px-4 py-3 font-semibold">Customer</th>
+                                    <th class="px-4 py-3 font-semibold">Branch</th>
+                                    <th class="px-4 py-3 font-semibold">Transaction Type</th>
+                                    <th class="px-4 py-3 font-semibold">Amount</th>
+                                    <th class="px-4 py-3 font-semibold">Date &amp; Time</th>
+                                    <th class="px-4 py-3 font-semibold">Status</th>
+                                    <th class="px-4 py-3 font-semibold">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="border-t border-line bg-white px-5 py-4">
+                        <div id="pagination" class="flex flex-wrap items-center justify-center gap-2"></div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <div id="transactionModal" class="fixed inset-0 z-20 hidden items-center justify-center bg-ink/60 p-4" role="dialog" aria-modal="true">
+        <div class="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl bg-white shadow-2xl">
+            <div class="flex items-center justify-between border-b border-line px-6 py-4">
+                <div>
+                    <h2 class="text-xl font-bold text-vault">Transaction Details</h2>
+                    <p id="modalTransactionId" class="text-xs text-slate"></p>
+                </div>
+                <button id="closeModal" class="text-3xl leading-none text-slate hover:text-ink" aria-label="Close modal">×</button>
+            </div>
+
+            <div id="modalBody" class="p-6"></div>
+
+            <div class="flex flex-wrap justify-end gap-3 border-t border-line p-5">
+                <a href="accounts.html" class="rounded-lg border border-line px-4 py-2 text-sm font-semibold text-slate hover:bg-cream">View Account</a>
+                <a href="customer_management.html" class="rounded-lg border border-line px-4 py-2 text-sm font-semibold text-slate hover:bg-cream">View Customer</a>
+                <a href="branches.html" class="rounded-lg border border-line px-4 py-2 text-sm font-semibold text-slate hover:bg-cream">View Branch</a>
+                <a href="audit_logs.html" class="rounded-lg bg-vault px-4 py-2 text-sm font-semibold text-white hover:bg-[#6e102d]">View Audit Log</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock transaction data used for the student project UI.
+        // Replace this array with Spring Boot REST API calls to PostgreSQL joined records later.
+        const transactions = [
+            {
+                id: 'TXN10001', account: '1000234567', customerId: 'C1001', customer: 'Arjun Nair', branch: 'Trivandrum', branchId: 'B001', ifsc: 'VLTB000001', accountType: 'Savings',
+                type: 'Deposit', amount: 10000, direction: 'Incoming', date: '2026-09-16', time: '10:42 AM', status: 'Success', description: 'Cash deposit credited to savings account.',
+                senderAccount: null, senderCustomer: null, senderBranch: null, receiverAccount: null, receiverCustomer: null, receiverBranch: null
+            },
+            {
+                id: 'TXN10002', account: '1000238912', customerId: 'C1002', customer: 'Ananya S', branch: 'Kochi', branchId: 'B002', ifsc: 'VLTB000002', accountType: 'Current',
+                type: 'Withdrawal', amount: 2500, direction: 'Outgoing', date: '2026-09-16', time: '11:15 AM', status: 'Success', description: 'ATM cash withdrawal completed.',
+                senderAccount: null, senderCustomer: null, senderBranch: null, receiverAccount: null, receiverCustomer: null, receiverBranch: null
+            },
+            {
+                id: 'TXN10003', account: '1000234567', customerId: 'C1001', customer: 'Arjun Nair', branch: 'Trivandrum', branchId: 'B001', ifsc: 'VLTB000001', accountType: 'Savings',
+                type: 'Transfer', amount: 5000, direction: 'Outgoing', date: '2026-09-16', time: '12:05 PM', status: 'Failed', description: 'Fund transfer failed because insufficient verification data was present.',
+                senderAccount: '1000234567', senderCustomer: 'Arjun Nair', senderBranch: 'Trivandrum', receiverAccount: '1000238912', receiverCustomer: 'Ananya S', receiverBranch: 'Kochi'
+            },
+            {
+                id: 'TXN10004', account: '1000239001', customerId: 'C1003', customer: 'Rahul K', branch: 'Kollam', branchId: 'B003', ifsc: 'VLTB000003', accountType: 'Savings',
+                type: 'Deposit', amount: 3500, direction: 'Incoming', date: '2026-09-15', time: '09:30 AM', status: 'Pending', description: 'Deposit awaiting branch verification.',
+                senderAccount: null, senderCustomer: null, senderBranch: null, receiverAccount: null, receiverCustomer: null, receiverBranch: null
+            },
+            {
+                id: 'TXN10005', account: '1000240123', customerId: 'C1004', customer: 'Meera Menon', branch: 'Kozhikode', branchId: 'B004', ifsc: 'VLTB000004', accountType: 'Savings',
+                type: 'Transfer', amount: 1200, direction: 'Incoming', date: '2026-09-14', time: '03:10 PM', status: 'Success', description: 'Transfer received from Arjun Nair.',
+                senderAccount: '1000234567', senderCustomer: 'Arjun Nair', senderBranch: 'Trivandrum', receiverAccount: '1000240123', receiverCustomer: 'Meera Menon', receiverBranch: 'Kozhikode'
+            },
+            {
+                id: 'TXN10006', account: '1000238912', customerId: 'C1002', customer: 'Ananya S', branch: 'Kochi', branchId: 'B002', ifsc: 'VLTB000002', accountType: 'Current',
+                type: 'Deposit', amount: 48000, direction: 'Incoming', date: '2026-09-13', time: '08:15 AM', status: 'Success', description: 'Bulk deposit from business account settlement.',
+                senderAccount: null, senderCustomer: null, senderBranch: null, receiverAccount: null, receiverCustomer: null, receiverBranch: null
+            },
+            {
+                id: 'TXN10007', account: '1000234567', customerId: 'C1001', customer: 'Arjun Nair', branch: 'Trivandrum', branchId: 'B001', ifsc: 'VLTB000001', accountType: 'Savings',
+                type: 'Withdrawal', amount: 7000, direction: 'Outgoing', date: '2026-09-12', time: '01:42 PM', status: 'Success', description: 'Cash withdrawal recorded at branch counter.',
+                senderAccount: null, senderCustomer: null, senderBranch: null, receiverAccount: null, receiverCustomer: null, receiverBranch: null
+            },
+            {
+                id: 'TXN10008', account: '1000239001', customerId: 'C1003', customer: 'Rahul K', branch: 'Kollam', branchId: 'B003', ifsc: 'VLTB000003', accountType: 'Savings',
+                type: 'Transfer', amount: 6500, direction: 'Outgoing', date: '2026-09-11', time: '04:05 PM', status: 'Success', description: 'Transfer sent to Meera Menon.',
+                senderAccount: '1000239001', senderCustomer: 'Rahul K', senderBranch: 'Kollam', receiverAccount: '1000240123', receiverCustomer: 'Meera Menon', receiverBranch: 'Kozhikode'
+            },
+            {
+                id: 'TXN10009', account: '1000240123', customerId: 'C1004', customer: 'Meera Menon', branch: 'Kozhikode', branchId: 'B004', ifsc: 'VLTB000004', accountType: 'Savings',
+                type: 'Withdrawal', amount: 12000, direction: 'Outgoing', date: '2026-09-10', time: '10:00 AM', status: 'Failed', description: 'Withdrawal attempt failed due to account restriction.',
+                senderAccount: null, senderCustomer: null, senderBranch: null, receiverAccount: null, receiverCustomer: null, receiverBranch: null
+            },
+            {
+                id: 'TXN10010', account: '1000238912', customerId: 'C1002', customer: 'Ananya S', branch: 'Kochi', branchId: 'B002', ifsc: 'VLTB000002', accountType: 'Current',
+                type: 'Transfer', amount: 15000, direction: 'Incoming', date: '2026-09-09', time: '15:25 PM', status: 'Success', description: 'Transfer received from Rahul K.',
+                senderAccount: '1000239001', senderCustomer: 'Rahul K', senderBranch: 'Kollam', receiverAccount: '1000238912', receiverCustomer: 'Ananya S', receiverBranch: 'Kochi'
+            },
+            {
+                id: 'TXN10011', account: '1000234567', customerId: 'C1001', customer: 'Arjun Nair', branch: 'Trivandrum', branchId: 'B001', ifsc: 'VLTB000001', accountType: 'Savings',
+                type: 'Deposit', amount: 22000, direction: 'Incoming', date: '2026-09-08', time: '09:15 AM', status: 'Success', description: 'Salary credit deposit posted successfully.',
+                senderAccount: null, senderCustomer: null, senderBranch: null, receiverAccount: null, receiverCustomer: null, receiverBranch: null
+            },
+            {
+                id: 'TXN10012', account: '1000239001', customerId: 'C1003', customer: 'Rahul K', branch: 'Kollam', branchId: 'B003', ifsc: 'VLTB000003', accountType: 'Savings',
+                type: 'Withdrawal', amount: 5000, direction: 'Outgoing', date: '2026-09-17', time: '08:45 AM', status: 'Success', description: 'Counter withdrawal recorded as part of daily cash need.',
+                senderAccount: null, senderCustomer: null, senderBranch: null, receiverAccount: null, receiverCustomer: null, receiverBranch: null
+            }
+        ];
+
+        const perPage = 5;
+        let currentPage = 1;
+        let filteredTransactions = [...transactions];
+
+        const summaryCardsEl = document.getElementById('summaryCards');
+        const tableBody = document.getElementById('tableBody');
+        const recordCount = document.getElementById('recordCount');
+        const paginationEl = document.getElementById('pagination');
+        const recentActivityBody = document.getElementById('recentActivityBody');
+        const branchSummaryBody = document.getElementById('branchSummaryBody');
+        const filterForm = document.getElementById('filterForm');
+        const resetButton = document.getElementById('resetFilters');
+        const modal = document.getElementById('transactionModal');
+        const modalBody = document.getElementById('modalBody');
+        const modalId = document.getElementById('modalTransactionId');
+
+        function money(value) {
+            return `₹${Number(value).toLocaleString('en-IN')}`;
+        }
+
+        function typeBadge(type) {
+            const config = {
+                Deposit: 'bg-green-100 text-green-700',
+                Withdrawal: 'bg-amber-100 text-amber-800',
+                Transfer: 'bg-violet-100 text-violet-700'
+            };
+            const icons = { Deposit: '💰', Withdrawal: '💸', Transfer: '🔁' };
+            return `<span class="type-pill ${config[type] || 'bg-slate-100 text-slate-700'}">${icons[type] || '•'} ${type}</span>`;
+        }
+
+        function statusBadge(status) {
+            const config = {
+                Success: 'bg-green-100 text-green-700',
+                Failed: 'bg-red-100 text-red-700',
+                Pending: 'bg-amber-100 text-amber-800'
+            };
+            return `<span class="status-badge ${config[status] || 'bg-slate-100 text-slate-700'}">${status}</span>`;
+        }
+
+        function amountText(tx) {
+            if (tx.type === 'Deposit') return `+${money(tx.amount)}`;
+            if (tx.type === 'Withdrawal') return `-${money(tx.amount)}`;
+            if (tx.type === 'Transfer') {
+                return tx.direction === 'Incoming' ? `+${money(tx.amount)}` : `-${money(tx.amount)}`;
+            }
+            return money(tx.amount);
+        }
+
+        function formatDateTime(tx) {
+            return `${new Date(tx.date + 'T00:00:00').toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })} ${tx.time}`;
+        }
+
+        function getTodayTransactions() {
+            const today = new Date().toISOString().slice(0, 10);
+            return transactions.filter((tx) => tx.date === today).length;
+        }
+
+        function getSummaryCards() {
+            const total = transactions.length;
+            const today = getTodayTransactions();
+            const successful = transactions.filter((tx) => tx.status === 'Success').length;
+            const failed = transactions.filter((tx) => tx.status === 'Failed').length;
+            const totalValue = transactions.reduce((sum, tx) => sum + tx.amount, 0);
+
+            const cards = [
+                { label: 'Total Transactions', value: total.toLocaleString('en-IN'), tone: 'text-vault' },
+                { label: "Today's Transactions", value: today.toLocaleString('en-IN'), tone: 'text-ink' },
+                { label: 'Successful Transactions', value: successful.toLocaleString('en-IN'), tone: 'text-green-700' },
+                { label: 'Failed Transactions', value: failed.toLocaleString('en-IN'), tone: 'text-red-700' }
+            ];
+
+            summaryCardsEl.innerHTML = cards.map(card => `
+                <article class="rounded-xl border border-line bg-white p-4 shadow-sm">
+                    <p class="text-xs font-medium text-slate">${card.label}</p>
+                    <p class="mt-2 text-2xl font-bold ${card.tone}">${card.value}</p>
+                </article>
+            `).join('') + `
+                <article class="rounded-xl border border-line bg-white p-4 shadow-sm md:col-span-2 xl:col-span-1">
+                    <p class="text-xs font-medium text-slate">Total Transaction Value</p>
+                    <p class="mt-2 text-2xl font-bold text-vault">${money(totalValue)}</p>
+                    <p class="mt-1 text-[11px] text-slate">Approx. total of mock data</p>
+                </article>
+            `;
+        }
+
+        function filterTransactions() {
+            const searchText = document.getElementById('searchInput').value.trim().toLowerCase();
+            const type = document.getElementById('typeFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            const branch = document.getElementById('branchFilter').value;
+            const fromDate = document.getElementById('fromDate').value;
+            const toDate = document.getElementById('toDate').value;
+            const minAmount = Number(document.getElementById('minAmount').value || 0);
+            const maxAmount = Number(document.getElementById('maxAmount').value || Number.MAX_SAFE_INTEGER);
+
+            filteredTransactions = transactions.filter((tx) => {
+                const matchesSearch = !searchText || [tx.id, tx.account, tx.customerId, tx.customer].some((value) => String(value).toLowerCase().includes(searchText));
+                const matchesType = type === 'All' || tx.type === type;
+                const matchesStatus = status === 'All' || tx.status === status;
+                const matchesBranch = branch === 'All' || tx.branch === branch;
+                const matchesFrom = !fromDate || tx.date >= fromDate;
+                const matchesTo = !toDate || tx.date <= toDate;
+                const matchesMin = tx.amount >= minAmount;
+                const matchesMax = tx.amount <= maxAmount;
+
+                return matchesSearch && matchesType && matchesStatus && matchesBranch && matchesFrom && matchesTo && matchesMin && matchesMax;
+            });
+
+            currentPage = 1;
+            renderAll();
+        }
+
+        function renderPagination() {
+            const totalPages = Math.max(1, Math.ceil(filteredTransactions.length / perPage));
+            const pages = [];
+
+            for (let i = 1; i <= totalPages; i++) {
+                pages.push(`
+                    <button data-page="${i}" class="rounded border px-3 py-1.5 text-sm ${i === currentPage ? 'border-vault bg-vault text-white' : 'border-line bg-white text-slate'}">
+                        ${i}
+                    </button>
+                `);
+            }
+
+            paginationEl.innerHTML = `
+                <button data-nav="prev" class="rounded border border-line bg-white px-3 py-1.5 text-sm text-slate disabled:opacity-50" ${currentPage === 1 ? 'disabled' : ''}>Previous</button>
+                ${pages.join('')}
+                <button data-nav="next" class="rounded border border-line bg-white px-3 py-1.5 text-sm text-slate disabled:opacity-50" ${currentPage === totalPages ? 'disabled' : ''}>Next</button>
+            `;
+
+            paginationEl.querySelectorAll('[data-page]').forEach((button) => {
+                button.addEventListener('click', () => {
+                    currentPage = Number(button.dataset.page);
+                    renderTable();
+                    renderPagination();
+                });
+            });
+
+            paginationEl.querySelectorAll('[data-nav]').forEach((button) => {
+                button.addEventListener('click', () => {
+                    const nav = button.dataset.nav;
+                    if (nav === 'prev' && currentPage > 1) currentPage -= 1;
+                    if (nav === 'next' && currentPage < totalPages) currentPage += 1;
+                    renderTable();
+                    renderPagination();
+                });
+            });
+        }
+
+        function renderTable() {
+            const start = (currentPage - 1) * perPage;
+            const end = start + perPage;
+            const pageData = filteredTransactions.slice(start, end);
+
+            recordCount.textContent = `${filteredTransactions.length} transaction record${filteredTransactions.length === 1 ? '' : 's'} found`;
+
+            if (!pageData.length) {
+                tableBody.innerHTML = `<tr><td colspan="9" class="px-4 py-12 text-center text-slate">No transactions match the current filters.</td></tr>`;
+                return;
+            }
+
+            tableBody.innerHTML = pageData.map((tx) => `
+                <tr class="border-t border-line hover:bg-cream/70">
+                    <td class="px-4 py-3 font-semibold text-vault">${tx.id}</td>
+                    <td class="px-4 py-3">${tx.account}</td>
+                    <td class="px-4 py-3">
+                        <div class="font-medium text-ink">${tx.customer}</div>
+                        <div class="text-[11px] text-slate">${tx.customerId}</div>
+                    </td>
+                    <td class="px-4 py-3">${tx.branch}</td>
+                    <td class="px-4 py-3">${typeBadge(tx.type)}</td>
+                    <td class="px-4 py-3 font-semibold ${tx.type === 'Withdrawal' || (tx.type === 'Transfer' && tx.direction === 'Outgoing') ? 'text-red-700' : 'text-green-700'}">${amountText(tx)}</td>
+                    <td class="px-4 py-3">${formatDateTime(tx)}</td>
+                    <td class="px-4 py-3">${statusBadge(tx.status)}</td>
+                    <td class="px-4 py-3">
+                        <button class="font-semibold text-vault hover:underline" data-open="${tx.id}">View</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            tableBody.querySelectorAll('[data-open]').forEach((button) => {
+                button.addEventListener('click', () => openModal(button.dataset.open));
+            });
+        }
+
+        function renderRecentActivity() {
+            const latest = [...transactions].sort((a, b) => new Date(b.date + 'T00:00:00') - new Date(a.date + 'T00:00:00')).slice(0, 5);
+            recentActivityBody.innerHTML = latest.map((tx) => `
+                <tr class="border-t border-line">
+                    <td class="px-4 py-3 font-semibold text-vault">${tx.id}</td>
+                    <td class="px-4 py-3">${typeBadge(tx.type)}</td>
+                    <td class="px-4 py-3">${tx.account}</td>
+                    <td class="px-4 py-3 font-medium ${tx.type === 'Withdrawal' || (tx.type === 'Transfer' && tx.direction === 'Outgoing') ? 'text-red-700' : 'text-green-700'}">${amountText(tx)}</td>
+                    <td class="px-4 py-3 text-slate">${tx.time}</td>
+                    <td class="px-4 py-3">${statusBadge(tx.status)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderBranchSummary() {
+            const branchMap = {};
+            transactions.forEach((tx) => {
+                if (!branchMap[tx.branch]) {
+                    branchMap[tx.branch] = { count: 0, total: 0 };
+                }
+                branchMap[tx.branch].count += 1;
+                branchMap[tx.branch].total += tx.amount;
+            });
+
+            const rows = Object.entries(branchMap).sort((a, b) => b[1].count - a[1].count);
+            branchSummaryBody.innerHTML = rows.map(([branch, stats]) => `
+                <tr class="border-t border-line">
+                    <td class="px-5 py-3 font-medium">${branch}</td>
+                    <td class="px-5 py-3">${stats.count.toLocaleString('en-IN')}</td>
+                    <td class="px-5 py-3 font-semibold text-vault">${money(stats.total)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderAll() {
+            getSummaryCards();
+            renderRecentActivity();
+            renderBranchSummary();
+            renderTable();
+            renderPagination();
+        }
+
+        function openModal(txId) {
+            const tx = transactions.find((item) => item.id === txId);
+            if (!tx) return;
+
+            modalId.textContent = tx.id;
+            modalBody.innerHTML = `
+                <div class="space-y-6">
+                    <section>
+                        <h3 class="mb-3 text-sm font-bold uppercase tracking-wide text-slate">Transaction Information</h3>
+                        <div class="grid gap-3 rounded-lg bg-cream p-4 text-sm sm:grid-cols-2 xl:grid-cols-3">
+                            <div><span class="block text-[11px] uppercase tracking-wide text-slate">Transaction ID</span><span class="font-medium text-ink">${tx.id}</span></div>
+                            <div><span class="block text-[11px] uppercase tracking-wide text-slate">Transaction Type</span><span class="font-medium text-ink">${typeBadge(tx.type)}</span></div>
+                            <div><span class="block text-[11px] uppercase tracking-wide text-slate">Amount</span><span class="font-medium ${tx.type === 'Withdrawal' || (tx.type === 'Transfer' && tx.direction === 'Outgoing') ? 'text-red-700' : 'text-green-700'}">${amountText(tx)}</span></div>
+                            <div><span class="block text-[11px] uppercase tracking-wide text-slate">Date & Time</span><span class="font-medium text-ink">${formatDateTime(tx)}</span></div>
+                            <div><span class="block text-[11px] uppercase tracking-wide text-slate">Status</span><span class="font-medium">${statusBadge(tx.status)}</span></div>
+                            <div><span class="block text-[11px] uppercase tracking-wide text-slate">Description</span><span class="font-medium text-ink">${tx.description}</span></div>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h3 class="mb-3 text-sm font-bold uppercase tracking-wide text-slate">Account Information</h3>
+                        <div class="grid gap-3 rounded-lg bg-cream p-4 text-sm sm:grid-cols-2 xl:grid-cols-4">
+                            <div><span class="block text-[11px] uppercase tracking-wide text-slate">Account Number</span><span class="font-medium text-ink">${tx.account}</span></div>
+                            <div><span class="block text-[11px] uppercase tracking-wide text-slate">Account Type</span><span class="font-medium text-ink">${tx.accountType}</span></div>
+                            <div><span class="block text-[11px] uppercase tracking-wide text-slate">Customer ID</span><span class="font-medium text-ink">${tx.customerId}</span></div>
+                            <div><span class="block text-[11px] uppercase tracking-wide text-slate">Customer Name</span><span class="font-medium text-ink">${tx.customer}</span></div>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h3 class="mb-3 text-sm font-bold uppercase tracking-wide text-slate">Branch Information</h3>
+                        <div class="grid gap-3 rounded-lg bg-cream p-4 text-sm sm:grid-cols-2 xl:grid-cols-4">
+                            <div><span class="block text-[11px] uppercase tracking-wide text-slate">Branch ID</span><span class="font-medium text-ink">${tx.branchId}</span></div>
+                            <div><span class="block text-[11px] uppercase tracking-wide text-slate">Branch Name</span><span class="font-medium text-ink">${tx.branch}</span></div>
+                            <div><span class="block text-[11px] uppercase tracking-wide text-slate">IFSC Code</span><span class="font-medium text-ink">${tx.ifsc}</span></div>
+                            <div><span class="block text-[11px] uppercase tracking-wide text-slate">Status</span><span class="font-medium text-ink">${tx.status}</span></div>
+                        </div>
+                    </section>
+
+                    ${tx.type === 'Transfer' ? `
+                        <section>
+                            <h3 class="mb-3 text-sm font-bold uppercase tracking-wide text-slate">Fund Transfer Details</h3>
+                            <div class="grid gap-4 lg:grid-cols-2">
+                                <div class="rounded-lg border border-line bg-cream p-4">
+                                    <p class="mb-2 text-xs font-bold uppercase tracking-wide text-slate">From Account</p>
+                                    <div class="space-y-2 text-sm">
+                                        <div><span class="block text-[11px] uppercase tracking-wide text-slate">Account Number</span><span class="font-medium text-ink">${tx.senderAccount || tx.account}</span></div>
+                                        <div><span class="block text-[11px] uppercase tracking-wide text-slate">Customer</span><span class="font-medium text-ink">${tx.senderCustomer || tx.customer}</span></div>
+                                        <div><span class="block text-[11px] uppercase tracking-wide text-slate">Branch</span><span class="font-medium text-ink">${tx.senderBranch || tx.branch}</span></div>
+                                    </div>
+                                </div>
+                                <div class="rounded-lg border border-line bg-cream p-4">
+                                    <p class="mb-2 text-xs font-bold uppercase tracking-wide text-slate">To Account</p>
+                                    <div class="space-y-2 text-sm">
+                                        <div><span class="block text-[11px] uppercase tracking-wide text-slate">Account Number</span><span class="font-medium text-ink">${tx.receiverAccount || 'N/A'}</span></div>
+                                        <div><span class="block text-[11px] uppercase tracking-wide text-slate">Customer</span><span class="font-medium text-ink">${tx.receiverCustomer || 'N/A'}</span></div>
+                                        <div><span class="block text-[11px] uppercase tracking-wide text-slate">Branch</span><span class="font-medium text-ink">${tx.receiverBranch || 'N/A'}</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 rounded-lg border border-vault/30 bg-white p-4 text-sm">
+                                <div class="flex flex-wrap items-center justify-between gap-2">
+                                    <span class="text-slate">Amount</span>
+                                    <span class="text-xl font-bold ${tx.direction === 'Outgoing' ? 'text-red-700' : 'text-green-700'}">${amountText(tx)}</span>
+                                </div>
+                                <div class="mt-2 flex flex-wrap items-center justify-between gap-2">
+                                    <span class="text-slate">Status</span>
+                                    <span>${statusBadge(tx.status)}</span>
+                                </div>
+                            </div>
+                        </section>
+                    ` : ''}
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        filterForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            filterTransactions();
+        });
+
+        resetButton.addEventListener('click', () => {
+            filterForm.reset();
+            filteredTransactions = [...transactions];
+            currentPage = 1;
+            renderAll();
+        });
+
+        document.getElementById('closeModal').addEventListener('click', closeModal);
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) closeModal();
+        });
+
+        renderAll();
+    </script>
+</body>
+</html>
