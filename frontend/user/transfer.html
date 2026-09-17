@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transfer Funds | VaultCore Banking</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body{
+background:linear-gradient(135deg,#F8F6F2 0%,#E7DED3 100%);
+font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+color:#20262E;
+}
+.sidebar{
+position:fixed;
+left:0;
+top:0;
+width:250px;
+height:100%;
+background:#20262E;
+padding:24px 16px;
+display:flex;
+flex-direction:column;
+color:white;
+}
+.brand{
+display:flex;
+align-items:center;
+gap:10px;
+padding-bottom:24px;
+border-bottom:1px solid rgba(255,255,255,.15);
+margin-bottom:20px;
+}
+.brand-mark{
+width:38px;
+height:38px;
+background:#8A1538;
+border-radius:10px;
+display:grid;
+place-items:center;
+font-weight:bold;
+}
+.side-nav a{
+display:block;
+padding:12px;
+border-radius:8px;
+margin-bottom:8px;
+color:#d9dce0;
+text-decoration:none;
+font-weight:600;
+transition:.2s;
+}
+.side-nav a:hover{background:#5A6572;color:white;}
+.side-nav a.active{background:#8A1538;color:white;}
+.logout{
+margin-top:auto;
+border:1px solid rgba(255,255,255,.2);
+}
+.container{
+margin-left:250px;
+padding:30px;
+}
+.card{
+background:white;
+border-radius:20px;
+border:1px solid #E7DED3;
+box-shadow:0 10px 30px rgba(90,101,114,.12);
+}
+.card:hover{box-shadow:0 14px 34px rgba(90,101,114,.16);}
+.primary-btn{
+background:#8A1538;
+color:white;
+}
+.primary-btn:hover{background:#B1124D;}
+.secondary-btn{
+background:#5A6572;
+color:white;
+}
+.secondary-btn:hover{background:#20262E;}
+input,select{
+    border:1px solid #E7DED3;
+    border-radius:12px;
+    padding:30px 16px;  
+    width:100%;
+    height:48px;
+    background:#FFFEFC;
+    transition:border-color .2s,box-shadow .2s;
+    box-sizing:border-box;
+}
+input {
+    text-indent: 15px;
+}
+
+input::placeholder {
+    text-indent: 15px;
+}
+input::placeholder{font-size:14px;color:#6B7280;opacity:1;}
+input:focus,select:focus{outline:none;border-color:#8A1538;box-shadow:0 0 0 3px rgba(138,21,56,.12);}
+.field-label{color:#8A1538;font-weight:700;font-size:.9rem;letter-spacing:.02em;}
+.form-divider{border:0;border-top:1px solid #E7DED3;margin:28px 0;}
+.error{
+font-size:14px;
+color:#B91C1C;
+margin-top:5px;
+}
+@media(max-width:800px){
+.sidebar{width:76px;padding:18px 10px;}
+.brand span:not(.brand-mark){display:none;}
+.side-nav .label{display:none;}
+.container{margin-left:76px;padding:18px;}
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar">
+
+<div class="brand">
+<div class="brand-mark">V</div>
+<div>
+<div class="font-bold">VAULTCORE</div>
+<div class="text-xs text-yellow-500 tracking-widest">BANKING SYSTEM</div>
+</div>
+</div>
+
+<nav class="side-nav flex flex-col flex-1">
+<a href="user_dashboard.html">🏠 <span class="label">Home</span></a>
+<a href="profile.html">👤 <span class="label">Profile</span></a>
+<a href="account.html">🏦 <span class="label">Accounts</span></a>
+<a class="active" href="transfer.html">💸 <span class="label">Transfer</span></a>
+<a href="transactions.html">📜 <span class="label">Transactions</span></a>
+<a href="support.html">📞 <span class="label">Support</span></a>
+<a class="logout" href="index.html">🚪 <span class="label">Logout</span></a>
+</nav>
+
+</aside>
+
+<!-- MAIN CONTENT -->
+
+<div class="container">
+
+<h1 class="text-4xl font-bold text-center text-[#8A1538]">
+VAULTCORE <span class="text-[#D4AF37]">BANKING</span>
+</h1>
+
+<h2 class="text-center text-xl text-gray-600 mt-2">Transfer Funds</h2>
+
+<p class="text-center text-gray-500 mt-2">
+Customer Dashboard / Transfer
+</p>
+
+<p class="text-center text-gray-600 mb-8">
+Transfer money securely between bank accounts
+</p>
+
+<!-- ACCOUNT SUMMARY -->
+
+<div class="card p-6 mb-8 border-l-4 border-l-[#D4AF37]">
+
+<div class="flex flex-wrap justify-between items-center">
+
+<div class="space-y-1">
+<p><span class="font-semibold text-[#8A1538]">Account Holder:</span> Neha J Shibu</p>
+<p><span class="font-semibold text-[#8A1538]">From Account:</span> <span id="summaryAccount">Savings Account</span></p>
+<p><span class="font-semibold text-[#8A1538]">Account Number:</span> <span id="summaryNumber">1000234567</span></p>
+<p><span class="font-semibold text-[#8A1538]">Branch:</span> Trivandrum Main Branch</p>
+</div>
+
+<div class="text-center mt-4 md:mt-0">
+<p class="text-gray-500">Available Balance</p>
+<h3 id="balanceDisplay" class="text-4xl font-bold text-[#8A1538]">₹45,000</h3>
+</div>
+
+</div>
+
+</div>
+
+<!-- TRANSFER FORM -->
+
+<div id="formCard" class="card p-8 max-w-3xl mx-auto">
+
+<div class="flex items-center gap-3 mb-7">
+<div class="w-10 h-10 rounded-xl bg-[#8A1538] text-white grid place-items-center text-lg">↗</div>
+<div>
+<h3 class="text-2xl font-bold text-[#8A1538]">Transfer Form</h3>
+<p class="text-sm text-gray-500 mt-1">Enter the recipient’s bank details to continue.</p>
+</div>
+</div>
+
+<!-- Sender -->
+
+<div class="mb-6">
+
+<label class="block mb-2 field-label">
+Sender Account
+</label>
+
+<select id="senderAccount">
+<option value="">Select Account</option>
+<option value="Savings">Savings Account</option>
+<option value="Current">Current Account</option>
+</select>
+
+<p class="mt-2 text-gray-600">
+Current Balance:
+<span id="senderBalance" class="font-bold">₹45,000</span>
+</p>
+
+<div id="senderError" class="error"></div>
+
+</div>
+
+<!-- Recipient -->
+
+<div class="mb-6">
+
+<label class="block mb-2 field-label">
+Recipient Details
+</label>
+
+<div class="space-y-4">
+<input id="newName" placeholder="Recipient name">
+<input id="newAccount" inputmode="numeric" placeholder="Recipient account number">
+<input id="confirmAccount" inputmode="numeric" placeholder="Confirm recipient account number">
+<input id="ifsc" placeholder="IFSC code">
+
+<div id="newError" class="error"></div>
+
+</div>
+
+</div>
+
+<!-- Transfer Details -->
+
+<hr class="form-divider">
+
+<div class="space-y-5">
+
+<div>
+
+<label class="block mb-2 field-label">
+Amount
+</label>
+
+<input id="amount" type="number" placeholder="Enter transfer amount" class="font-semibold">
+
+<div id="amountError" class="error"></div>
+
+</div>
+
+<div>
+
+<label class="block mb-2 field-label">
+Remarks
+</label>
+
+<input id="remarks" placeholder="Enter a note (optional)">
+
+</div>
+
+<div class="flex gap-4 pt-3">
+
+<button onclick="openConfirmation()" class="primary-btn px-6 py-3 rounded-xl font-semibold flex-1">
+Transfer Money
+</button>
+
+<button onclick="resetForm()" class="secondary-btn px-6 py-3 rounded-xl font-semibold flex-1">
+Reset
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- ERROR CARD -->
+
+<div id="failedCard" class="hidden card p-8 max-w-2xl mx-auto mt-8 text-center">
+
+<div class="text-5xl text-red-600">❌</div>
+
+<h3 class="text-3xl font-bold text-red-700 mt-3">
+Transfer Failed
+</h3>
+
+<p id="failureReason" class="mt-4 text-lg"></p>
+
+<div class="flex gap-4 mt-8">
+
+<button onclick="retryTransfer()" class="primary-btn px-6 py-3 rounded-xl flex-1">
+Try Again
+</button>
+
+<a href="user_dashboard.html" class="secondary-btn px-6 py-3 rounded-xl flex-1 text-center">
+Return to Dashboard
+</a>
+
+</div>
+
+</div>
+
+<!-- SUCCESS -->
+
+<div id="successCard" class="hidden card p-8 max-w-2xl mx-auto mt-8 text-center">
+
+<div class="text-5xl text-green-600">✓</div>
+
+<h3 class="text-3xl font-bold text-green-700 mt-3">
+Transfer Successful
+</h3>
+
+<div class="mt-6 text-left space-y-3">
+
+<p><strong>Transaction Reference:</strong> <span id="successRef"></span></p>
+<p><strong>Transferred Amount:</strong> <span id="successAmount"></span></p>
+<p><strong>Recipient:</strong> <span id="successRecipient"></span></p>
+<p><strong>Recipient Account:</strong> <span id="successAccount"></span></p>
+<p><strong>Remaining Balance:</strong> <span id="successBalance"></span></p>
+<p><strong>Date & Time:</strong> <span id="successTime"></span></p>
+
+</div>
+
+<div class="flex gap-4 mt-8">
+
+<button class="secondary-btn px-6 py-3 rounded-xl flex-1">
+Download Receipt
+</button>
+
+<a href="user_dashboard.html" class="primary-btn px-6 py-3 rounded-xl flex-1 text-center">
+Back to Dashboard
+</a>
+
+</div>
+
+</div>
+
+<!-- RECENT TRANSFERS -->
+
+<div class="card p-6 mt-10">
+
+<div class="flex justify-between items-center mb-5">
+
+<h3 class="text-2xl font-bold text-[#8A1538]">
+Recent Transfers
+</h3>
+
+<a href="transactions.html" class="text-[#8A1538] font-semibold hover:underline">
+View All Transactions
+</a>
+
+</div>
+
+<div class="overflow-auto">
+
+<table class="w-full">
+
+<thead class="bg-[#F8F6F2]">
+<tr>
+<th class="p-3 text-left">Transaction ID</th>
+<th class="p-3 text-left">Recipient</th>
+<th class="p-3 text-left">Amount</th>
+<th class="p-3 text-left">Date</th>
+<th class="p-3 text-left">Status</th>
+</tr>
+</thead>
+
+<tbody id="recentTable"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- CONFIRMATION MODAL -->
+
+<div id="confirmModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+
+<div class="bg-white rounded-3xl w-full max-w-md p-8">
+
+<h3 class="text-2xl font-bold text-[#8A1538] mb-5">
+Confirm Transfer
+</h3>
+
+<div class="space-y-3">
+
+<p><strong>From:</strong> <span id="confirmFrom"></span></p>
+<p><strong>To:</strong> <span id="confirmTo"></span></p>
+<p><strong>Account:</strong> <span id="confirmAccountNo"></span></p>
+<p><strong>Amount:</strong> <span id="confirmAmount"></span></p>
+<p><strong>Remarks:</strong> <span id="confirmRemarks"></span></p>
+
+</div>
+
+<div class="flex gap-4 mt-8">
+
+<button onclick="closeModal()" class="secondary-btn px-5 py-3 rounded-xl flex-1">
+Cancel
+</button>
+
+<button onclick="confirmTransfer()" class="primary-btn px-5 py-3 rounded-xl flex-1">
+Confirm Transfer
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+/* =====================================================
+MOCK DATA
+
+Future Spring Boot APIs:
+
+GET /api/accounts
+POST /api/transactions/transfer
+=====================================================*/
+
+const accounts={
+Savings:{number:"1000234567",balance:45000},
+Current:{number:"2000456789",balance:72000}
+};
+
+let recentTransfers=[
+["TXN001","Arjun Nair","₹5,000","16 Sep","Success"],
+["TXN002","Ananya S","₹2,500","15 Sep","Success"],
+["TXN003","Rahul K","₹1,200","12 Sep","Failed"],
+["TXN004","Arjun Nair","₹900","09 Sep","Success"],
+["TXN005","Ananya S","₹6,000","02 Sep","Success"]
+];
+
+/* Load tables */
+
+function loadRecent(){
+
+const tbody=document.getElementById("recentTable");
+
+tbody.innerHTML="";
+
+recentTransfers.forEach(r=>{
+
+tbody.innerHTML+=`
+<tr class="border-b">
+<td class="p-3">${r[0]}</td>
+<td class="p-3">${r[1]}</td>
+<td class="p-3">${r[2]}</td>
+<td class="p-3">${r[3]}</td>
+<td class="p-3 ${r[4]=="Success"?"text-green-700":"text-red-700"}">${r[4]}</td>
+</tr>`;
+
+});
+
+}
+
+loadRecent();
+
+/* Update account */
+
+document.getElementById("senderAccount").addEventListener("change",e=>{
+
+if(!e.target.value)return;
+
+const a=accounts[e.target.value];
+
+document.getElementById("senderBalance").innerText="₹"+a.balance.toLocaleString();
+document.getElementById("summaryAccount").innerText=e.target.value+" Account";
+document.getElementById("summaryNumber").innerText=a.number;
+document.getElementById("balanceDisplay").innerText="₹"+a.balance.toLocaleString();
+
+});
+
+/* Validation */
+
+function validate(){
+
+document.querySelectorAll(".error").forEach(e=>e.innerHTML="");
+
+const sender=document.getElementById("senderAccount").value;
+const amount=Number(document.getElementById("amount").value);
+
+if(!sender){
+document.getElementById("senderError").innerText="Please select a sender account.";
+return false;
+}
+
+const name=document.getElementById("newName").value.trim();
+const a=document.getElementById("newAccount").value;
+const c=document.getElementById("confirmAccount").value;
+const ifsc=document.getElementById("ifsc").value.trim();
+
+if(!name||!a||!c||!ifsc){
+document.getElementById("newError").innerText="Please complete all recipient details.";
+return false;
+}
+
+if(a!==c){
+document.getElementById("newError").innerText="Account numbers do not match.";
+return false;
+}
+
+if(!ifsc){
+document.getElementById("newError").innerText="Please enter a valid IFSC code.";
+return false;
+}
+
+if(!amount||amount<=0){
+document.getElementById("amountError").innerText="Please enter a valid amount.";
+return false;
+}
+
+if(amount>accounts[sender].balance){
+showFailure("Insufficient Balance");
+return false;
+}
+
+return true;
+
+}
+
+/* Confirmation */
+
+function openConfirmation(){
+
+if(!validate())return;
+
+const sender=document.getElementById("senderAccount").value;
+
+const recipient=document.getElementById("newName").value.trim();
+const account=document.getElementById("newAccount").value;
+
+document.getElementById("confirmFrom").innerText=sender+" Account";
+document.getElementById("confirmTo").innerText=recipient;
+document.getElementById("confirmAccountNo").innerText=account;
+document.getElementById("confirmAmount").innerText="₹"+Number(document.getElementById("amount").value).toLocaleString();
+document.getElementById("confirmRemarks").innerText=document.getElementById("remarks").value||"-";
+
+document.getElementById("confirmModal").classList.remove("hidden");
+
+}
+
+function closeModal(){
+
+document.getElementById("confirmModal").classList.add("hidden");
+
+}
+
+/* =====================================================
+Future Backend Flow
+
+POST /api/transactions/transfer
+
+Payload:
+{
+sender_account_no:"1000234567",
+receiver_account_no:"1000456789",
+transaction_type:"TRANSFER",
+amount:5000,
+description:"Monthly Rent"
+}
+
+Spring Boot:
+BEGIN TRANSACTION
+Check balance
+Debit sender
+Credit receiver
+Insert transaction
+COMMIT
+On failure: ROLLBACK
+=====================================================*/
+
+function confirmTransfer(){
+
+closeModal();
+
+const sender=document.getElementById("senderAccount").value;
+const amount=Number(document.getElementById("amount").value);
+
+accounts[sender].balance-=amount;
+
+const ref="TXN2026"+Math.floor(Math.random()*9000+1000);
+
+const recipient=document.getElementById("newName").value.trim();
+const account=document.getElementById("newAccount").value;
+
+document.getElementById("successRef").innerText=ref;
+document.getElementById("successAmount").innerText="₹"+amount.toLocaleString();
+document.getElementById("successRecipient").innerText=recipient;
+document.getElementById("successAccount").innerText=account;
+document.getElementById("successBalance").innerText="₹"+accounts[sender].balance.toLocaleString();
+document.getElementById("successTime").innerText=new Date().toLocaleString("en-IN");
+
+recentTransfers.unshift([ref,recipient,"₹"+amount.toLocaleString(),new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"short"}),"Success"]);
+recentTransfers=recentTransfers.slice(0,5);
+loadRecent();
+
+document.getElementById("formCard").classList.add("hidden");
+document.getElementById("successCard").classList.remove("hidden");
+
+}
+
+/* Failure */
+
+function showFailure(reason){
+
+document.getElementById("failureReason").innerText=reason;
+document.getElementById("failedCard").classList.remove("hidden");
+
+}
+
+function retryTransfer(){
+
+document.getElementById("failedCard").classList.add("hidden");
+
+}
+
+/* Reset */
+
+function resetForm(){
+
+document.getElementById("senderAccount").value="";
+document.getElementById("newName").value="";
+document.getElementById("newAccount").value="";
+document.getElementById("confirmAccount").value="";
+document.getElementById("ifsc").value="";
+document.getElementById("amount").value="";
+document.getElementById("remarks").value="";
+document.querySelectorAll(".error").forEach(e=>e.innerHTML="");
+
+}
+
+</script>
+
+</body>
+</html>
