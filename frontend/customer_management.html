@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Management | VaultCore Banking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { vault: '#8A1538', gold: '#D4AF37', cream: '#F8F6F2', line: '#E7DED3', slate: '#5A6572', ink: '#20262E' } } } };
+    </script>
+</head>
+<body class="min-h-screen bg-cream font-sans text-ink">
+    <div class="flex min-h-screen">
+        <aside class="hidden w-64 shrink-0 bg-ink p-5 text-white lg:block">
+            <a href="admin_dashboard.html" class="mb-10 flex items-center gap-3 px-3 no-underline">
+                <span class="grid h-10 w-10 place-items-center rounded-xl bg-vault text-lg font-bold">V</span>
+                <span><strong class="block tracking-wide">VAULTCORE</strong><small class="text-gold">BANKING</small></span>
+            </a>
+            <nav class="space-y-2 text-sm">
+                <a class="block rounded-lg px-4 py-3 text-gray-300 hover:bg-white/10" href="admin_dashboard.html">⌂ &nbsp; Dashboard</a>
+                <a class="block rounded-lg bg-vault px-4 py-3 font-semibold shadow-lg" href="customer_management.html">♟ &nbsp; Customer Management</a>
+                <a class="block rounded-lg px-4 py-3 text-gray-300 hover:bg-white/10" href="branches.html">⌂ &nbsp; Branch Management</a>
+                <a class="block rounded-lg px-4 py-3 text-gray-300 hover:bg-white/10" href="accounts.html">▣ &nbsp; Account Management</a>
+                <a class="block rounded-lg px-4 py-3 text-gray-300 hover:bg-white/10" href="transactions.html">↔ &nbsp; Transaction Management</a>
+                <a class="block rounded-lg px-4 py-3 text-gray-300 hover:bg-white/10" href="#">♙ &nbsp; Employee Management</a>
+                <a class="mt-8 block rounded-lg border border-white/20 px-4 py-3 text-gray-200 hover:bg-white/10" href="index.html">↪ &nbsp; Logout</a>
+            </nav>
+        </aside>
+
+        <main class="min-w-0 flex-1">
+            <header class="border-b border-line bg-white px-5 py-4 sm:px-8">
+                <div class="mx-auto flex max-w-7xl items-center justify-between gap-4">
+                    <div><p class="mb-1 text-xs text-slate">Admin Dashboard <span class="px-1">/</span> Customer Management</p><h1 class="text-xl font-bold text-vault">Customer Management</h1></div>
+                    <div class="flex items-center gap-3"><button aria-label="Notifications" class="rounded-full border border-line p-2 text-slate">♧</button><div class="hidden text-right text-sm sm:block"><strong class="block">Administrator</strong><span class="text-xs text-slate">System Administrator</span></div><div class="grid h-10 w-10 place-items-center rounded-full bg-gold font-bold text-ink">A</div></div>
+                </div>
+            </header>
+
+            <div class="mx-auto max-w-7xl p-5 sm:p-8">
+                <div id="statistics" class="mb-6 grid grid-cols-2 gap-4 xl:grid-cols-4"></div>
+                <section class="mb-6 rounded-xl border border-line bg-white p-5 shadow-sm">
+                    <div class="mb-4 flex items-center justify-between"><div><h2 class="font-bold text-ink">Search &amp; Filter Customers</h2><p class="text-xs text-slate">Ready for future database queries</p></div></div>
+                    <form id="filterForm" class="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+                        <input id="searchInput" class="rounded-lg border border-line px-3 py-2.5 text-sm outline-vault xl:col-span-2" placeholder="Search by customer name, ID, email or phone..." aria-label="Search customers">
+                        <select id="branchFilter" class="rounded-lg border border-line bg-white px-3 py-2.5 text-sm"><option value="">All Branches</option><option>Trivandrum</option><option>Kochi</option><option>Kollam</option></select>
+                        <select id="statusFilter" class="rounded-lg border border-line bg-white px-3 py-2.5 text-sm"><option value="">All Statuses</option><option>Active</option><option>Inactive</option></select>
+                        <select id="accountFilter" class="rounded-lg border border-line bg-white px-3 py-2.5 text-sm"><option value="">All Accounts</option><option value="has">Has Account</option><option value="none">No Account</option></select>
+                        <div class="flex gap-2 xl:col-start-4 xl:col-span-2"><button class="rounded-lg bg-vault px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#6e102d]" type="submit">Search</button><button id="resetButton" class="rounded-lg border border-line px-5 py-2.5 text-sm font-semibold text-slate hover:bg-cream" type="button">Reset</button></div>
+                    </form>
+                </section>
+
+                <section class="overflow-hidden rounded-xl border border-line bg-white shadow-sm">
+                    <div class="flex items-center justify-between border-b border-line px-5 py-4"><div><h2 class="font-bold">Customers</h2><p id="resultCount" class="text-xs text-slate"></p></div><span class="rounded-full bg-cream px-3 py-1 text-xs font-semibold text-vault">Customer records</span></div>
+                    <div class="overflow-x-auto"><table class="w-full min-w-[850px] text-left text-sm"><thead class="bg-cream text-xs uppercase tracking-wide text-slate"><tr><th class="px-5 py-3">Customer ID</th><th class="px-5 py-3">Name</th><th class="px-5 py-3">Email</th><th class="px-5 py-3">Phone</th><th class="px-5 py-3">Branch</th><th class="px-5 py-3">Accounts</th><th class="px-5 py-3">Status</th><th class="px-5 py-3">Action</th></tr></thead><tbody id="customerRows" class="divide-y divide-line"></tbody></table></div>
+                    <div id="pagination" class="flex flex-wrap items-center justify-center gap-1 border-t border-line p-4"></div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <div id="detailModal" class="fixed inset-0 z-20 hidden items-center justify-center bg-ink/50 p-4" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+        <div class="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-2xl bg-white shadow-2xl">
+            <div class="sticky top-0 flex items-center justify-between border-b border-line bg-white px-6 py-4"><div><h2 id="detailTitle" class="font-bold text-vault">Customer Details</h2><p id="modalCustomerId" class="text-xs text-slate"></p></div><button class="text-xl text-slate" onclick="closeDetails()" aria-label="Close">×</button></div>
+            <div id="detailContent" class="p-6"></div>
+            <div class="flex flex-wrap justify-end gap-3 border-t border-line p-5"><button class="rounded-lg border border-line px-4 py-2 text-sm font-semibold text-slate" onclick="alert('Edit form will connect to the customer update API.')">Edit Customer</button><button id="deactivateButton" class="rounded-lg bg-vault px-4 py-2 text-sm font-semibold text-white">Deactivate Customer</button></div>
+        </div>
+    </div>
+    <div id="confirmModal" class="fixed inset-0 z-30 hidden items-center justify-center bg-ink/60 p-4" role="dialog" aria-modal="true"><div class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl"><h2 class="text-lg font-bold text-vault">Deactivate Customer?</h2><p class="mt-3 text-sm leading-6 text-slate">Deactivating this customer will prevent them from accessing their VaultCore account. Customer records will be retained.</p><div class="mt-6 flex justify-end gap-3"><button class="rounded-lg border border-line px-4 py-2 text-sm" onclick="closeConfirmation()">Cancel</button><button class="rounded-lg bg-vault px-4 py-2 text-sm font-semibold text-white" onclick="confirmDeactivation()">Confirm Deactivation</button></div></div></div>
+
+    <script>
+        // Replace this mock array with REST API data from the Spring Boot backend.
+        const customers = [
+            {id:'C1001',name:'Arjun Nair',email:'arjun@email.com',phone:'9876543210',branch:'Trivandrum',accounts:2,status:'Active',joined:'14 Jan 2024',verified:'Verified',accountData:[['1000234567','Savings','₹45,000','Active'],['1000238912','Current','₹82,000','Active']]},
+            {id:'C1002',name:'Ananya S',email:'ananya@email.com',phone:'9876543211',branch:'Kochi',accounts:1,status:'Active',joined:'03 Mar 2024',verified:'Verified',accountData:[['1000456789','Savings','₹31,500','Active']]},
+            {id:'C1003',name:'Rahul K',email:'rahul@email.com',phone:'9876543212',branch:'Kollam',accounts:0,status:'Inactive',joined:'22 May 2024',verified:'Pending',accountData:[]},
+            {id:'C1004',name:'Meera Menon',email:'meera@email.com',phone:'9876543213',branch:'Trivandrum',accounts:1,status:'Active',joined:'18 Jun 2024',verified:'Verified',accountData:[['1000876543','Savings','₹67,200','Active']]},
+            {id:'C1005',name:'Vivek Raj',email:'vivek@email.com',phone:'9876543214',branch:'Kochi',accounts:2,status:'Active',joined:'09 Jul 2024',verified:'Verified',accountData:[['1000987654','Savings','₹21,000','Active'],['1000987661','Current','₹14,800','Active']]},
+            {id:'C1006',name:'Diya Thomas',email:'diya@email.com',phone:'9876543215',branch:'Kollam',accounts:0,status:'Inactive',joined:'30 Aug 2024',verified:'Pending',accountData:[]}
+        ];
+        let filtered = [...customers], page = 1, selectedCustomer = null; const perPage = 3;
+        const badge = status => `<span class="rounded-full px-2.5 py-1 text-xs font-semibold ${status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${status}</span>`;
+        function renderStats() { const active=customers.filter(c=>c.status==='Active').length, inactive=customers.length-active; document.getElementById('statistics').innerHTML=[['Total Customers',customers.length,'#8A1538'],['Active Customers',active,'#15803d'],['Inactive Customers',inactive,'#b91c1c'],['New This Month','42','#D4AF37']].map(([label,value,color])=>`<article class="rounded-xl border border-line bg-white p-4 shadow-sm"><p class="text-xs font-medium text-slate">${label}</p><p class="mt-2 text-2xl font-bold" style="color:${color}">${value.toLocaleString()}</p></article>`).join(''); }
+        function renderTable() { const start=(page-1)*perPage, items=filtered.slice(start,start+perPage); document.getElementById('resultCount').textContent=`${filtered.length} customer record${filtered.length===1?'':'s'} found`; document.getElementById('customerRows').innerHTML=items.length?items.map(c=>`<tr class="hover:bg-cream/60"><td class="px-5 py-4 font-semibold text-vault">${c.id}</td><td class="px-5 py-4 font-medium">${c.name}</td><td class="px-5 py-4 text-slate">${c.email}</td><td class="px-5 py-4">${c.phone}</td><td class="px-5 py-4">${c.branch}</td><td class="px-5 py-4 text-center">${c.accounts}</td><td class="px-5 py-4">${badge(c.status)}</td><td class="px-5 py-4"><button onclick="openDetails('${c.id}')" class="font-semibold text-vault hover:underline">View</button></td></tr>`).join(''):`<tr><td colspan="8" class="px-5 py-10 text-center text-slate">No customer records match these filters.</td></tr>`; const total=Math.max(1,Math.ceil(filtered.length/perPage)); document.getElementById('pagination').innerHTML=`<button onclick="goPage(${page-1})" ${page===1?'disabled':''} class="rounded border border-line px-3 py-1.5 text-sm disabled:opacity-40">Previous</button>${Array.from({length:total},(_,i)=>`<button onclick="goPage(${i+1})" class="rounded px-3 py-1.5 text-sm ${page===i+1?'bg-vault text-white':'border border-line'}">${i+1}</button>`).join('')}<button onclick="goPage(${page+1})" ${page===total?'disabled':''} class="rounded border border-line px-3 py-1.5 text-sm disabled:opacity-40">Next</button>`; }
+        function goPage(p){const total=Math.max(1,Math.ceil(filtered.length/perPage));if(p>=1&&p<=total){page=p;renderTable();}}
+        document.getElementById('filterForm').addEventListener('submit', e=>{e.preventDefault();const q=searchInput.value.trim().toLowerCase(),branch=branchFilter.value,status=statusFilter.value,account=accountFilter.value;filtered=customers.filter(c=>[c.id,c.name,c.email,c.phone].some(v=>v.toLowerCase().includes(q))&&(!branch||c.branch===branch)&&(!status||c.status===status)&&(!account||(account==='has'?c.accounts>0:c.accounts===0)));page=1;renderTable();});
+        document.getElementById('resetButton').addEventListener('click',()=>{filterForm.reset();filtered=[...customers];page=1;renderTable();});
+        function openDetails(id){selectedCustomer=customers.find(c=>c.id===id);const c=selectedCustomer;modalCustomerId.textContent=c.id+' · '+c.name;const accounts=c.accountData.length?c.accountData.map(a=>`<tr class="border-t border-line"><td class="p-3">${a[0]}</td><td class="p-3">${a[1]}</td><td class="p-3">${a[2]}</td><td class="p-3">${badge(a[3])}</td><td class="p-3"><button class="font-semibold text-vault" onclick="alert('Account details will connect to the account API.')">View Account</button></td></tr>`).join(''):'<tr><td colspan="5" class="p-4 text-center text-slate">No accounts linked to this customer.</td></tr>'; detailContent.innerHTML=`<h3 class="mb-3 font-bold">Personal Information</h3><div class="mb-6 grid gap-3 rounded-lg bg-cream p-4 text-sm sm:grid-cols-2">${[['Customer ID',c.id],['Name',c.name],['Email',c.email],['Phone',c.phone],['Date Joined',c.joined],['Email Verification',c.verified],['Customer Status',badge(c.status)],['Branch',c.branch]].map(x=>`<div><span class="block text-xs text-slate">${x[0]}</span><span class="font-medium">${x[1]}</span></div>`).join('')}</div><h3 class="mb-3 font-bold">Accounts</h3><div class="mb-6 overflow-x-auto rounded-lg border border-line"><table class="w-full min-w-[600px] text-left text-sm"><thead class="bg-cream"><tr><th class="p-3">Account Number</th><th class="p-3">Type</th><th class="p-3">Balance</th><th class="p-3">Status</th><th class="p-3">Action</th></tr></thead><tbody>${accounts}</tbody></table></div><div class="flex items-center justify-between"><h3 class="font-bold">Recent Transactions</h3><button class="rounded-lg border border-line px-3 py-2 text-sm font-semibold text-vault" onclick="alert('Transaction history will connect to the transaction API.')">View All Transactions</button></div><div class="mt-3 overflow-x-auto rounded-lg border border-line"><table class="w-full min-w-[500px] text-left text-sm"><thead class="bg-cream"><tr><th class="p-3">Date</th><th class="p-3">Type</th><th class="p-3">Amount</th><th class="p-3">Status</th></tr></thead><tbody><tr class="border-t border-line"><td class="p-3">16 Sep</td><td class="p-3">Deposit</td><td class="p-3 text-green-700">+₹10,000</td><td class="p-3">${badge('Active').replace('Active','Success')}</td></tr><tr class="border-t border-line"><td class="p-3">15 Sep</td><td class="p-3">Transfer</td><td class="p-3 text-vault">-₹2,500</td><td class="p-3">${badge('Active').replace('Active','Success')}</td></tr><tr class="border-t border-line"><td class="p-3">12 Sep</td><td class="p-3">Withdrawal</td><td class="p-3 text-vault">-₹1,000</td><td class="p-3">${badge('Active').replace('Active','Success')}</td></tr></tbody></table></div>`; deactivateButton.classList.toggle('hidden',c.status==='Inactive');detailModal.classList.replace('hidden','flex');}
+        function closeDetails(){detailModal.classList.replace('flex','hidden');} function closeConfirmation(){confirmModal.classList.replace('flex','hidden');} deactivateButton.addEventListener('click',()=>confirmModal.classList.replace('hidden','flex')); function confirmDeactivation(){if(selectedCustomer){selectedCustomer.status='Inactive';filtered=filtered.map(c=>c.id===selectedCustomer.id?selectedCustomer:c);renderStats();renderTable();}closeConfirmation();closeDetails();}
+        renderStats(); renderTable();
+    </script>
+</body>
+</html>
