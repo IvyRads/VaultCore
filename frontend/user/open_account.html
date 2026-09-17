@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Open New Account | VaultCore Banking</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+body { background: linear-gradient(135deg, #F8F6F2 0%, #E7DED3 100%); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #20262E; }
+.sidebar { position: fixed; inset: 0 auto 0 0; width: 250px; box-sizing: border-box; background: #20262E; padding: 24px 16px; display: flex; flex-direction: column; color: white; z-index: 10; }
+.brand { display: flex; align-items: center; gap: 10px; padding: 0 12px 28px; border-bottom: 1px solid rgba(255,255,255,.15); margin-bottom: 20px; text-decoration: none; color: #fff; }
+.brand-mark { width: 36px; height: 36px; background: #8A1538; border-radius: 10px; display: grid; place-items: center; font-weight: 800; }
+.brand strong, .brand small { display: block; }
+.brand small { color: #D4AF37; font-size: 10px; letter-spacing: 1px; }
+.side-nav { display: flex; flex: 1; flex-direction: column; gap: 7px; }
+.side-nav a { display: block; padding: 12px; border-radius: 8px; color: #d9dce0; text-decoration: none; font-size: 14px; font-weight: 600; transition: background .2s, color .2s; }
+.side-nav a:hover { background: #5A6572; color: white; }
+.side-nav a.active { background: #8A1538; color: white; box-shadow: 0 4px 12px rgba(138,21,56,.3); }
+.logout { margin-top: auto; border: 1px solid rgba(255,255,255,.2); }
+.logout:hover { background: #8A1538 !important; }
+.container { padding: 30px; }
+.card { background: #fff; border-radius: 20px; border: 1px solid #E7DED3; box-shadow: 0 10px 30px rgba(90,101,114,.12); }
+.field-label { color: #8A1538; font-weight: 700; font-size: .9rem; letter-spacing: .02em; }
+input:not([type="checkbox"]):not([type="radio"]), select { width: 100%; height: 48px; padding: 12px 12px 12px calc(12px + 2mm); border: 1px solid #E7DED3; border-radius: 12px; background: #FFFEFC; transition: border-color .2s, box-shadow .2s; }
+input:not([type="checkbox"]):not([type="radio"]):focus, select:focus { outline: none; border-color: #8A1538; box-shadow: 0 0 0 3px rgba(138,21,56,.12); }
+input:not([type="checkbox"]):not([type="radio"])::placeholder { color: #6B7280; opacity: 1; }
+.type-card { border: 2px solid #E7DED3; border-radius: 14px; padding: 18px; cursor: pointer; transition: .2s; }
+.type-card:hover { border-color: #D4AF37; transform: translateY(-2px); }
+.type-card.selected { border-color: #8A1538; background: #FFF8FA; box-shadow: 0 4px 14px rgba(138,21,56,.12); }
+.primary-btn { background: #8A1538; color: white; transition: .2s; }
+.primary-btn:hover { background: #B1124D; }
+.secondary-btn { background: #5A6572; color: white; transition: .2s; }
+.secondary-btn:hover { background: #20262E; }
+.error { min-height: 18px; color: #B91C1C; font-size: .85rem; margin-top: 5px; }
+body { padding-left: 250px; box-sizing: border-box; }
+@media (max-width: 800px) { body { padding-left: 76px; } .sidebar { width: 76px; padding: 18px 10px; } .brand { padding: 0 10px 22px; justify-content: center; } .brand-text, .side-nav .label { display: none; } .side-nav a { text-align: center; padding: 12px 6px; } .container { padding: 18px; } }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <a class="brand" href="user_dashboard.html">
+    <div class="brand-mark">V</div>
+    <div class="brand-text"><strong>VAULTCORE</strong><small>BANKING SYSTEM</small></div>
+  </a>
+  <nav class="side-nav flex flex-col flex-1">
+    <a href="user_dashboard.html">🏠 <span class="label">Home</span></a>
+    <a href="profile.html">👤 <span class="label">Profile</span></a>
+    <a class="active" href="account.html">🏦 <span class="label">Accounts</span></a>
+    <a href="transactions.html">📜 <span class="label">Transactions</span></a>
+    <a href="support.html">📞 <span class="label">Support</span></a>
+    <a class="logout" href="index.html">🚪 <span class="label">Logout</span></a>
+  </nav>
+</aside>
+
+<main class="container">
+  <header class="text-center mb-8">
+    <h1 class="text-3xl font-bold text-[#8A1538]">VAULTCORE <span class="text-[#D4AF37]">BANKING</span></h1>
+    <h2 class="text-xl text-gray-600 mt-2">Open New Account</h2>
+    <p class="text-gray-500 mt-2">Customer Dashboard / Open Account</p>
+    <p class="text-gray-600 mt-2">Create a new bank account with VaultCore.</p>
+  </header>
+
+  <section class="card p-6 mb-8 border-l-4 border-l-[#D4AF37]" aria-label="Customer summary">
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div><p class="text-xs uppercase tracking-wide text-gray-500">Customer</p><p class="font-bold text-[#8A1538] mt-1">Neha J Shibu</p></div>
+      <div><p class="text-xs uppercase tracking-wide text-gray-500">Customer ID</p><p class="font-semibold mt-1">C1001</p></div>
+      <div><p class="text-xs uppercase tracking-wide text-gray-500">Registered Branch</p><p class="font-semibold mt-1">Trivandrum Main Branch</p></div>
+      <div><p class="text-xs uppercase tracking-wide text-gray-500">Existing Accounts</p><p class="font-semibold mt-1">Savings (1)</p></div>
+    </div>
+  </section>
+
+  <section id="formCard" class="card p-6 md:p-8 max-w-3xl mx-auto">
+    <div class="flex items-center gap-3 mb-8">
+      <div class="w-10 h-10 rounded-xl bg-[#8A1538] text-white grid place-items-center text-lg">+</div>
+      <div><h3 class="text-2xl font-bold text-[#8A1538]">Account Opening Form</h3><p class="text-sm text-gray-500 mt-1">Choose an account type and provide the opening details.</p></div>
+    </div>
+
+    <form id="accountForm" novalidate>
+      <fieldset class="mb-8">
+        <legend class="field-label mb-3">Choose Account Type</legend>
+        <div class="grid md:grid-cols-2 gap-4">
+          <label id="savingsCard" class="type-card">
+            <input class="sr-only" type="radio" name="accountType" value="Savings Account">
+            <span class="block font-bold text-[#8A1538]">Savings Account</span>
+            <span class="block text-sm text-gray-600 mt-1">Suitable for personal banking.</span>
+          </label>
+          <label id="currentCard" class="type-card">
+            <input class="sr-only" type="radio" name="accountType" value="Current Account">
+            <span class="block font-bold text-[#8A1538]">Current Account</span>
+            <span class="block text-sm text-gray-600 mt-1">Suitable for frequent transactions.</span>
+          </label>
+        </div>
+        <div id="accountTypeError" class="error"></div>
+      </fieldset>
+
+      <div class="grid md:grid-cols-2 gap-6 mb-6">
+        <div>
+          <label class="field-label block mb-2" for="branch">Branch</label>
+          <select id="branch"><option>Trivandrum Main Branch</option><option>Kochi City Branch</option><option>Kozhikode Branch</option></select>
+          <p class="text-xs text-gray-500 mt-2">Your registered branch is selected by default.</p>
+        </div>
+        <div>
+          <label class="field-label block mb-2" for="deposit">Initial Deposit</label>
+          <input id="deposit" type="number" min="500" inputmode="decimal" placeholder="Enter initial deposit">
+          <p class="text-xs text-gray-500 mt-2">Minimum opening balance: <strong class="text-[#8A1538]">₹500</strong></p>
+          <div id="depositError" class="error"></div>
+        </div>
+      </div>
+
+      <div class="border-t border-[#E7DED3] pt-6 mb-6">
+        <p class="field-label mb-3">Nominee <span class="normal-case font-normal text-gray-500">(Optional)</span></p>
+        <div class="grid md:grid-cols-2 gap-4">
+          <input id="nomineeName" placeholder="Nominee name">
+          <input id="relationship" placeholder="Relationship">
+        </div>
+      </div>
+
+      <label class="flex items-start gap-3 cursor-pointer mb-1">
+        <input id="terms" type="checkbox" class="w-4 h-4 mt-1 shrink-0 accent-[#8A1538]">
+        <span class="text-sm text-gray-700">I agree to the terms and conditions.</span>
+      </label>
+      <div id="termsError" class="error mb-4"></div>
+
+      <div class="flex flex-col sm:flex-row gap-4">
+        <button type="button" onclick="openConfirmation()" class="primary-btn rounded-xl px-6 py-3 font-semibold flex-1">Open Account</button>
+        <button type="button" onclick="resetForm()" class="secondary-btn rounded-xl px-6 py-3 font-semibold flex-1">Reset</button>
+      </div>
+    </form>
+  </section>
+
+  <section id="successCard" class="hidden card p-8 max-w-2xl mx-auto text-center">
+    <div class="w-16 h-16 mx-auto rounded-full bg-green-100 text-green-700 grid place-items-center text-3xl">✓</div>
+    <h3 class="text-3xl font-bold text-green-700 mt-4">Account Created Successfully</h3>
+    <p class="text-gray-600 mt-2">Your new VaultCore account is ready to use.</p>
+    <div class="mt-7 p-5 rounded-xl bg-[#F8F6F2] border border-[#E7DED3] text-left space-y-3">
+      <p><strong>Account Number:</strong> <span id="successNumber" class="ml-2 font-bold text-lg text-[#8A1538]"></span></p>
+      <p><strong>Account Type:</strong> <span id="successType"></span></p>
+      <p><strong>Branch:</strong> <span id="successBranch"></span></p>
+      <p><strong>Opening Balance:</strong> <span id="successDeposit"></span></p>
+      <p><strong>Date Created:</strong> <span id="successDate"></span></p>
+    </div>
+    <div class="flex flex-col sm:flex-row gap-4 mt-8"><a href="account.html" class="secondary-btn rounded-xl px-6 py-3 font-semibold flex-1">View My Accounts</a><a href="user_dashboard.html" class="primary-btn rounded-xl px-6 py-3 font-semibold flex-1">Back to Dashboard</a></div>
+  </section>
+
+  <section class="card p-6 mt-10 max-w-3xl mx-auto">
+    <div class="flex flex-wrap justify-between items-center gap-3 mb-5"><h3 class="text-2xl font-bold text-[#8A1538]">Existing Accounts</h3><a href="account.html" class="font-semibold text-[#8A1538] hover:underline">View All Accounts</a></div>
+    <div class="border border-[#E7DED3] rounded-xl p-5 bg-[#FFFEFC]">
+      <div class="flex flex-wrap justify-between gap-4"><div><p class="font-bold text-[#8A1538]">Savings Account</p><p class="text-sm text-gray-600 mt-1">Account Number: 1000234567</p></div><div class="sm:text-right"><p class="font-bold">₹45,000</p><span class="text-xs font-semibold text-green-700 bg-green-100 px-2 py-1 rounded-full">Active</span></div></div>
+    </div>
+  </section>
+</main>
+
+<div id="confirmModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+  <div class="bg-white rounded-3xl w-full max-w-md p-8 shadow-xl">
+    <h3 class="text-2xl font-bold text-[#8A1538] mb-5">Confirm Account Creation</h3>
+    <div class="space-y-3 text-gray-700"><p><strong>Account Type:</strong> <span id="confirmType"></span></p><p><strong>Branch:</strong> <span id="confirmBranch"></span></p><p><strong>Opening Deposit:</strong> <span id="confirmDeposit"></span></p></div>
+    <div class="flex gap-4 mt-8"><button onclick="closeModal()" class="secondary-btn rounded-xl px-5 py-3 flex-1">Cancel</button><button onclick="createAccount()" class="primary-btn rounded-xl px-5 py-3 flex-1">Confirm</button></div>
+  </div>
+</div>
+
+<script>
+const MINIMUM_DEPOSIT = 500;
+const accountTypeInputs = document.querySelectorAll('input[name="accountType"]');
+
+accountTypeInputs.forEach(input => input.addEventListener('change', () => {
+  document.querySelectorAll('.type-card').forEach(card => card.classList.remove('selected'));
+  input.closest('.type-card').classList.add('selected');
+  document.getElementById('accountTypeError').textContent = '';
+}));
+
+function clearErrors() { document.querySelectorAll('.error').forEach(error => error.textContent = ''); }
+
+function validateForm() {
+  clearErrors();
+  const type = document.querySelector('input[name="accountType"]:checked');
+  const deposit = Number(document.getElementById('deposit').value);
+  let valid = true;
+  if (!type) { document.getElementById('accountTypeError').textContent = 'Please select an account type.'; valid = false; }
+  if (!deposit || deposit < MINIMUM_DEPOSIT) { document.getElementById('depositError').textContent = 'Minimum opening balance is ₹500.'; valid = false; }
+  if (!document.getElementById('terms').checked) { document.getElementById('termsError').textContent = 'Please accept the terms and conditions.'; valid = false; }
+  return valid;
+}
+
+function currency(value) { return '₹' + Number(value).toLocaleString('en-IN'); }
+
+function openConfirmation() {
+  if (!validateForm()) return;
+  document.getElementById('confirmType').textContent = document.querySelector('input[name="accountType"]:checked').value;
+  document.getElementById('confirmBranch').textContent = document.getElementById('branch').value;
+  document.getElementById('confirmDeposit').textContent = currency(document.getElementById('deposit').value);
+  document.getElementById('confirmModal').classList.remove('hidden');
+}
+function closeModal() { document.getElementById('confirmModal').classList.add('hidden'); }
+
+/* Future Spring Boot integration: POST /api/accounts with customer_id, branch_id, account_type, balance and nominee data. */
+function createAccount() {
+  closeModal();
+  const type = document.querySelector('input[name="accountType"]:checked').value;
+  const branch = document.getElementById('branch').value;
+  const deposit = document.getElementById('deposit').value;
+  const accountNumber = '1000' + Math.floor(100000 + Math.random() * 900000);
+  document.getElementById('successNumber').textContent = accountNumber;
+  document.getElementById('successType').textContent = type;
+  document.getElementById('successBranch').textContent = branch;
+  document.getElementById('successDeposit').textContent = currency(deposit);
+  document.getElementById('successDate').textContent = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+  document.getElementById('formCard').classList.add('hidden');
+  document.getElementById('successCard').classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetForm() {
+  document.getElementById('accountForm').reset();
+  document.querySelectorAll('.type-card').forEach(card => card.classList.remove('selected'));
+  clearErrors();
+}
+</script>
+</body>
+</html>
