@@ -222,9 +222,9 @@
             <div id="modalBody" class="p-6"></div>
 
             <div class="flex flex-wrap justify-end gap-3 border-t border-line p-5">
-                <a href="accounts.html" class="rounded-lg border border-line px-4 py-2 text-sm font-semibold text-slate hover:bg-cream">View Account</a>
-                <a href="customer_management.html" class="rounded-lg border border-line px-4 py-2 text-sm font-semibold text-slate hover:bg-cream">View Customer</a>
-                <a href="branches.html" class="rounded-lg border border-line px-4 py-2 text-sm font-semibold text-slate hover:bg-cream">View Branch</a>
+                <a id="modalAccountLink" href="accounts.html" class="rounded-lg border border-line px-4 py-2 text-sm font-semibold text-slate hover:bg-cream">View Account</a>
+                <a id="modalCustomerLink" href="customer_management.html" class="rounded-lg border border-line px-4 py-2 text-sm font-semibold text-slate hover:bg-cream">View Customer</a>
+                <a id="modalBranchLink" href="branches.html" class="rounded-lg border border-line px-4 py-2 text-sm font-semibold text-slate hover:bg-cream">View Branch</a>
                 <a href="audit_logs.html" class="rounded-lg bg-vault px-4 py-2 text-sm font-semibold text-white hover:bg-[#6e102d]">View Audit Log</a>
             </div>
         </div>
@@ -528,6 +528,9 @@
             if (!tx) return;
 
             modalId.textContent = tx.id;
+            document.getElementById('modalAccountLink').href = `account_details.html?account=${tx.account}`;
+            document.getElementById('modalCustomerLink').href = `customer_details.html?customer=${tx.customerId}`;
+            document.getElementById('modalBranchLink').href = `branch_details.html?branch=${tx.branchId}`;
             modalBody.innerHTML = `
                 <div class="space-y-6">
                     <section>
@@ -624,7 +627,13 @@
             if (event.target === modal) closeModal();
         });
 
-        renderAll();
+        const routeParams = new URLSearchParams(location.search);
+        const routeAccount = routeParams.get('account');
+        const routeBranch = routeParams.get('branch');
+        if (routeAccount) document.getElementById('searchInput').value = routeAccount;
+        if (routeBranch) document.getElementById('branchFilter').value = routeBranch;
+        if (routeAccount || routeBranch) filterTransactions();
+        else renderAll();
     </script>
 </body>
 </html>
