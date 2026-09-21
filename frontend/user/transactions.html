@@ -75,9 +75,7 @@ tr:hover{background:#F8F6F2;}
 <br>
 
 <center>
-<button class="action-btn">Download PDF</button>
-<button class="action-btn">Download CSV</button>
-<button class="action-btn">Email Statement</button>
+<button id="downloadPdfBtn" class="action-btn" type="button">Download PDF</button>
 </center>
 
 </fieldset>
@@ -85,6 +83,99 @@ tr:hover{background:#F8F6F2;}
 <p style="text-align:center;color:#5A6572;">© 2026 VaultCore Banking Management System</p>
 
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<script>
+  const transactionTable = document.querySelector('table');
+
+  function sanitizeCell(value) {
+    return String(value || '').replace(/\s+/g, ' ').trim();
+  }
+
+  function getTableData() {
+    const rows = Array.from(transactionTable.querySelectorAll('tr'));
+    const headers = rows[0] ? Array.from(rows[0].children).map((cell) => sanitizeCell(cell.textContent)) : [];
+    const body = rows.slice(1).map((row) =>
+      Array.from(row.children).map((cell) => sanitizeCell(cell.textContent))
+    );
+    return { headers, body };
+  }
+
+  function normalizeCsvValue(value) {
+    return String(value || '')
+      .replace(/₹/g, '')
+      .replace(/✔/g, '')
+      .replace(/-/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function triggerDownload(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  function downloadPdf() {
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+      alert('PDF library failed to load. Please refresh the page and try again.');
+      return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const { headers, body } = getTableData();
+    if (!headers.length) return;
+
+    const doc = new jsPDF({ orientation: 'landscape' });
+    doc.setFontSize(16);
+    doc.setTextColor(138, 21, 56);
+    doc.text('VaultCore Banking', 14, 16);
+    doc.setFontSize(11);
+    doc.setTextColor(32, 38, 46);
+    doc.text('Transaction History', 14, 23);
+
+    doc.autoTable({
+      head: [headers],
+      body: body,
+      startY: 30,
+      theme: 'grid',
+      headStyles: {
+        fillColor: [138, 21, 56],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+        halign: 'center'
+      },
+      bodyStyles: {
+        textColor: [32, 38, 46],
+        fontSize: 8
+      },
+      alternateRowStyles: {
+        fillColor: [248, 246, 242]
+      },
+      margin: { left: 10, right: 10 },
+      styles: { cellPadding: 3, overflow: 'linebreak', fontSize: 8 },
+      columnStyles: {
+        0: { cellWidth: 25 },
+        1: { cellWidth: 28 },
+        2: { cellWidth: 42 },
+        3: { cellWidth: 20 },
+        4: { cellWidth: 20 },
+        5: { cellWidth: 22 },
+        6: { cellWidth: 24 }
+      }
+    });
+
+    doc.save('vaultcore_transactions.pdf');
+  }
+
+  document.getElementById('downloadPdfBtn').addEventListener('click', downloadPdf);
+</script>
 
 </body>
 </html>
