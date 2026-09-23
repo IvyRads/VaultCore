@@ -1,7 +1,14 @@
 package com.vaultcore.vbms.controller;
 
-import com.vaultcore.vbms.repository.*;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.vaultcore.vbms.repository.AccountRepository;
+import com.vaultcore.vbms.repository.AccountTypeRepository;
+import com.vaultcore.vbms.repository.BranchRepository;
+import com.vaultcore.vbms.repository.CustomerRepository;
 
 @RestController @RequestMapping("/api")
 public class ReferenceDataController {
