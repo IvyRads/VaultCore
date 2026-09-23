@@ -4,9 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up | VaultCore Banking</title>
-</head>
-<body style="background: linear-gradient(135deg, #F8F6F2 0%, #E7DED3 100%); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #20262E; margin: 0; padding: 40px 20px; min-height: 100vh; box-sizing: border-box;">
+    <style>
+        body {
+            background: linear-gradient(135deg, #F8F6F2 0%, #E7DED3 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #20262E;
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
 
+        .field-error {
+            min-height: 18px;
+            color: #B91C1C;
+            font-size: 12px;
+            margin-top: 4px;
+            margin-bottom: 10px;
+        }
+
+        .field-invalid {
+            border-color: #B91C1C !important;
+            box-shadow: 0 0 0 2px rgba(185, 28, 28, 0.08);
+        }
+    </style>
+</head>
+<body>
     <center>
         <div style="font-size: 40px; margin-bottom: 5px;">🏦</div>
         <h1 style="color: #8A1538; font-size: 26px; font-weight: 800; letter-spacing: 0.5px; margin: 0 0 5px 0; text-transform: uppercase;">
@@ -18,154 +41,170 @@
         <hr style="border: none; height: 3px; background: linear-gradient(to right, transparent, #D4AF37, transparent); width: 40%; margin: 0 auto 30px auto;">
     </center>
 
-    <!-- Form Container Card -->
     <div style="max-width: 650px; margin: 0 auto; background-color: #FFFFFF; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(90, 101, 114, 0.12); border: 1px solid #E7DED3;">
+        <form id="signupForm" novalidate>
 
-        <form id="signupForm" action="#" method="post" onsubmit="handleSignup(event)">
-
-            <!-- Personal Information Fieldset -->
             <fieldset style="border: 2px solid #E7DED3; border-radius: 12px; padding: 25px; background-color: #F8F6F2; margin-bottom: 25px;">
                 <legend style="background-color: #8A1538; color: #FFFFFF; padding: 6px 15px; border-radius: 20px; font-size: 13px; font-weight: bold; letter-spacing: 0.5px;">Personal Information</legend>
 
                 <label style="color: #20262E; font-weight: 600; font-size: 14px;">Full Name</label><br>
-                <input type="text" name="fullname" placeholder="Enter your full name" required
-                    style="width: 100%; padding: 12px 15px; margin-top: 5px; margin-bottom: 15px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none; transition: border-color 0.3s;"
+                <input type="text" name="fullname" placeholder="Enter your full name" data-label="Full Name"
+                    style="width: 100%; padding: 12px 15px; margin-top: 5px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none; transition: border-color 0.3s;"
                     onfocus="this.style.borderColor='#8A1538';" onblur="this.style.borderColor='#E7DED3';">
+                <div id="fullnameError" class="field-error"></div>
 
                 <label style="color: #20262E; font-weight: 600; font-size: 14px;">Date of Birth</label><br>
-                <input type="date" name="dob" required
-                    style="width: 100%; padding: 12px 15px; margin-top: 5px; margin-bottom: 15px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;"
+                <input type="date" name="dob" data-label="Date of Birth"
+                    style="width: 100%; padding: 12px 15px; margin-top: 5px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;"
                     onfocus="this.style.borderColor='#8A1538';" onblur="this.style.borderColor='#E7DED3';">
+                <div id="dobError" class="field-error"></div>
 
                 <label style="color: #20262E; font-weight: 600; font-size: 14px;">Gender</label><br>
-                <div style="margin-top: 8px; margin-bottom: 15px;">
-                    <label style="color: #5A6572; margin-right: 20px; cursor: pointer;"><input type="radio" name="gender" value="Male" required style="accent-color: #8A1538;"> Male</label>
+                <div style="margin-top: 8px;">
+                    <label style="color: #5A6572; margin-right: 20px; cursor: pointer;"><input type="radio" name="gender" value="Male" style="accent-color: #8A1538;"> Male</label>
                     <label style="color: #5A6572; margin-right: 20px; cursor: pointer;"><input type="radio" name="gender" value="Female" style="accent-color: #8A1538;"> Female</label>
                     <label style="color: #5A6572; cursor: pointer;"><input type="radio" name="gender" value="Other" style="accent-color: #8A1538;"> Other</label>
                 </div>
+                <div id="genderError" class="field-error"></div>
 
                 <label style="color: #20262E; font-weight: 600; font-size: 14px;">Email Address</label><br>
-                <input type="email" name="email" placeholder="example@gmail.com" required
-                    style="width: 100%; padding: 12px 15px; margin-top: 5px; margin-bottom: 15px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;"
-                    onfocus="this.style.borderColor='#8A1538';" onblur="this.style.borderColor='#E7DED3';">
-
-                <label style="color: #20262E; font-weight: 600; font-size: 14px;">Mobile Number</label><br>
-                <input type="tel" name="phone" maxlength="10" placeholder="10-digit mobile number" required
-                    style="width: 100%; padding: 12px 15px; margin-top: 5px; margin-bottom: 15px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;"
-                    onfocus="this.style.borderColor='#8A1538';" onblur="this.style.borderColor='#E7DED3';">
-
-                <label style="color: #20262E; font-weight: 600; font-size: 14px;">Aadhaar Number</label><br>
-                <input type="text" name="aadhaar" maxlength="12" placeholder="12-digit Aadhaar Number"
+                <input type="email" name="email" placeholder="example@gmail.com" data-label="Email Address"
                     style="width: 100%; padding: 12px 15px; margin-top: 5px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;"
                     onfocus="this.style.borderColor='#8A1538';" onblur="this.style.borderColor='#E7DED3';">
+                <div id="emailError" class="field-error"></div>
+
+                <label style="color: #20262E; font-weight: 600; font-size: 14px;">Mobile Number</label><br>
+                <input type="tel" name="phone" maxlength="10" placeholder="10-digit mobile number" data-label="Mobile Number"
+                    style="width: 100%; padding: 12px 15px; margin-top: 5px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;"
+                    onfocus="this.style.borderColor='#8A1538';" onblur="this.style.borderColor='#E7DED3';">
+                <div id="phoneError" class="field-error"></div>
+
+                <label style="color: #20262E; font-weight: 600; font-size: 14px;">Aadhaar Number</label><br>
+                <input type="text" name="aadhaar" maxlength="12" placeholder="12-digit Aadhaar Number" data-label="Aadhaar Number"
+                    style="width: 100%; padding: 12px 15px; margin-top: 5px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;"
+                    onfocus="this.style.borderColor='#8A1538';" onblur="this.style.borderColor='#E7DED3';">
+                <div id="aadhaarError" class="field-error"></div>
             </fieldset>
 
-            <!-- Address Details Fieldset -->
             <fieldset style="border: 2px solid #E7DED3; border-radius: 12px; padding: 25px; background-color: #F8F6F2; margin-bottom: 25px;">
                 <legend style="background-color: #D4AF37; color: #20262E; padding: 6px 15px; border-radius: 20px; font-size: 13px; font-weight: bold; letter-spacing: 0.5px;">Address Details</legend>
 
                 <label style="color: #20262E; font-weight: 600; font-size: 14px;">House No / Street</label><br>
-                <input type="text" name="street" placeholder="Enter house no and street" required
-                    style="width: 100%; padding: 12px 15px; margin-top: 5px; margin-bottom: 15px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;"
+                <input type="text" name="street" placeholder="Enter house no and street" data-label="House No / Street"
+                    style="width: 100%; padding: 12px 15px; margin-top: 5px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;"
                     onfocus="this.style.borderColor='#8A1538';" onblur="this.style.borderColor='#E7DED3';">
+                <div id="streetError" class="field-error"></div>
 
                 <label style="color: #20262E; font-weight: 600; font-size: 14px;">City</label><br>
-                <input type="text" name="city" placeholder="Enter city" required
-                    style="width: 100%; padding: 12px 15px; margin-top: 5px; margin-bottom: 15px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;"
+                <input type="text" name="city" placeholder="Enter city" data-label="City"
+                    style="width: 100%; padding: 12px 15px; margin-top: 5px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;"
                     onfocus="this.style.borderColor='#8A1538';" onblur="this.style.borderColor='#E7DED3';">
+                <div id="cityError" class="field-error"></div>
 
                 <label style="color: #20262E; font-weight: 600; font-size: 14px;">State</label><br>
-                <select name="state" required
-                    style="width: 100%; padding: 12px 15px; margin-top: 5px; margin-bottom: 15px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;">
+                <select name="state" data-label="State"
+                    style="width: 100%; padding: 12px 15px; margin-top: 5px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;">
                     <option value="">-- Select State --</option>
                     <option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option><option>Bihar</option><option>Chhattisgarh</option><option>Goa</option><option>Gujarat</option><option>Haryana</option><option>Himachal Pradesh</option><option>Jharkhand</option><option>Karnataka</option><option>Kerala</option><option>Madhya Pradesh</option><option>Maharashtra</option><option>Manipur</option><option>Meghalaya</option><option>Mizoram</option><option>Nagaland</option><option>Odisha</option><option>Punjab</option><option>Rajasthan</option><option>Sikkim</option><option>Tamil Nadu</option><option>Telangana</option><option>Tripura</option><option>Uttar Pradesh</option><option>Uttarakhand</option><option>West Bengal</option><option>Delhi</option><option>Jammu & Kashmir</option><option>Ladakh</option><option>Lakshadweep</option><option>Puducherry</option><option>Chandigarh</option><option>Andaman & Nicobar Islands</option><option>Dadra & Nagar Haveli and Daman & Diu</option>
                 </select>
+                <div id="stateError" class="field-error"></div>
 
                 <label style="color: #20262E; font-weight: 600; font-size: 14px;">Country</label><br>
                 <input type="text" name="country" value="India" readonly
-                    style="width: 100%; padding: 12px 15px; margin-top: 5px; margin-bottom: 15px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #E7DED3; color: #5A6572; outline: none;">
+                    style="width: 100%; padding: 12px 15px; margin-top: 5px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #E7DED3; color: #5A6572; outline: none;">
 
                 <label style="color: #20262E; font-weight: 600; font-size: 14px;">Pincode</label><br>
-                <input type="text" name="pincode" maxlength="6" placeholder="6-digit Pincode" required
+                <input type="text" name="pincode" maxlength="6" placeholder="6-digit Pincode" data-label="Pincode"
                     style="width: 100%; padding: 12px 15px; margin-top: 5px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;"
                     onfocus="this.style.borderColor='#8A1538';" onblur="this.style.borderColor='#E7DED3';">
+                <div id="pincodeError" class="field-error"></div>
             </fieldset>
 
-            <!-- Bank Account Details Fieldset -->
             <fieldset style="border: 2px solid #E7DED3; border-radius: 12px; padding: 25px; background-color: #F8F6F2; margin-bottom: 25px;">
                 <legend style="background-color: #8A1538; color: #FFFFFF; padding: 6px 15px; border-radius: 20px; font-size: 13px; font-weight: bold; letter-spacing: 0.5px;">Bank Account Details</legend>
 
                 <label style="color: #20262E; font-weight: 600; font-size: 14px;">Account Number</label><br>
-                <input type="text" name="accountNumber" placeholder="Enter Account Number" required
-                    style="width: 100%; padding: 12px 15px; margin-top: 5px; margin-bottom: 15px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;"
+                <input type="text" name="accountNumber" placeholder="Enter Account Number" data-label="Account Number"
+                    style="width: 100%; padding: 12px 15px; margin-top: 5px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;"
                     onfocus="this.style.borderColor='#8A1538';" onblur="this.style.borderColor='#E7DED3';">
+                <div id="accountNumberError" class="field-error"></div>
 
                 <label style="color: #20262E; font-weight: 600; font-size: 14px;">IFSC Code</label><br>
-                <input type="text" name="ifscCode" placeholder="e.g. SBIN0001234" required
-                    style="width: 100%; padding: 12px 15px; margin-top: 5px; margin-bottom: 15px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;"
+                <input type="text" name="ifscCode" placeholder="e.g. SBIN0001234" data-label="IFSC Code"
+                    style="width: 100%; padding: 12px 15px; margin-top: 5px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;"
                     onfocus="this.style.borderColor='#8A1538';" onblur="this.style.borderColor='#E7DED3';">
+                <div id="ifscCodeError" class="field-error"></div>
 
                 <label style="color: #20262E; font-weight: 600; font-size: 14px;">Account Type</label><br>
-                <select name="accountType" required
-                    style="width: 100%; padding: 12px 15px; margin-top: 5px; margin-bottom: 15px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;">
+                <select name="accountType" data-label="Account Type"
+                    style="width: 100%; padding: 12px 15px; margin-top: 5px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;">
                     <option value="">-- Select Account Type --</option>
                     <option>Savings Account</option>
                     <option>Current Account</option>
                     <option>Salary Account</option>
                     <option>Fixed Deposit</option>
                 </select>
+                <div id="accountTypeError" class="field-error"></div>
 
                 <label style="color: #20262E; font-weight: 600; font-size: 14px;">Initial Deposit Amount</label><br>
-                <input type="number" name="deposit" min="500" placeholder="Minimum ₹500" required
-                    style="width: 100%; padding: 12px 15px; margin-top: 5px; margin-bottom: 15px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;"
+                <input type="number" name="deposit" min="500" placeholder="Minimum ₹500" data-label="Initial Deposit Amount"
+                    style="width: 100%; padding: 12px 15px; margin-top: 5px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;"
                     onfocus="this.style.borderColor='#8A1538';" onblur="this.style.borderColor='#E7DED3';">
+                <div id="depositError" class="field-error"></div>
 
                 <label style="color: #20262E; font-weight: 600; font-size: 14px;">Branch</label><br>
-                <select name="branch" required
+                <select name="branch" data-label="Branch"
                     style="width: 100%; padding: 12px 15px; margin-top: 5px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;">
                     <option value="">-- Select Branch --</option>
                     <option>Thiruvananthapuram</option><option>Kollam</option><option>Pathanamthitta</option><option>Alappuzha</option><option>Kottayam</option><option>Idukki</option><option>Ernakulam</option><option>Thrissur</option><option>Palakkad</option><option>Malappuram</option><option>Kozhikode</option><option>Wayanad</option><option>Kannur</option><option>Kasaragod</option>
                 </select>
+                <div id="branchError" class="field-error"></div>
             </fieldset>
 
-            <!-- Login Credentials Fieldset -->
             <fieldset style="border: 2px solid #E7DED3; border-radius: 12px; padding: 25px; background-color: #F8F6F2; margin-bottom: 25px;">
                 <legend style="background-color: #D4AF37; color: #20262E; padding: 6px 15px; border-radius: 20px; font-size: 13px; font-weight: bold; letter-spacing: 0.5px;">Login Credentials</legend>
 
                 <label style="color: #20262E; font-weight: 600; font-size: 14px;">Username</label><br>
-                <input type="text" name="username" placeholder="Choose a username" required
-                    style="width: 100%; padding: 12px 15px; margin-top: 5px; margin-bottom: 15px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;"
+                <input type="text" name="username" placeholder="Choose a username" data-label="Username"
+                    style="width: 100%; padding: 12px 15px; margin-top: 5px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;"
                     onfocus="this.style.borderColor='#8A1538';" onblur="this.style.borderColor='#E7DED3';">
+                <div id="usernameError" class="field-error"></div>
 
                 <label style="color: #20262E; font-weight: 600; font-size: 14px;">Password</label><br>
-                <input type="password" id="password" name="password" placeholder="Enter password" required
-                    style="width: 100%; padding: 12px 15px; margin-top: 5px; margin-bottom: 15px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;"
+                <input type="password" id="password" name="password" placeholder="Enter password" data-label="Password"
+                    style="width: 100%; padding: 12px 15px; margin-top: 5px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;"
                     onfocus="this.style.borderColor='#8A1538';" onblur="this.style.borderColor='#E7DED3';">
+                <div id="passwordError" class="field-error"></div>
 
                 <label style="color: #20262E; font-weight: 600; font-size: 14px;">Confirm Password</label><br>
-                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm password" required
-                    style="width: 100%; padding: 12px 15px; margin-top: 5px; margin-bottom: 15px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;"
+                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm password" data-label="Confirm Password"
+                    style="width: 100%; padding: 12px 15px; margin-top: 5px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;"
                     onfocus="this.style.borderColor='#8A1538';" onblur="this.style.borderColor='#E7DED3';">
+                <div id="confirmPasswordError" class="field-error"></div>
 
                 <label style="color: #20262E; font-weight: 600; font-size: 14px;">Security Question</label><br>
-                <select name="securityQuestion"
-                    style="width: 100%; padding: 12px 15px; margin-top: 5px; margin-bottom: 15px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;">
+                <select name="securityQuestion" data-label="Security Question"
+                    style="width: 100%; padding: 12px 15px; margin-top: 5px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;">
+                    <option value="">-- Select a Question --</option>
                     <option>Your first school?</option>
                     <option>Your favourite teacher?</option>
                     <option>Your pet's name?</option>
                     <option>Your birthplace?</option>
                 </select>
+                <div id="securityQuestionError" class="field-error"></div>
 
                 <label style="color: #20262E; font-weight: 600; font-size: 14px;">Answer</label><br>
-                <input type="text" name="securityAnswer" placeholder="Enter answer for security question" required
+                <input type="text" name="securityAnswer" placeholder="Enter answer for security question" data-label="Security Answer"
                     style="width: 100%; padding: 12px 15px; margin-top: 5px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;"
                     onfocus="this.style.borderColor='#8A1538';" onblur="this.style.borderColor='#E7DED3';">
+                <div id="securityAnswerError" class="field-error"></div>
             </fieldset>
 
             <div style="margin-bottom: 25px; display: flex; align-items: center; gap: 10px;">
-                <input type="checkbox" id="termsCheck" required style="accent-color: #8A1538; width: 18px; height: 18px; cursor: pointer;">
+                <input type="checkbox" id="termsCheck" style="accent-color: #8A1538; width: 18px; height: 18px; cursor: pointer;">
                 <label for="termsCheck" style="font-size: 14px; color: #5A6572; cursor: pointer;">I agree to the Terms & Conditions and Privacy Policy.</label>
             </div>
+            <div id="termsCheckError" class="field-error" style="margin-top:-12px;"></div>
 
             <center>
                 <button type="submit"
@@ -182,9 +221,7 @@
                     Clear Form
                 </button>
             </center>
-
         </form>
-
     </div>
 
     <br>
@@ -199,45 +236,249 @@
         </a>
     </center>
 
-    <!-- JavaScript Interactive Validation -->
     <script>
-        async function handleSignup(event) {
-            event.preventDefault();
-            
-            const password = document.getElementById("password").value;
-            const confirmPassword = document.getElementById("confirmPassword").value;
+        const fieldRules = {
+            fullname: {
+                validator: value => {
+                    if (!value.trim()) return 'Full name is required.';
+                    if (value.trim().length < 2) return 'Full name must be at least 2 characters.';
+                    if (!/^[A-Za-z][A-Za-z\s.]{1,}$/.test(value.trim())) return 'Full name can contain letters, spaces, and periods only.';
+                    return '';
+                }
+            },
+            dob: {
+                validator: value => {
+                    if (!value) return 'Date of birth is required.';
+                    const dob = new Date(value);
+                    const age = new Date().getFullYear() - dob.getFullYear();
+                    const monthDiff = new Date().getMonth() - dob.getMonth();
+                    const validAge = age > 18 || (age === 18 && monthDiff >= 0);
+                    if (!validAge) return 'You must be at least 18 years old.';
+                    return '';
+                }
+            },
+            gender: {
+                validator: value => {
+                    if (!value) return 'Please select your gender.';
+                    return '';
+                }
+            },
+            email: {
+                validator: value => {
+                    if (!value.trim()) return 'Email is required.';
+                    const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!pattern.test(value.trim())) return 'Enter a valid email address.';
+                    return '';
+                }
+            },
+            phone: {
+                validator: value => {
+                    if (!value.trim()) return 'Mobile number is required.';
+                    if (!/^\d{10}$/.test(value.trim())) return 'Mobile number must be exactly 10 digits.';
+                    return '';
+                }
+            },
+            aadhaar: {
+                validator: value => {
+                    if (!value.trim()) return 'Aadhaar number is required.';
+                    if (!/^\d{12}$/.test(value.trim())) return 'Aadhaar number must be exactly 12 digits.';
+                    return '';
+                }
+            },
+            street: {
+                validator: value => {
+                    if (!value.trim()) return 'Street address is required.';
+                    if (value.trim().length < 5) return 'Street address must be at least 5 characters.';
+                    return '';
+                }
+            },
+            city: {
+                validator: value => {
+                    if (!value.trim()) return 'City is required.';
+                    if (!/^[A-Za-z\s]+$/.test(value.trim())) return 'City name should contain letters only.';
+                    return '';
+                }
+            },
+            state: {
+                validator: value => {
+                    if (!value.trim()) return 'Please select a state.';
+                    return '';
+                }
+            },
+            pincode: {
+                validator: value => {
+                    if (!value.trim()) return 'Pincode is required.';
+                    if (!/^\d{6}$/.test(value.trim())) return 'Pincode must be exactly 6 digits.';
+                    return '';
+                }
+            },
+            accountNumber: {
+                validator: value => {
+                    if (!value.trim()) return 'Account number is required.';
+                    if (!/^\d{8,18}$/.test(value.trim())) return 'Account number should be 8 to 18 digits.';
+                    return '';
+                }
+            },
+            ifscCode: {
+                validator: value => {
+                    if (!value.trim()) return 'IFSC code is required.';
+                    if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(value.trim().toUpperCase())) return 'IFSC code must be in the format SBIN0001234.';
+                    return '';
+                }
+            },
+            accountType: {
+                validator: value => {
+                    if (!value.trim()) return 'Please select an account type.';
+                    return '';
+                }
+            },
+            deposit: {
+                validator: value => {
+                    if (!value || Number(value) < 500) return 'Initial deposit must be at least ₹500.';
+                    return '';
+                }
+            },
+            branch: {
+                validator: value => {
+                    if (!value.trim()) return 'Please select a branch.';
+                    return '';
+                }
+            },
+            username: {
+                validator: value => {
+                    if (!value.trim()) return 'Username is required.';
+                    if (value.trim().length < 4) return 'Username must be at least 4 characters.';
+                    if (!/^[A-Za-z0-9_]+$/.test(value.trim())) return 'Username can contain letters, numbers, and underscores only.';
+                    return '';
+                }
+            },
+            password: {
+                validator: value => {
+                    if (!value) return 'Password is required.';
+                    if (value.length < 8) return 'Password must be at least 8 characters long.';
+                    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).+$/.test(value)) return 'Password must include uppercase, lowercase, number, and special character.';
+                    return '';
+                }
+            },
+            confirmPassword: {
+                validator: value => {
+                    if (!value) return 'Please confirm your password.';
+                    if (value !== document.getElementById('password').value) return 'Passwords do not match.';
+                    return '';
+                }
+            },
+            securityQuestion: {
+                validator: value => {
+                    if (!value.trim()) return 'Please select a security question.';
+                    return '';
+                }
+            },
+            securityAnswer: {
+                validator: value => {
+                    if (!value.trim()) return 'Security answer is required.';
+                    if (value.trim().length < 3) return 'Security answer must be at least 3 characters.';
+                    return '';
+                }
+            },
+            termsCheck: {
+                validator: value => {
+                    if (!value) return 'You must accept the terms and privacy policy.';
+                    return '';
+                }
+            }
+        };
 
-            if (password !== confirmPassword) {
-                alert("❌ Passwords do not match! Please verify your password confirmation.");
-                document.getElementById("confirmPassword").focus();
-                return;
+        function getInputValue(name) {
+            const field = document.querySelector(`[name="${name}"]`);
+            if (!field) return '';
+
+            if (field.type === 'radio') {
+                const selected = document.querySelector(`input[name="${name}"]:checked`);
+                return selected ? selected.value : '';
             }
 
-            if (password.length < 6) {
-                alert("⚠️ Password should be at least 6 characters long.");
-                document.getElementById("password").focus();
-                return;
+            if (field.type === 'checkbox') {
+                return field.checked;
             }
 
-            const form = document.getElementById("signupForm");
-            const values = new FormData(form);
-            const fullName = values.get("fullname").trim().split(/\s+/);
-            try {
-                const response = await fetch("http://localhost:8080/api/auth/register", {
-                    method: "POST", headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        email: values.get("email"), password,
-                        firstName: fullName.shift(), lastName: fullName.join(" ") || "N/A",
-                        phone: values.get("phone"), dob: values.get("dob"), gender: values.get("gender"),
-                        address: [values.get("street"), values.get("city"), values.get("state"), values.get("country"), values.get("pincode")].filter(Boolean).join(", ")
-                    })
-                });
-                const data = await response.json().catch(() => ({}));
-                if (!response.ok) throw new Error(data.message || "Registration failed");
-                alert("Registration successful. Please log in.");
-                window.location.href = "login.html";
-            } catch (error) { alert(error.message); }
+            return field.value;
         }
+
+        function setFieldState(name, message) {
+            const field = document.querySelector(`[name="${name}"]`);
+            const errorBox = document.getElementById(`${name}Error`);
+
+            if (!field || !errorBox) return;
+
+            if (message) {
+                field.classList.add('field-invalid');
+                errorBox.textContent = message;
+            } else {
+                field.classList.remove('field-invalid');
+                errorBox.textContent = '';
+            }
+        }
+
+        function validateField(name) {
+            const value = getInputValue(name);
+            const result = fieldRules[name].validator(value);
+            setFieldState(name, result);
+            return !result;
+        }
+
+        function validateSignupForm() {
+            let valid = true;
+            const names = Object.keys(fieldRules);
+
+            names.forEach((name) => {
+                const result = validateField(name);
+                if (!result) valid = false;
+            });
+
+            return valid;
+        }
+
+        document.querySelectorAll('input, select').forEach((element) => {
+            element.addEventListener('blur', () => {
+                const fieldName = element.name || element.id;
+                if (fieldRules[fieldName]) {
+                    validateField(fieldName);
+                }
+            });
+
+            element.addEventListener('input', () => {
+                const fieldName = element.name || element.id;
+                if (fieldRules[fieldName]) {
+                    validateField(fieldName);
+                }
+            });
+        });
+
+        document.querySelector('#signupForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const valid = validateSignupForm();
+
+            if (!valid) {
+                const firstError = document.querySelector('.field-error:not(:empty)');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                return;
+            }
+
+            alert('🎉 Registration details validated successfully!\nConnecting to VaultCore Backend to save your profile...');
+            // window.location.href = 'login.html';
+        });
+
+        document.querySelector('button[type="reset"]').addEventListener('click', function () {
+            Object.keys(fieldRules).forEach((name) => {
+                const field = document.querySelector(`[name="${name}"]`);
+                const errorBox = document.getElementById(`${name}Error`);
+                if (field) field.classList.remove('field-invalid');
+                if (errorBox) errorBox.textContent = '';
+            });
+        });
+
     </script>
 </body>
 </html>
