@@ -144,7 +144,7 @@
             generateCaptcha();
         };
 
-        function handleLogin(event) {
+        async function handleLogin(event) {
             event.preventDefault();
             const userEnteredCaptcha = document.getElementById("captchaInput").value;
             
@@ -156,13 +156,19 @@
             }
 
             const role = document.querySelector('input[name="role"]:checked').value;
-            const username = document.getElementById("username").value;
-
-            // Success feedback (Simulating backend connection hookup point for Python/PostgreSQL)
-            alert(`✅ Success! Authenticating as ${role}: ${username}.\nConnecting to VaultCore Backend...`);
-            
-            // Example redirect routing template:
-            // if(role === 'Admin') { window.location.href = 'admin_dashboard.html'; } else { window.location.href = 'user_dashboard.html'; }
+            const username = document.getElementById("username").value.trim();
+            try {
+                const response = await fetch("http://localhost:8080/api/auth/login", {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email: username, password: document.getElementById("password").value })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || "Login failed");
+                if ((role === "Admin" ? "ADMIN" : "CUSTOMER") !== data.role) throw new Error("Selected login role does not match this account");
+                sessionStorage.setItem("vbmsToken", data.token);
+                sessionStorage.setItem("vbmsUser", JSON.stringify(data));
+                window.location.href = data.role === "ADMIN" ? "admin/admin_dashboard.html" : "user/user_dashboard.html";
+            } catch (error) { alert(error.message); }
         }
     </script>
 </body>

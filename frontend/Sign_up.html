@@ -201,7 +201,7 @@
 
     <!-- JavaScript Interactive Validation -->
     <script>
-        function handleSignup(event) {
+        async function handleSignup(event) {
             event.preventDefault();
             
             const password = document.getElementById("password").value;
@@ -219,11 +219,24 @@
                 return;
             }
 
-            // Success feedback (Simulating backend connection for Python/PostgreSQL registration endpoint)
-            alert("🎉 Registration details validated successfully!\nConnecting to VaultCore Backend to save your profile...");
-            
-            // Example redirection after submission:
-            // window.location.href = 'login.html';
+            const form = document.getElementById("signupForm");
+            const values = new FormData(form);
+            const fullName = values.get("fullname").trim().split(/\s+/);
+            try {
+                const response = await fetch("http://localhost:8080/api/auth/register", {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        email: values.get("email"), password,
+                        firstName: fullName.shift(), lastName: fullName.join(" ") || "N/A",
+                        phone: values.get("phone"), dob: values.get("dob"), gender: values.get("gender"),
+                        address: [values.get("street"), values.get("city"), values.get("state"), values.get("country"), values.get("pincode")].filter(Boolean).join(", ")
+                    })
+                });
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) throw new Error(data.message || "Registration failed");
+                alert("Registration successful. Please log in.");
+                window.location.href = "login.html";
+            } catch (error) { alert(error.message); }
         }
     </script>
 </body>

@@ -1,0 +1,11 @@
+.env
+.env.*
+!.env.example
+application-local.properties
+backend/.env
+backend/.env.*
+!backend/.env.example
+backend/target/
+target/
+.idea/
+*.iml
