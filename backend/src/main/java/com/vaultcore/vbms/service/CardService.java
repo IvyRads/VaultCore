@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.vaultcore.vbms.entity.AccountRequest;
 import com.vaultcore.vbms.entity.Card;
-import com.vaultcore.vbms.exception.ApiExceptions.*;
 import com.vaultcore.vbms.exception.ApiExceptions.BadRequest;
 import com.vaultcore.vbms.exception.ApiExceptions.NotFound;
 import com.vaultcore.vbms.repository.AccountRequestRepository;
