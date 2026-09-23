@@ -348,7 +348,7 @@ Transfer Successful
 
 <div class="flex gap-4 mt-8">
 
-<button class="secondary-btn px-6 py-3 rounded-xl flex-1">
+<button id="downloadReceiptBtn" type="button" onclick="downloadReceipt()" class="secondary-btn px-6 py-3 rounded-xl flex-1">
 Download Receipt
 </button>
 
@@ -448,6 +448,7 @@ Confirm Transfer
 
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 
 /* =====================================================
@@ -638,6 +639,53 @@ loadRecent();
 
 document.getElementById("formCard").classList.add("hidden");
 document.getElementById("successCard").classList.remove("hidden");
+
+}
+
+function downloadReceipt(){
+
+if(!window.jspdf||!window.jspdf.jsPDF){
+alert("PDF library failed to load. Please refresh the page and try again.");
+return;
+}
+
+const {jsPDF}=window.jspdf;
+const doc=new jsPDF();
+const receiptRows=[
+    ["Transaction Reference",document.getElementById("successRef").innerText],
+    ["Date & Time",document.getElementById("successTime").innerText],
+    ["Sender Account",document.getElementById("confirmFrom").innerText],
+    ["Recipient",document.getElementById("successRecipient").innerText],
+    ["Recipient Account",document.getElementById("successAccount").innerText],
+    ["IFSC Code",document.getElementById("ifsc").value.trim()],
+    ["Transferred Amount","INR "+Number(document.getElementById("amount").value).toLocaleString("en-IN")],
+    ["Remarks",document.getElementById("remarks").value.trim()||"-"],
+    ["Status","Successful"]
+];
+
+doc.setFontSize(20);
+doc.setTextColor(138,21,56);
+doc.text("VaultCore Banking",20,24);
+doc.setFontSize(14);
+doc.setTextColor(32,38,46);
+doc.text("Transfer Receipt",20,34);
+doc.setDrawColor(212,175,55);
+doc.line(20,40,190,40);
+
+let y=54;
+doc.setFontSize(11);
+receiptRows.forEach(([label,value])=>{
+    doc.setFont(undefined,"bold");
+    doc.text(label,20,y);
+    doc.setFont(undefined,"normal");
+    doc.text(String(value),85,y);
+    y+=12;
+});
+
+doc.setFontSize(9);
+doc.setTextColor(90,101,114);
+doc.text("This is a computer-generated receipt and does not require a signature.",20, y+12);
+doc.save("vaultcore_transfer_receipt_"+document.getElementById("successRef").innerText+".pdf");
 
 }
 
