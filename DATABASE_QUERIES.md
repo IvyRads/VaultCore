@@ -25,3 +25,22 @@ GROUP BY b.branch_id, b.branch_name;
 ```
 
 Balance operations are one database transaction: account update, history insert, and audit log insert commit together or roll back together. Pessimistic row locks prevent concurrent withdrawals from using the same stale balance.
+
+```sql
+SELECT c.* FROM cards c JOIN accounts a ON a.account_id = c.account_id
+WHERE a.customer_id = :customerId ORDER BY c.card_id DESC;
+```
+
+```sql
+UPDATE cards SET status = :status WHERE card_id = :cardId;
+INSERT INTO account_requests(account_id, action, reason, request_date, status)
+VALUES (:accountId, :action, :reason, CURRENT_TIMESTAMP, 'COMPLETED');
+```
+
+```sql
+INSERT INTO fraud_reports
+(customer_id, account_id, transaction_id, fraud_type, description, incident_date, contact_preference, status, created_at)
+VALUES (:customerId, :accountId, :transactionId, :fraudType, :description, :incidentDate, :contactPreference, 'SUBMITTED', CURRENT_TIMESTAMP);
+```
+
+Card block/unblock and account freeze/unfreeze use one transaction for the status update and request log insert. Fraud submission uses one transaction for the report insert; failures roll back the operation.
