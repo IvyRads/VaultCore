@@ -4,7 +4,7 @@ Spring Boot REST backend for the existing Supabase PostgreSQL schema. The backen
 
 ## Requirements
 
-- Java 17 or later
+- Java 25 LTS or later
 - Maven 3.9 or later
 - Existing Supabase PostgreSQL tables
 - Frontend served by Live Server or another local HTTP server

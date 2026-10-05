@@ -12,7 +12,7 @@ Copy `backend/.env.example` to a local environment configuration and set these v
 
 ## Run
 
-Requirements: Java 17+, Maven 3.9+, and a Supabase database with the existing tables. From the repository root:
+Requirements: Java 25 LTS or later, Maven 3.9+, and a Supabase database with the existing tables. From the repository root:
 
 ```powershell
 $env:DB_URL="jdbc:postgresql://HOST:5432/postgres?sslmode=require"
