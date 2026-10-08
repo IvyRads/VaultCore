@@ -11,8 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.vaultcore.vbms.entity.FraudReport;
-import com.vaultcore.vbms.repository.CustomerRepository;
-import com.vaultcore.vbms.repository.UserRepository;
+import com.vaultcore.vbms.security.AuthorizationService;
 import com.vaultcore.vbms.service.FraudReportService;
 
 import jakarta.validation.Valid;
@@ -23,29 +22,22 @@ import jakarta.validation.constraints.NotNull;
 @RequestMapping("/api/fraud-reports")
 public class FraudReportController {
     private final FraudReportService service;
-    private final UserRepository users;
-    private final CustomerRepository customers;
+    private final AuthorizationService authorization;
 
-    public FraudReportController(FraudReportService service, UserRepository users, CustomerRepository customers) {
+    public FraudReportController(FraudReportService service, AuthorizationService authorization) {
         this.service = service;
-        this.users = users;
-        this.customers = customers;
+        this.authorization = authorization;
     }
 
     public record FraudReportRequest(@NotNull Integer accountId, Integer transactionId, @NotBlank String fraudType, @NotBlank String description, @NotNull LocalDate incidentDate, @NotBlank String contactPreference) {}
 
     @GetMapping
     public List<FraudReport> list(Authentication authentication) {
-        return service.list(customerId(authentication));
+        return service.list(authorization.caller(authentication));
     }
 
     @PostMapping
     public FraudReport create(@Valid @RequestBody FraudReportRequest request, Authentication authentication) {
-        return service.create(customerId(authentication), request.accountId(), request.transactionId(), request.fraudType(), request.description(), request.incidentDate(), request.contactPreference());
-    }
-
-    private Integer customerId(Authentication authentication) {
-        var user = users.findByEmailIgnoreCase(authentication.getName()).orElseThrow();
-        return customers.findByUserUserId(user.getUserId()).orElseThrow().getCustomerId();
+        return service.create(authorization.caller(authentication), request.accountId(), request.transactionId(), request.fraudType(), request.description(), request.incidentDate(), request.contactPreference());
     }
 }
