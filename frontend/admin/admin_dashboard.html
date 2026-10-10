@@ -88,12 +88,12 @@
     <!-- Admin Profile Info Table -->
     <table width="100%" cellpadding="10" style="background-color: #F8F6F2; border-radius: 10px; border: 1px solid #E7DED3; font-size: 14px; color: #20262E;">
         <tr>
-            <td style="text-align: left;"><b>Welcome :</b> <span style="color: #8A1538; font-weight: 600;">Administrator</span></td>
-            <td style="text-align: right;"><b>Admin ID :</b> <span style="color: #5A6572;">Not provided</span></td>
+            <td style="text-align: left;"><b>Welcome :</b> <span id="adminWelcome" style="color: #8A1538; font-weight: 600;">Loading...</span></td>
+            <td style="text-align: right;"><b>Admin ID :</b> <span id="adminUserId" style="color: #5A6572;">Loading...</span></td>
         </tr>
         <tr>
             <td style="text-align: left;"><b>Role :</b> System Administrator</td>
-            <td style="text-align: right;"><b>Last Login :</b> <span style="color: #D4AF37; font-weight: 600;">Not provided</span></td>
+            <td style="text-align: right;"><b>Last Login :</b> <span id="adminLastLogin" style="color: #D4AF37; font-weight: 600;">Loading...</span></td>
         </tr>
     </table>
 
@@ -106,21 +106,21 @@
         <table width="100%" cellpadding="12" style="border-collapse: collapse; border: 1px solid #E7DED3; font-size: 14px;">
             <tr style="border-bottom: 1px solid #E7DED3;">
                 <th style="background-color: #F8F6F2; color: #20262E; width: 25%; text-align: left; padding-left: 15px;">Total Customers</th>
-                <td style="width: 25%; color: #8A1538; font-weight: 700;">Not available</td>
+                <td id="totalCustomers" style="width: 25%; color: #8A1538; font-weight: 700;">Loading...</td>
                 <th style="background-color: #F8F6F2; color: #20262E; width: 25%; text-align: left; padding-left: 15px;">Total Branches</th>
-                <td style="width: 25%; color: #8A1538; font-weight: 700;">Not available</td>
+                <td id="totalBranches" style="width: 25%; color: #8A1538; font-weight: 700;">Loading...</td>
             </tr>
             <tr style="border-bottom: 1px solid #E7DED3;">
                 <th style="background-color: #F8F6F2; color: #20262E; text-align: left; padding-left: 15px;">Total Accounts</th>
-                <td style="color: #5A6572; font-weight: 700;">Not available</td>
+                <td id="totalAccounts" style="color: #5A6572; font-weight: 700;">Loading...</td>
                 <th style="background-color: #F8F6F2; color: #20262E; text-align: left; padding-left: 15px;">Total Transactions</th>
-                <td style="color: #5A6572; font-weight: 700;">Not available</td>
+                <td id="totalTransactions" style="color: #5A6572; font-weight: 700;">Loading...</td>
             </tr>
             <tr>
                 <th style="background-color: #F8F6F2; color: #20262E; text-align: left; padding-left: 15px;">Active Accounts</th>
-                <td style="color: #20262E; font-weight: 700;">Not available</td>
+                <td id="activeAccounts" style="color: #20262E; font-weight: 700;">Loading...</td>
                 <th style="background-color: #F8F6F2; color: #20262E; text-align: left; padding-left: 15px;">Bank Status</th>
-                <td><span style="background-color: #E7DED3; color: #8A1538; padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 12px;">Not available</span></td>
+                <td><span id="bankStatus" style="background-color: #E7DED3; color: #8A1538; padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 12px;">Loading...</span></td>
             </tr>
         </table>
     </fieldset>
@@ -202,6 +202,35 @@
 </div>
 
 </center>
+
+<script>
+    function formatAdminLastLogin(value) {
+        if (value === 'First login' || !value) return 'First login';
+        const date = new Date(value);
+        return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
+    }
+
+    VaultCoreApi.request('/api/admin/summary').then(summary => {
+        document.getElementById('adminWelcome').textContent =
+            summary.adminName && summary.adminEmail
+                ? `${summary.adminName} (${summary.adminEmail})`
+                : summary.adminEmail || summary.adminName || 'Unavailable';
+        document.getElementById('adminUserId').textContent = summary.adminUserId ?? 'Unavailable';
+        document.getElementById('adminLastLogin').textContent = formatAdminLastLogin(summary.lastLogin);
+        document.getElementById('totalCustomers').textContent = summary.totalCustomers;
+        document.getElementById('totalBranches').textContent = summary.totalBranches;
+        document.getElementById('totalAccounts').textContent = summary.totalAccounts;
+        document.getElementById('totalTransactions').textContent = summary.totalTransactions;
+        document.getElementById('activeAccounts').textContent = summary.activeAccounts;
+        document.getElementById('bankStatus').textContent = summary.bankStatus;
+    }).catch(error => {
+        const message = `Unable to load: ${error.message || 'Please try again.'}`;
+        ['adminWelcome', 'adminUserId', 'adminLastLogin', 'totalCustomers', 'totalBranches',
+            'totalAccounts', 'totalTransactions', 'activeAccounts', 'bankStatus'].forEach(id => {
+            document.getElementById(id).textContent = message;
+        });
+    });
+</script>
 
 </body>
 

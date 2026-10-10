@@ -14,11 +14,17 @@ public interface CustomerRepository extends JpaRepository<Customer,Integer> {
     @Query("select count(c) from Customer c where c.branch.branchId = :branchId")
     long countByBranchId(@Param("branchId") Integer branchId);
 
+    default List<Customer> searchCustomers(String search, Integer branchId) {
+        return searchCustomersFiltered(
+                search == null || search.isBlank() ? "" : search.trim(),
+                branchId == null ? -1 : branchId);
+    }
+
     @Query("""
             select c from Customer c
-            where (:branchId is null or c.branch.branchId = :branchId)
+            where (:branchId = -1 or c.branch.branchId = :branchId)
               and (
-                    :search is null
+                    :search = ''
                     or lower(c.customerNumber) like lower(concat('%', :search, '%'))
                     or lower(c.user.email) like lower(concat('%', :search, '%'))
                     or exists (
@@ -32,5 +38,5 @@ public interface CustomerRepository extends JpaRepository<Customer,Integer> {
                     )
               )
             """)
-    List<Customer> searchCustomers(@Param("search") String search, @Param("branchId") Integer branchId);
+    List<Customer> searchCustomersFiltered(@Param("search") String search, @Param("branchId") Integer branchId);
 }

@@ -6,15 +6,23 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface BranchRepository extends JpaRepository<Branch,Integer> {
+    default List<Branch> searchBranches(String branchName, String district, String ifscCode) {
+        return searchBranchesFiltered(normalize(branchName), normalize(district), normalize(ifscCode));
+    }
+
     @Query("""
             select b from Branch b
-            where (:branchName is null or lower(coalesce(b.branchName, '')) like lower(concat('%', :branchName, '%')))
-              and (:district is null or lower(coalesce(b.district, '')) like lower(concat('%', :district, '%')))
-              and (:ifscCode is null or lower(coalesce(b.ifscCode, '')) like lower(concat('%', :ifscCode, '%')))
+            where (:branchName = '' or lower(coalesce(b.branchName, '')) like lower(concat('%', :branchName, '%')))
+              and (:district = '' or lower(coalesce(b.district, '')) like lower(concat('%', :district, '%')))
+              and (:ifscCode = '' or lower(coalesce(b.ifscCode, '')) like lower(concat('%', :ifscCode, '%')))
             order by b.branchName
             """)
-    List<Branch> searchBranches(
+    List<Branch> searchBranchesFiltered(
             @Param("branchName") String branchName,
             @Param("district") String district,
             @Param("ifscCode") String ifscCode);
+
+    private static String normalize(String value) {
+        return value == null || value.isBlank() ? "" : value.trim();
+    }
 }

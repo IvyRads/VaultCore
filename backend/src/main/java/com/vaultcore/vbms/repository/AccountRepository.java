@@ -10,6 +10,7 @@ public interface AccountRepository extends JpaRepository<Account,Integer> {
     Optional<Account> findByAccountNumber(String number);
     boolean existsByAccountNumber(String number);
     List<Account> findByCustomerCustomerId(Integer customerId);
+    long countByStatusIgnoreCase(String status);
 
     @Query("select a from Account a where a.customer.branch.branchId = :branchId order by a.accountId")
     List<Account> findByCustomerBranchId(@Param("branchId") Integer branchId);
@@ -19,6 +20,18 @@ public interface AccountRepository extends JpaRepository<Account,Integer> {
 
     @Query("select coalesce(sum(a.balance), 0) from Account a where a.customer.branch.branchId = :branchId")
     BigDecimal sumBalanceByCustomerBranchId(@Param("branchId") Integer branchId);
+
+    default List<AdminAccountResponse> searchAdminAccounts(
+            String accountNumber, String accountType, String status, Integer customerId, Integer branchId,
+            Integer accountId) {
+        return searchAdminAccountsFiltered(
+                accountNumber == null ? "" : accountNumber.trim(),
+                accountType == null ? "" : accountType.trim(),
+                status == null ? "" : status.trim(),
+                customerId == null ? -1 : customerId,
+                branchId == null ? -1 : branchId,
+                accountId == null ? -1 : accountId);
+    }
 
     @Query("""
             select new com.vaultcore.vbms.dto.AccountManagementDtos$AdminAccountResponse(
@@ -30,15 +43,15 @@ public interface AccountRepository extends JpaRepository<Account,Integer> {
             join a.customer c
             left join c.branch b
             left join UserProfile p on p.user.userId = c.user.userId
-            where (:accountNumber is null or lower(a.accountNumber) like lower(concat('%', :accountNumber, '%')))
-              and (:accountType is null or lower(a.accountType) = lower(:accountType))
-              and (:status is null or lower(a.status) = lower(:status))
-              and (:customerId is null or c.customerId = :customerId)
-              and (:branchId is null or b.branchId = :branchId)
-              and (:accountId is null or a.accountId = :accountId)
+            where (:accountNumber = '' or lower(a.accountNumber) like lower(concat('%', :accountNumber, '%')))
+              and (:accountType = '' or lower(a.accountType) = lower(:accountType))
+              and (:status = '' or lower(a.status) = lower(:status))
+              and (:customerId = -1 or c.customerId = :customerId)
+              and (:branchId = -1 or b.branchId = :branchId)
+              and (:accountId = -1 or a.accountId = :accountId)
             order by a.accountId
             """)
-    List<AdminAccountResponse> searchAdminAccounts(
+    List<AdminAccountResponse> searchAdminAccountsFiltered(
             @Param("accountNumber") String accountNumber,
             @Param("accountType") String accountType,
             @Param("status") String status,
