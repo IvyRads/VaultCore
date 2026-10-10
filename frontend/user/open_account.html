@@ -37,7 +37,7 @@ body { padding-left: 250px; box-sizing: border-box; }
 @media (max-width: 1000px) { .account-layout { grid-template-columns: 1fr; } }
 @media (max-width: 800px) { body { padding-left: 76px; } .sidebar { width: 76px; padding: 18px 10px; } .brand { padding: 0 10px 22px; justify-content: center; } .brand-text, .side-nav .label { display: none; } .side-nav a { text-align: center; padding: 12px 6px; } .container { padding: 18px; } }
 </style>
-</head>
+<script src="api.js"></script><script>VaultCoreApi.requireAuthentication();</script></head>
 <body>
 
 <aside class="sidebar">
@@ -64,10 +64,10 @@ body { padding-left: 250px; box-sizing: border-box; }
 
   <section class="card p-6 mb-8 border-l-4 border-l-[#D4AF37]" aria-label="Customer summary">
     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-      <div><p class="text-xs uppercase tracking-wide text-gray-500">Customer</p><p class="font-bold text-[#8A1538] mt-1">Neha J Shibu</p></div>
-      <div><p class="text-xs uppercase tracking-wide text-gray-500">Customer ID</p><p class="font-semibold mt-1">C1001</p></div>
-      <div><p class="text-xs uppercase tracking-wide text-gray-500">Registered Branch</p><p class="font-semibold mt-1">Trivandrum Main Branch</p></div>
-      <div><p class="text-xs uppercase tracking-wide text-gray-500">Existing Accounts</p><p class="font-semibold mt-1">Savings (1)</p></div>
+      <div><p class="text-xs uppercase tracking-wide text-gray-500">Customer</p><p id="customerName" class="font-bold text-[#8A1538] mt-1">Loading...</p></div>
+      <div><p class="text-xs uppercase tracking-wide text-gray-500">Customer Number</p><p id="customerNumber" class="font-semibold mt-1">Loading...</p></div>
+      <div><p class="text-xs uppercase tracking-wide text-gray-500">Registered Branch</p><p id="registeredBranch" class="font-semibold mt-1">Loading...</p></div>
+      <div><p class="text-xs uppercase tracking-wide text-gray-500">Existing Accounts</p><p id="existingAccountCount" class="font-semibold mt-1">Loading...</p></div>
     </div>
   </section>
 
@@ -83,12 +83,12 @@ body { padding-left: 250px; box-sizing: border-box; }
         <legend class="field-label mb-3">Choose Account Type</legend>
         <div class="grid md:grid-cols-2 gap-4">
           <label id="savingsCard" class="type-card">
-            <input class="sr-only" type="radio" name="accountType" value="Savings Account">
+            <input class="sr-only" type="radio" name="accountType" value="SAVINGS">
             <span class="block font-bold text-[#8A1538]">Savings Account</span>
             <span class="block text-sm text-gray-600 mt-1">Suitable for personal banking.</span>
           </label>
           <label id="currentCard" class="type-card">
-            <input class="sr-only" type="radio" name="accountType" value="Current Account">
+            <input class="sr-only" type="radio" name="accountType" value="CURRENT">
             <span class="block font-bold text-[#8A1538]">Current Account</span>
             <span class="block text-sm text-gray-600 mt-1">Suitable for frequent transactions.</span>
           </label>
@@ -99,15 +99,15 @@ body { padding-left: 250px; box-sizing: border-box; }
       <div class="grid md:grid-cols-2 gap-6 mb-6">
         <div>
           <label class="field-label block mb-2" for="branch">Branch</label>
-          <select id="branch"><option>Trivandrum Main Branch</option><option>Kochi City Branch</option><option>Kozhikode Branch</option></select>
-          <p class="text-xs text-gray-500 mt-2">Your registered branch is selected by default.</p>
+          <p id="branch" class="mt-3 font-semibold">Loading registered branch...</p>
         </div>
         <div>
           <label class="field-label block mb-2" for="deposit">Initial Deposit</label>
-          <input id="deposit" type="number" min="500" inputmode="decimal" placeholder="Enter initial deposit">
-          <p class="text-xs text-gray-500 mt-2">Minimum opening balance: <strong class="text-[#8A1538]">₹500</strong></p>
+          <input id="deposit" type="number" min="0" value="0" inputmode="decimal" placeholder="Enter initial deposit">
+          <p class="text-xs text-gray-500 mt-2">Any account-type minimum will be validated when you submit.</p>
           <div id="depositError" class="error"></div>
         </div>
+        <div id="accountCreationError" class="error mb-4" role="alert"></div>
       </div>
 
       <div class="border-t border-[#E7DED3] pt-6 mb-6">
@@ -147,14 +147,7 @@ body { padding-left: 250px; box-sizing: border-box; }
 
   <section class="card p-6">
     <div class="flex flex-wrap justify-between items-center gap-3 mb-5"><h3 class="text-2xl font-bold text-[#8A1538]">Existing Accounts</h3><a href="account.html" class="font-semibold text-[#8A1538] hover:underline">View All Accounts</a></div>
-    <div class="space-y-4">
-      <div class="border border-[#E7DED3] rounded-xl p-5 bg-[#FFFEFC]">
-        <div class="flex flex-wrap justify-between gap-4"><div><p class="font-bold text-[#8A1538]">Savings Account</p><p class="text-sm text-gray-600 mt-1">Account Number: XXXX4582</p><p class="text-sm text-gray-500 mt-1">Kochi Main</p></div><div class="sm:text-right"><p class="font-bold">₹2,45,800</p><span class="text-xs font-semibold text-green-700 bg-green-100 px-2 py-1 rounded-full">Active</span></div></div>
-      </div>
-      <div class="border border-[#E7DED3] rounded-xl p-5 bg-[#FFFEFC]">
-        <div class="flex flex-wrap justify-between gap-4"><div><p class="font-bold text-[#8A1538]">Current Account</p><p class="text-sm text-gray-600 mt-1">Account Number: XXXX8974</p><p class="text-sm text-gray-500 mt-1">Trivandrum</p></div><div class="sm:text-right"><p class="font-bold">₹1,12,500</p><span class="text-xs font-semibold text-green-700 bg-green-100 px-2 py-1 rounded-full">Active</span></div></div>
-      </div>
-    </div>
+    <div id="existingAccounts" class="space-y-4">Loading accounts...</div>
   </section>
   </div>
 </main>
@@ -168,8 +161,8 @@ body { padding-left: 250px; box-sizing: border-box; }
 </div>
 
 <script>
-const MINIMUM_DEPOSIT = 500;
 const accountTypeInputs = document.querySelectorAll('input[name="accountType"]');
+let registeredBranch = '';
 
 accountTypeInputs.forEach(input => input.addEventListener('change', () => {
   document.querySelectorAll('.type-card').forEach(card => card.classList.remove('selected'));
@@ -182,10 +175,10 @@ function clearErrors() { document.querySelectorAll('.error').forEach(error => er
 function validateForm() {
   clearErrors();
   const type = document.querySelector('input[name="accountType"]:checked');
-  const deposit = Number(document.getElementById('deposit').value);
+  const deposit = document.getElementById('deposit').value;
   let valid = true;
   if (!type) { document.getElementById('accountTypeError').textContent = 'Please select an account type.'; valid = false; }
-  if (!deposit || deposit < MINIMUM_DEPOSIT) { document.getElementById('depositError').textContent = 'Minimum opening balance is ₹500.'; valid = false; }
+  if (deposit && (!Number.isFinite(Number(deposit)) || Number(deposit) < 0)) { document.getElementById('depositError').textContent = 'Initial deposit cannot be negative.'; valid = false; }
   if (!document.getElementById('terms').checked) { document.getElementById('termsError').textContent = 'Please accept the terms and conditions.'; valid = false; }
   return valid;
 }
@@ -195,27 +188,72 @@ function currency(value) { return '₹' + Number(value).toLocaleString('en-IN');
 function openConfirmation() {
   if (!validateForm()) return;
   document.getElementById('confirmType').textContent = document.querySelector('input[name="accountType"]:checked').value;
-  document.getElementById('confirmBranch').textContent = document.getElementById('branch').value;
-  document.getElementById('confirmDeposit').textContent = currency(document.getElementById('deposit').value);
+  document.getElementById('confirmBranch').textContent = registeredBranch || '—';
+  document.getElementById('confirmDeposit').textContent = currency(document.getElementById('deposit').value || 0);
   document.getElementById('confirmModal').classList.remove('hidden');
 }
 function closeModal() { document.getElementById('confirmModal').classList.add('hidden'); }
 
-/* Future Spring Boot integration: POST /api/accounts with customer_id, branch_id, account_type, balance and nominee data. */
-function createAccount() {
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[char]);
+}
+
+async function loadAccountData() {
+  const [profile, accounts] = await Promise.all([
+    VaultCoreApi.request('/api/customers/me/profile'),
+    VaultCoreApi.request('/api/accounts/mine')
+  ]);
+  registeredBranch = profile.branchName || '';
+  document.getElementById('customerName').textContent = `${profile.firstName || ''} ${profile.lastName || ''}`.trim() || '—';
+  document.getElementById('customerNumber').textContent = profile.customerNumber || '—';
+  document.getElementById('registeredBranch').textContent = registeredBranch || '—';
+  document.getElementById('branch').textContent = registeredBranch || '—';
+  document.getElementById('existingAccountCount').textContent = String(accounts.length);
+  const list = document.getElementById('existingAccounts');
+  list.innerHTML = accounts.length ? accounts.map(account => `<div class="border border-[#E7DED3] rounded-xl p-5 bg-[#FFFEFC]">
+    <div class="flex flex-wrap justify-between gap-4"><div><p class="font-bold text-[#8A1538]">${escapeHtml(account.accountType)}</p>
+    <p class="text-sm text-gray-600 mt-1">Account Number: ${escapeHtml(account.accountNumber)}</p></div>
+    <div class="sm:text-right"><p class="font-bold">₹${Number(account.balance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</p>
+    <span class="text-xs font-semibold text-green-700 bg-green-100 px-2 py-1 rounded-full">${escapeHtml(account.status)}</span></div></div></div>`).join('')
+    : 'No accounts are linked to this customer.';
+}
+
+async function createAccount() {
+  const error = document.getElementById('accountCreationError');
+  const confirmButton = document.querySelector('#confirmModal button.primary-btn');
+  error.textContent = '';
+  confirmButton.disabled = true;
   closeModal();
   const type = document.querySelector('input[name="accountType"]:checked').value;
-  const branch = document.getElementById('branch').value;
-  const deposit = document.getElementById('deposit').value;
-  const accountNumber = '1000' + Math.floor(100000 + Math.random() * 900000);
-  document.getElementById('successNumber').textContent = accountNumber;
-  document.getElementById('successType').textContent = type;
-  document.getElementById('successBranch').textContent = branch;
-  document.getElementById('successDeposit').textContent = currency(deposit);
-  document.getElementById('successDate').textContent = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
-  document.getElementById('formCard').classList.add('hidden');
-  document.getElementById('successCard').classList.remove('hidden');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  const deposit = document.getElementById('deposit').value || '0';
+  try {
+    const account = await VaultCoreApi.request('/api/accounts', {
+      method: 'POST',
+      body: JSON.stringify({ accountType: type, initialDeposit: deposit })
+    });
+    try {
+      await loadAccountData();
+    } catch (refreshError) {
+      document.getElementById('existingAccounts').textContent =
+        `Account created. Unable to refresh the account list: ${refreshError.message || 'Please reload the page.'}`;
+    }
+    document.getElementById('successNumber').textContent = account.accountNumber;
+    document.getElementById('successType').textContent = account.accountType;
+    document.getElementById('successBranch').textContent = registeredBranch || '—';
+    document.getElementById('successDeposit').textContent = currency(account.balance);
+    document.getElementById('successDate').textContent = account.createdAt
+      ? new Date(account.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
+      : '—';
+    document.getElementById('formCard').classList.add('hidden');
+    document.getElementById('successCard').classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch (requestError) {
+    error.textContent = `Unable to create account: ${requestError.message || 'Please try again.'}`;
+  } finally {
+    confirmButton.disabled = false;
+  }
 }
 
 function resetForm() {
@@ -223,6 +261,15 @@ function resetForm() {
   document.querySelectorAll('.type-card').forEach(card => card.classList.remove('selected'));
   clearErrors();
 }
+
+loadAccountData().catch(error => {
+  document.getElementById('existingAccounts').textContent = `Unable to load accounts: ${error.message || 'Please try again.'}`;
+  document.getElementById('customerName').textContent = 'Unavailable';
+  document.getElementById('customerNumber').textContent = 'Unavailable';
+  document.getElementById('registeredBranch').textContent = 'Unavailable';
+  document.getElementById('branch').textContent = 'Unavailable';
+  document.getElementById('existingAccountCount').textContent = 'Unavailable';
+});
 </script>
 </body>
 </html>

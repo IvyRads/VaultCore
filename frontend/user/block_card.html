@@ -21,7 +21,7 @@ body{background:linear-gradient(135deg,#F8F6F2,#E7DED3);font-family:'Segoe UI',T
 @media(max-width:800px){body{padding-left:76px;}.sidebar{width:76px;padding:18px 10px;}.brand{padding:0 10px 22px;justify-content:center;}.brand-text,.side-nav .label{display:none;}.side-nav a{text-align:center;padding:12px 6px;}.container{width:calc(100% - 30px);padding:25px;margin:18px auto;}.success-details{grid-template-columns:1fr;}}
 body{padding-left:250px;box-sizing:border-box;}
 </style>
-</head>
+<script src="api.js"></script><script>VaultCoreApi.requireAuthentication();</script></head>
 <body>
 <aside class="sidebar">
 <a class="brand" href="user_dashboard.html"><span class="brand-mark">V</span><span class="brand-text"><strong>VAULTCORE</strong><small>BANKING SYSTEM</small></span></a>
@@ -37,73 +37,187 @@ body{padding-left:250px;box-sizing:border-box;}
 <div class="alert mb-7"><span aria-hidden="true">⚠</span><div><strong>Blocking your card immediately prevents further card transactions.</strong><br><span class="text-sm">Choose the affected card below and confirm the reason for blocking.</span></div></div>
 
 <section class="section">
+<h3 class="section-title">ADD CARD</h3>
+<form id="addCardForm">
+<label for="cardAccount">Account</label>
+<select id="cardAccount" required><option value="">Loading accounts…</option></select>
+<label for="newCardType">Card Type</label>
+<select id="newCardType" required><option value="">Select card type</option><option value="DEBIT">Debit</option><option value="CREDIT">Credit</option></select>
+<div id="addCardError" class="error" role="alert"></div>
+<button id="addCardButton" type="submit" class="primary-btn mt-3">Add Card</button>
+</form>
+</section>
+
+<section class="section">
 <h3 class="section-title">MY CARDS</h3>
+<p id="cardMessage" role="status">Loading cards…</p>
 <div id="cardList" class="card-grid"></div>
 </section>
 
 <section id="successSection" class="section hidden">
-<div class="success-panel"><div class="text-4xl text-green-700">✓</div><h2 id="successTitle">Card Blocked Successfully</h2><div id="successDetails" class="success-details"></div><div class="next-steps mt-5"><strong class="text-[#8A1538]">Next Steps:</strong><ul id="successNextSteps" class="list-disc pl-5"><li>Your account remains active.</li><li>Online banking is unaffected.</li><li>Contact support if you need a replacement card.</li></ul></div><div class="flex flex-col sm:flex-row gap-3 mt-6"><a href="support.html" class="secondary-btn text-center">Return to Support</a><a href="user_dashboard.html" class="primary-btn text-center">Back to Dashboard</a></div></div>
-</section>
-
-<section class="section">
-<h3 class="section-title">BLOCK HISTORY</h3>
-<div class="history-wrap"><table><thead><tr><th>Reference ID</th><th>Card</th><th>Date</th><th>Reason</th><th>Status</th></tr></thead><tbody id="historyRows"></tbody></table></div>
+<div class="success-panel"><div class="text-4xl text-green-700">✓</div><h2 id="successTitle">Card status updated</h2><div id="successDetails" class="success-details"></div></div>
 </section>
 
 <p class="text-center text-[#5A6572]">© 2026 VaultCore Banking Management System</p>
 </main>
 
 <div id="blockModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-<section class="modal"><h2 id="modalTitle">Confirm Card Block</h2><p id="modalDescription">This action will immediately block your selected card. Card transactions will no longer be allowed.</p><div class="bg-[#F8F6F2] rounded-lg p-3 mt-4"><strong>Selected Card:</strong> <span id="selectedCard"></span><br><strong>Linked Account:</strong> <span id="selectedAccount"></span></div><label id="reasonLabel" for="blockReason">Reason for Blocking</label><select id="blockReason"><option value="">Select a reason</option></select><div id="reasonError" class="error" role="alert"></div><label for="blockRemarks">Additional Remarks <span class="font-normal text-[#5A6572]">(optional)</span></label><textarea id="blockRemarks" placeholder="Add any helpful details"></textarea><div class="modal-actions"><button type="button" class="secondary-btn" onclick="closeBlockModal()">Cancel</button><button id="confirmActionButton" type="button" class="danger-btn" onclick="confirmCardAction()">Confirm Block</button></div></section>
+<section class="modal"><h2 id="modalTitle">Confirm Card Block</h2><p id="modalDescription">Choose a reason to continue.</p><div class="bg-[#F8F6F2] rounded-lg p-3 mt-4"><strong>Selected Card:</strong> <span id="selectedCard"></span></div><label id="reasonLabel" for="blockReason">Reason</label><select id="blockReason"><option value="">Select a reason</option></select><div id="reasonError" class="error" role="alert"></div><label for="blockRemarks">Additional Remarks <span class="font-normal text-[#5A6572]">(optional)</span></label><textarea id="blockRemarks" placeholder="Add any helpful details"></textarea><div class="modal-actions"><button type="button" class="secondary-btn" onclick="closeBlockModal()">Cancel</button><button id="confirmActionButton" type="button" class="danger-btn" onclick="confirmCardAction()">Confirm Block</button></div></section>
 </div>
 
-<script src="api.js"></script>
-<script>
-/* Future Spring Boot integration: GET /api/cards/my-cards and POST /api/cards/{cardId}/block. */
-const cards=[
- {id:1,type:'Debit Card',number:'**** **** **** 4567',shortNumber:'****4567',account:'Savings Account',accountNumber:'1000234567',status:'Active',expiry:'09/2029'},
- {id:2,type:'Debit Card',number:'**** **** **** 8912',shortNumber:'****8912',account:'Current Account',accountNumber:'2000456789',status:'Blocked',expiry:'04/2028'}
-];
-/* Future API response: cardRequests records would be loaded from card_requests. */
-const blockHistory=[{reference:'BLK001',card:'****4567',date:'15 Sep 2026',reason:'Lost Card',status:'Blocked'}];
-let selectedCardId=null;
-let selectedAction='BLOCK';
 
-const actionReasons={
- BLOCK:['Lost Card','Stolen Card','Damaged Card','Suspected Fraud','Other'],
- UNBLOCK:['Card Found','Security Review Completed','Unblock Requested','Other']
+<script>
+const cardList = document.getElementById('cardList');
+const cardMessage = document.getElementById('cardMessage');
+const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+})[char]);
+const statusName = status => String(status || '').toUpperCase() === 'BLOCKED' ? 'Blocked' : 'Active';
+const maskedNumber = number => `•••• •••• •••• ${escapeHtml(String(number || '').slice(-4))}`;
+let cards = [];
+let selectedCardId = null;
+let selectedAction = 'BLOCK';
+
+const actionReasons = {
+  BLOCK: ['Lost Card', 'Stolen Card', 'Damaged Card', 'Suspected Fraud', 'Other'],
+  UNBLOCK: ['Card Found', 'Security Review Completed', 'Unblock Requested', 'Other']
 };
 
-async function loadCardsFromApi(){
- if(!VaultCoreApi.isAuthenticated()){renderCards();return;}
- try{
-  const data=await VaultCoreApi.request('/api/cards');
-  cards.splice(0,cards.length,...data.map(card=>({id:card.cardId,type:card.cardType,number:'**** **** **** '+String(card.cardNumber).slice(-4),shortNumber:'****'+String(card.cardNumber).slice(-4),account:card.account.accountType,accountNumber:card.account.accountNumber,status:String(card.status).replace('BLOCKED','Blocked').replace('ACTIVE','Active'),expiry:card.expiryDate||'-'})));
- }catch(error){alert(`Cards could not be loaded from the server. Mock data is being shown. ${error.message}`);}
- renderCards();
+function renderCards() {
+  if (!cards.length) {
+    cardList.innerHTML = '';
+    cardMessage.textContent = 'No cards are available.';
+    return;
+  }
+  cardMessage.textContent = '';
+  cardList.innerHTML = cards.map(card => {
+    const status = statusName(card.status);
+    return `<article class="bank-card ${status === 'Blocked' ? 'blocked' : ''}">
+      <div><div class="card-top"><span class="card-label">${escapeHtml(card.cardType)}</span><span class="status ${status.toLowerCase()}">${status}</span></div>
+      <div class="card-number">${maskedNumber(card.cardNumber)}</div></div>
+      <div class="card-bottom"><div class="card-detail">Expiry<strong>${escapeHtml(card.expiryDate || '—')}</strong></div>
+      <div class="card-detail">Linked Account<strong>${escapeHtml(card.accountNumber || '—')}</strong></div></div>
+      <button type="button" class="${status === 'Blocked' ? 'primary-btn' : 'danger-btn'} mt-5" onclick="openCardAction(${card.cardId})">${status === 'Blocked' ? 'Unblock Card' : 'Block Card'}</button>
+    </article>`;
+  }).join('');
 }
 
-function renderCards(){
- document.getElementById('cardList').innerHTML=cards.map(card=>`<article class="bank-card ${card.status==='Blocked'?'blocked':''}"><div><div class="card-top"><span class="card-label">${card.type}</span><span class="status ${card.status.toLowerCase()}">${card.status}</span></div><div class="card-number">${card.number}</div></div><div class="card-bottom"><div class="card-detail">Linked Account<strong>${card.account} • ${card.accountNumber}</strong></div><div class="card-detail">Expiry<strong>${card.expiry}</strong></div></div><button type="button" class="${card.status==='Blocked'?'primary-btn':'danger-btn'} mt-5" onclick="openCardAction(${card.id})">${card.status==='Blocked'?'Unblock Card':'Block Card'}</button></article>`).join('');
+async function loadCards() {
+  cardMessage.textContent = 'Loading cards…';
+  try {
+    cards = await VaultCoreApi.request('/api/cards');
+    renderCards();
+  } catch (error) {
+    cardList.innerHTML = '';
+    cardMessage.textContent = `Unable to load cards: ${error.message || 'Please try again.'}`;
+  }
 }
-function renderHistory(){document.getElementById('historyRows').innerHTML=blockHistory.map(item=>`<tr><td>${item.reference}</td><td>${item.card}</td><td>${item.date}</td><td>${item.reason}</td><td class="history-status">${item.status}</td></tr>`).join('');}
-function openCardAction(cardId){
- const card=cards.find(item=>item.id===cardId); if(!card)return;
- selectedCardId=cardId; selectedAction=card.status==='Blocked'?'UNBLOCK':'BLOCK';
- document.getElementById('selectedCard').textContent=card.shortNumber; document.getElementById('selectedAccount').textContent=card.account; document.getElementById('blockReason').innerHTML='<option value="">Select a reason</option>'+actionReasons[selectedAction].map(reason=>`<option>${reason}</option>`).join(''); document.getElementById('blockReason').value=''; document.getElementById('blockRemarks').value=''; document.getElementById('reasonError').textContent=''; document.getElementById('modalTitle').textContent=selectedAction==='BLOCK'?'Confirm Card Block':'Confirm Card Unblock'; document.getElementById('modalDescription').textContent=selectedAction==='BLOCK'?'This action will immediately block your selected card. Card transactions will no longer be allowed.':'This action will make your selected card active again and allow card transactions.'; document.getElementById('reasonLabel').textContent=selectedAction==='BLOCK'?'Reason for Blocking':'Reason for Unblocking'; document.getElementById('confirmActionButton').textContent=selectedAction==='BLOCK'?'Confirm Block':'Confirm Unblock'; document.getElementById('confirmActionButton').className=selectedAction==='BLOCK'?'danger-btn':'primary-btn'; document.getElementById('blockModal').classList.remove('hidden');
+
+async function loadAccounts() {
+  const select = document.getElementById('cardAccount');
+  try {
+    const accounts = await VaultCoreApi.request('/api/accounts/mine');
+    select.innerHTML = '<option value="">Select an account</option>' + accounts.map(account =>
+      `<option value="${escapeHtml(account.accountId)}">${escapeHtml(account.accountType)} — ${escapeHtml(account.accountNumber)}</option>`
+    ).join('');
+    if (!accounts.length) {
+      document.getElementById('addCardError').textContent = 'Open an active account before adding a card.';
+      document.getElementById('addCardButton').disabled = true;
+    }
+  } catch (error) {
+    select.innerHTML = '<option value="">Unable to load accounts</option>';
+    document.getElementById('addCardError').textContent =
+      `Unable to load accounts: ${error.message || 'Please try again.'}`;
+    document.getElementById('addCardButton').disabled = true;
+  }
 }
-function closeBlockModal(){document.getElementById('blockModal').classList.add('hidden');selectedCardId=null;}
-async function confirmCardAction(){
- const reason=document.getElementById('blockReason').value; if(!selectedCardId){return;} if(!reason){document.getElementById('reasonError').textContent='Please select a reason.';return;}
- const card=cards.find(item=>item.id===selectedCardId); const actionLabel=selectedAction==='BLOCK'?'Blocked':'Unblocked'; const reference=(selectedAction==='BLOCK'?'BLK':'UBL')+'2026'+String(Math.floor(Math.random()*9000)+1000); const now=new Date(); const date=now.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); const time=now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
- if(VaultCoreApi.isAuthenticated()){
-  try{await VaultCoreApi.request(`/api/cards/${card.id}/${isBlockAction()?'block':'unblock'}`,{method:'POST',body:JSON.stringify({reason,remarks:document.getElementById('blockRemarks').value.trim()})});}catch(error){alert(error.message);return;}
- }
- /* Future API call: transactionally UPDATE cards.status and INSERT card_requests, then render the returned result. */
- card.status=selectedAction==='BLOCK'?'Blocked':'Active'; blockHistory.unshift({reference,card:card.shortNumber,date,reason,status:actionLabel}); renderCards();renderHistory();closeBlockModal();document.getElementById('successTitle').textContent=`Card ${actionLabel} Successfully`;document.getElementById('successDetails').innerHTML=`<div><span>Card</span><strong>${card.shortNumber}</strong></div><div><span>Status</span><strong class="text-green-700">${actionLabel}</strong></div><div><span>Reference ID</span><strong>${reference}</strong></div><div><span>Date & Time</span><strong>${date} | ${time}</strong></div>`;document.getElementById('successNextSteps').innerHTML=selectedAction==='BLOCK'?'<li>Your account remains active.</li><li>Online banking is unaffected.</li><li>Contact support if you need a replacement card.</li>':'<li>Your card is active again.</li><li>Card transactions are enabled.</li><li>Contact support if you did not request this change.</li>';document.getElementById('successSection').classList.remove('hidden');document.getElementById('successSection').scrollIntoView({behavior:'smooth',block:'start'});
+
+document.getElementById('addCardForm').addEventListener('submit', async event => {
+  event.preventDefault();
+  const error = document.getElementById('addCardError');
+  const button = document.getElementById('addCardButton');
+  error.textContent = '';
+  if (!document.getElementById('cardAccount').value || !document.getElementById('newCardType').value) {
+    error.textContent = 'Select an account and card type.';
+    return;
+  }
+  button.disabled = true;
+  try {
+    const card = await VaultCoreApi.request('/api/cards', {
+      method: 'POST',
+      body: JSON.stringify({
+        accountId: Number(document.getElementById('cardAccount').value),
+        cardType: document.getElementById('newCardType').value
+      })
+    });
+    document.getElementById('successTitle').textContent = 'Card added successfully';
+    document.getElementById('successDetails').innerHTML =
+      `<div><span>Card</span><strong>${maskedNumber(card.cardNumber)}</strong></div><div><span>Status</span><strong>${escapeHtml(statusName(card.status))}</strong></div>`;
+    document.getElementById('successSection').classList.remove('hidden');
+    event.target.reset();
+    await loadCards();
+  } catch (requestError) {
+    error.textContent = requestError.message || 'Unable to add card.';
+  } finally {
+    button.disabled = false;
+  }
+});
+
+function openCardAction(cardId) {
+  const card = cards.find(item => item.cardId === cardId);
+  if (!card) return;
+  selectedCardId = cardId;
+  selectedAction = statusName(card.status) === 'Blocked' ? 'UNBLOCK' : 'BLOCK';
+  document.getElementById('selectedCard').textContent = maskedNumber(card.cardNumber);
+  document.getElementById('blockReason').innerHTML = '<option value="">Select a reason</option>' +
+    actionReasons[selectedAction].map(reason => `<option>${reason}</option>`).join('');
+  document.getElementById('blockRemarks').value = '';
+  document.getElementById('reasonError').textContent = '';
+  document.getElementById('modalTitle').textContent = `Confirm Card ${selectedAction === 'BLOCK' ? 'Block' : 'Unblock'}`;
+  document.getElementById('modalDescription').textContent = `Choose a reason to ${selectedAction.toLowerCase()} this card.`;
+  document.getElementById('reasonLabel').textContent = `Reason for ${selectedAction === 'BLOCK' ? 'Blocking' : 'Unblocking'}`;
+  document.getElementById('confirmActionButton').textContent = `Confirm ${selectedAction === 'BLOCK' ? 'Block' : 'Unblock'}`;
+  document.getElementById('confirmActionButton').className = selectedAction === 'BLOCK' ? 'danger-btn' : 'primary-btn';
+  document.getElementById('blockModal').classList.remove('hidden');
 }
-function isBlockAction(){return selectedAction==='BLOCK';}
-loadCardsFromApi();renderHistory();
+
+function closeBlockModal() {
+  document.getElementById('blockModal').classList.add('hidden');
+  selectedCardId = null;
+}
+
+async function confirmCardAction() {
+  const reason = document.getElementById('blockReason').value;
+  const errorMessage = document.getElementById('reasonError');
+  if (!selectedCardId) return;
+  if (!reason) {
+    errorMessage.textContent = 'Please select a reason.';
+    return;
+  }
+
+  const button = document.getElementById('confirmActionButton');
+  button.disabled = true;
+  errorMessage.textContent = '';
+  try {
+    const card = await VaultCoreApi.request(`/api/cards/${selectedCardId}/${selectedAction === 'BLOCK' ? 'block' : 'unblock'}`, {
+      method: 'POST',
+      body: JSON.stringify({ reason, remarks: document.getElementById('blockRemarks').value.trim() })
+    });
+    const action = selectedAction === 'BLOCK' ? 'Blocked' : 'Unblocked';
+    closeBlockModal();
+    document.getElementById('successTitle').textContent = `Card ${action} successfully`;
+    document.getElementById('successDetails').innerHTML = `<div><span>Card</span><strong>${maskedNumber(card.cardNumber)}</strong></div><div><span>Status</span><strong>${escapeHtml(statusName(card.status))}</strong></div>`;
+    document.getElementById('successSection').classList.remove('hidden');
+    await loadCards();
+  } catch (error) {
+    errorMessage.textContent = error.message || 'Unable to update card status.';
+  } finally {
+    button.disabled = false;
+  }
+}
+
+loadCards();
+loadAccounts();
 </script>
 </body>
 </html>

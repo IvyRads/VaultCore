@@ -14,7 +14,7 @@ body{background:linear-gradient(135deg,#F8F6F2,#E7DED3);font-family:'Segoe UI',T
 @media(max-width:800px){body{padding-left:76px;}.sidebar{width:76px;padding:18px 10px;}.brand{padding:0 10px 22px;justify-content:center;}.brand-text,.side-nav .label{display:none;}.side-nav a{text-align:center;padding:12px 6px;}.container{width:calc(100% - 30px);padding:25px;margin:18px auto;}.form-grid,.success-details,.detail-grid{grid-template-columns:1fr;}.field.full,.detail-grid .full{grid-column:auto;}}
 body{padding-left:250px;box-sizing:border-box;}
 </style>
-</head>
+<script src="api.js"></script><script>VaultCoreApi.requireAuthentication();</script></head>
 <body>
 <aside class="sidebar"><a class="brand" href="user_dashboard.html"><span class="brand-mark">V</span><span class="brand-text"><strong>VAULTCORE</strong><small>BANKING SYSTEM</small></span></a><nav class="side-nav"><a href="user_dashboard.html">🏠 <span class="label">Home</span></a><a href="profile/profile.html">👤 <span class="label">Profile</span></a><a href="account.html">🏦 <span class="label">Accounts</span></a><a href="transactions.html">📜 <span class="label">Transactions</span></a><a class="active" href="support.html">📞 <span class="label">Support</span></a><a class="logout-link" href="index.html">🚪 <span class="label">Logout</span></a></nav></aside>
 
@@ -27,9 +27,9 @@ body{padding-left:250px;box-sizing:border-box;}
 <div class="alert mb-7"><span aria-hidden="true">⚠</span><div><strong>If you suspect unauthorized activity, report it immediately.</strong><br><span class="text-sm">Your report will be securely recorded for review.</span></div></div>
 
 <section class="section form-card"><h3 class="section-title">SECURE FRAUD REPORT</h3><form id="fraudForm" novalidate><div class="form-grid">
-<div class="field"><label for="account">Select Account</label><select id="account"><option value="">Choose an account</option><option value="1" data-label="Savings Account">Savings Account (****4567)</option><option value="2" data-label="Current Account">Current Account (****8912)</option></select><div id="accountError" class="error" role="alert"></div></div>
+<div class="field"><label for="account">Select Account</label><select id="account"><option value="">Choose an account</option></select><div id="accountError" class="error" role="alert"></div></div>
 <div class="field"><label for="fraudType">Fraud Type</label><select id="fraudType"><option value="">Select fraud type</option><option>Unauthorized Transaction</option><option>Suspicious Login</option><option>Lost Card</option><option>Stolen Card</option><option>Phishing</option><option>Unknown Transfer</option><option>Other</option></select><div id="typeError" class="error" role="alert"></div></div>
-<div class="field full"><label for="transaction">Related Transaction <span class="font-normal text-[#5A6572]">(optional)</span></label><select id="transaction"><option value="">No related transaction</option><option>TXN001 – ₹5,000 – 16 Sep</option><option>TXN002 – ₹2,500 – 15 Sep</option><option>TXN003 – ₹1,200 – 12 Sep</option></select></div>
+<div class="field full"><label for="transaction">Related Transaction <span class="font-normal text-[#5A6572]">(optional)</span></label><select id="transaction" disabled><option value="">No related transaction</option></select></div>
 <div class="field full"><label for="description">Description</label><textarea id="description" placeholder="Describe what happened."></textarea><div id="descriptionError" class="error" role="alert"></div></div>
 <div class="field"><label for="incidentDate">Incident Date</label><input id="incidentDate" type="date"><div id="dateError" class="error" role="alert"></div></div>
 <div class="field"><label>Contact Preference</label><div class="radio-group"><label><input type="radio" name="contact" value="Email" checked> Email</label><label><input type="radio" name="contact" value="Phone"> Phone</label></div></div>
@@ -37,42 +37,158 @@ body{padding-left:250px;box-sizing:border-box;}
 
 <section id="successSection" class="section hidden"><div class="success-panel"><div class="text-4xl text-green-700">✓</div><h2>Fraud Report Submitted Successfully</h2><div id="successDetails" class="success-details"></div><p class="mt-5 text-[#20262E]">Our team has received your report and it has been securely recorded.</p><div class="flex flex-col sm:flex-row gap-3 mt-6"><button type="button" class="secondary-btn" onclick="showReports()">View My Reports</button><a href="support.html" class="secondary-btn text-center">Return to Support</a><a href="user_dashboard.html" class="primary-btn text-center">Back to Dashboard</a></div></div></section>
 
-<section class="section"><h3 class="section-title">MY FRAUD REPORTS</h3><div class="history-wrap"><table><thead><tr><th>Report ID</th><th>Fraud Type</th><th>Account</th><th>Date</th><th>Status</th><th>Details</th></tr></thead><tbody id="reportRows"></tbody></table></div></section>
+<section class="section"><h3 class="section-title">MY FRAUD REPORTS</h3><p id="reportMessage" role="status">Loading reports…</p><div class="history-wrap"><table><thead><tr><th>Report ID</th><th>Fraud Type</th><th>Account</th><th>Date</th><th>Status</th><th>Details</th></tr></thead><tbody id="reportRows"></tbody></table></div></section>
 <p class="text-center text-[#5A6572]">© 2026 VaultCore Banking Management System</p>
 </main>
 
 <div id="confirmModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="confirmTitle"><section class="modal"><h2 id="confirmTitle">Confirm Fraud Report</h2><div id="confirmDetails" class="detail-grid"></div><div class="flex gap-3 mt-6"><button type="button" class="secondary-btn flex-1" onclick="closeConfirmModal()">Cancel</button><button type="button" class="primary-btn flex-1" onclick="submitReport()">Submit Report</button></div></section></div>
 <div id="detailsModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="detailsTitle"><section class="modal"><h2 id="detailsTitle">Report Details</h2><div id="reportDetails" class="detail-grid"></div><div class="text-right mt-6"><button type="button" class="secondary-btn" onclick="closeDetailsModal()">Close</button></div></section></div>
 
-<script src="api.js"></script>
+
 <script>
-/* Future Spring Boot integration: GET /api/fraud-reports and POST /api/fraud-reports. */
-const reports=[
- {id:'FRD001',type:'Unauthorized Transaction',account:'Savings',date:'15 Sep 2026',status:'Under Review',description:'A transfer was made without my authorization.',transaction:'TXN001 – ₹5,000 – 16 Sep',incidentDate:'15 Sep 2026',submittedOn:'15 Sep 2026 | 2:20 PM'},
- {id:'FRD002',type:'Phishing',account:'Savings',date:'10 Sep 2026',status:'Resolved',description:'Received a suspicious banking link by email.',transaction:'None',incidentDate:'10 Sep 2026',submittedOn:'10 Sep 2026 | 11:05 AM'}
-];
-let pendingReport=null;
-function statusClass(status){return status.toLowerCase().replace(' ','-');}
-function renderReports(){document.getElementById('reportRows').innerHTML=reports.map((report,index)=>`<tr><td>${report.id}</td><td>${report.type}</td><td>${report.account}</td><td>${report.date}</td><td><span class="status ${statusClass(report.status)}">${report.status}</span></td><td><button type="button" class="view-btn" onclick="viewReport(${index})">View</button></td></tr>`).join('');}
-async function loadReportsFromApi(){if(!VaultCoreApi.isAuthenticated()){renderReports();return;}try{const data=await VaultCoreApi.request('/api/fraud-reports');reports.splice(0,reports.length,...data.map(report=>({id:`FRD${String(report.reportId).padStart(8,'0')}`,type:report.fraudType,account:report.account.accountType.replace(' Account',''),date:new Date(report.createdAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}),status:report.status.replace('SUBMITTED','Submitted').replace('UNDER_REVIEW','Under Review').replace('RESOLVED','Resolved').replace('CLOSED','Closed'),description:report.description,transaction:report.transaction?`Transaction ${report.transaction.transactionId}`:'None',incidentDate:report.incidentDate,submittedOn:new Date(report.createdAt).toLocaleString('en-IN')})));}catch(error){alert(`Reports could not be loaded from the server. Mock data is being shown. ${error.message}`);}renderReports();}
-async function loadAccountsFromApi(){if(!VaultCoreApi.isAuthenticated())return;try{const data=await VaultCoreApi.request('/api/accounts');document.getElementById('account').innerHTML='<option value="">Choose an account</option>'+data.map(account=>`<option value="${account.accountId}" data-label="${account.accountType}">${account.accountType} (****${String(account.accountNumber).slice(-4)})</option>`).join('');}catch(error){alert(`Accounts could not be loaded from the server. Mock choices are being shown. ${error.message}`);}}
-function clearErrors(){document.querySelectorAll('.error').forEach(item=>item.textContent='');}
-function validateForm(){clearErrors();let valid=true;if(!document.getElementById('account').value){document.getElementById('accountError').textContent='Please select an account.';valid=false;}if(!document.getElementById('fraudType').value){document.getElementById('typeError').textContent='Please select a fraud type.';valid=false;}if(!document.getElementById('description').value.trim()){document.getElementById('descriptionError').textContent='Please describe the incident.';valid=false;}if(!document.getElementById('incidentDate').value){document.getElementById('dateError').textContent='Please select the incident date.';valid=false;}return valid;}
-function openConfirmModal(){const account=document.getElementById('account').selectedOptions[0].dataset.label||document.getElementById('account').selectedOptions[0].textContent;const type=document.getElementById('fraudType').value;const date=new Date(document.getElementById('incidentDate').value+'T00:00:00').toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'});document.getElementById('confirmDetails').innerHTML=`<div><span>Fraud Type</span><strong>${type}</strong></div><div><span>Account</span><strong>${account}</strong></div><div><span>Incident Date</span><strong>${date}</strong></div>`;document.getElementById('confirmModal').classList.remove('hidden');}
-function closeConfirmModal(){document.getElementById('confirmModal').classList.add('hidden');}
-async function submitReport(){const now=new Date();let id='FRD2026'+String(Math.floor(Math.random()*9000)+1000);const date=now.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});const time=now.toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit'});const accountOption=document.getElementById('account').selectedOptions[0];const account=accountOption.dataset.label||accountOption.textContent;const type=document.getElementById('fraudType').value;const transactionValue=document.getElementById('transaction').value||'None';
- if(VaultCoreApi.isAuthenticated()){
-  try{const saved=await VaultCoreApi.request('/api/fraud-reports',{method:'POST',body:JSON.stringify({accountId:Number(document.getElementById('account').value),transactionId:null,fraudType:type,description:document.getElementById('description').value.trim(),incidentDate:document.getElementById('incidentDate').value,contactPreference:document.querySelector('input[name="contact"]:checked').value})});id=`FRD${String(saved.reportId).padStart(8,'0')}`;}catch(error){alert(error.message);return;}
- }
- pendingReport={id,type,account:account.replace(' Account',''),date,status:'Submitted',description:document.getElementById('description').value.trim(),transaction:transactionValue,incidentDate:new Date(document.getElementById('incidentDate').value+'T00:00:00').toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}),submittedOn:`${date} | ${time}`};
- /* Future API call: INSERT fraud_reports in a transaction; status starts as SUBMITTED and rollback on failure. */
- reports.unshift(pendingReport);renderReports();closeConfirmModal();document.getElementById('successDetails').innerHTML=`<div><span>Report ID</span><strong>${pendingReport.id}</strong></div><div><span>Status</span><strong class="text-blue-700">Submitted</strong></div><div><span>Submitted On</span><strong>${pendingReport.submittedOn}</strong></div>`;document.getElementById('successSection').classList.remove('hidden');document.getElementById('successSection').scrollIntoView({behavior:'smooth',block:'start'});document.getElementById('fraudForm').reset();}
-function viewReport(index){const report=reports[index];document.getElementById('reportDetails').innerHTML=`<div><span>Report ID</span><strong>${report.id}</strong></div><div><span>Account</span><strong>${report.account}</strong></div><div><span>Fraud Type</span><strong>${report.type}</strong></div><div><span>Incident Date</span><strong>${report.incidentDate}</strong></div><div><span>Submission Date</span><strong>${report.submittedOn}</strong></div><div><span>Current Status</span><strong>${report.status}</strong></div><div class="full"><span>Description</span><strong>${report.description}</strong></div><div class="full"><span>Related Transaction</span><strong>${report.transaction}</strong></div>`;document.getElementById('detailsModal').classList.remove('hidden');}
-function closeDetailsModal(){document.getElementById('detailsModal').classList.add('hidden');}
-function showReports(){document.querySelector('.section:last-of-type').scrollIntoView({behavior:'smooth',block:'start'});}
-document.getElementById('fraudForm').addEventListener('submit',event=>{event.preventDefault();if(validateForm())openConfirmModal();});
-document.getElementById('fraudForm').addEventListener('reset',()=>{setTimeout(clearErrors,0);});
-loadAccountsFromApi();loadReportsFromApi();
+const reportRows = document.getElementById('reportRows');
+const reportMessage = document.getElementById('reportMessage');
+const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+})[char]);
+let reports = [];
+
+async function loadReports() {
+  reportMessage.textContent = 'Loading reports…';
+  try {
+    reports = await VaultCoreApi.request('/api/fraud-reports');
+    reportMessage.textContent = reports.length ? '' : 'No fraud reports submitted.';
+    reportRows.innerHTML = reports.map((report, index) => `<tr>
+      <td>${escapeHtml(report.reportId)}</td><td>${escapeHtml(report.fraudType)}</td>
+      <td>${escapeHtml(report.account?.accountType || '—')}</td><td>${escapeHtml(report.createdAt || '—')}</td>
+      <td>${escapeHtml(report.status)}</td><td><button type="button" class="view-btn" data-report-index="${index}">View</button></td>
+    </tr>`).join('');
+  } catch (error) {
+    reportRows.innerHTML = '';
+    reportMessage.textContent = `Unable to load reports: ${error.message || 'Please try again.'}`;
+  }
+}
+
+async function loadAccounts() {
+  const accountSelect = document.getElementById('account');
+  try {
+    const accounts = await VaultCoreApi.request('/api/accounts/mine');
+    accountSelect.innerHTML = '<option value="">Choose an account</option>' +
+      accounts.map(account => `<option value="${escapeHtml(account.accountId)}">${escapeHtml(account.accountType)} (••••${escapeHtml(String(account.accountNumber).slice(-4))})</option>`).join('');
+  } catch (error) {
+    document.getElementById('accountError').textContent = `Unable to load accounts: ${error.message || 'Please try again.'}`;
+  }
+}
+
+async function loadAccountTransactions() {
+  const accountId = document.getElementById('account').value;
+  const select = document.getElementById('transaction');
+  select.disabled = true;
+  select.innerHTML = '<option value="">No related transaction</option>';
+  if (!accountId) return;
+  try {
+    const transactions = await VaultCoreApi.request(`/api/accounts/${encodeURIComponent(accountId)}/transactions`);
+    select.innerHTML = '<option value="">No related transaction</option>' +
+      transactions.map(item => `<option value="${escapeHtml(item.transactionId)}">#${escapeHtml(item.transactionId)} · ${escapeHtml(item.transactionType)} · ${escapeHtml(item.transactionDate || '')}</option>`).join('');
+    select.disabled = false;
+  } catch (error) {
+    document.getElementById('accountError').textContent = `Unable to load account transactions: ${error.message || 'Please try again.'}`;
+  }
+}
+
+function clearErrors() {
+  document.querySelectorAll('.error').forEach(item => { item.textContent = ''; });
+}
+
+function validateForm() {
+  clearErrors();
+  let valid = true;
+  if (!document.getElementById('account').value) {
+    document.getElementById('accountError').textContent = 'Please select an account.';
+    valid = false;
+  }
+  if (!document.getElementById('fraudType').value) {
+    document.getElementById('typeError').textContent = 'Please select a fraud type.';
+    valid = false;
+  }
+  if (!document.getElementById('description').value.trim()) {
+    document.getElementById('descriptionError').textContent = 'Please describe the incident.';
+    valid = false;
+  }
+  if (!document.getElementById('incidentDate').value) {
+    document.getElementById('dateError').textContent = 'Please select the incident date.';
+    valid = false;
+  }
+  return valid;
+}
+
+function openConfirmModal() {
+  const account = document.getElementById('account').selectedOptions[0].textContent;
+  const type = document.getElementById('fraudType').value;
+  const date = document.getElementById('incidentDate').value;
+  document.getElementById('confirmDetails').innerHTML = `<div><span>Fraud Type</span><strong>${escapeHtml(type)}</strong></div><div><span>Account</span><strong>${escapeHtml(account)}</strong></div><div><span>Incident Date</span><strong>${escapeHtml(date)}</strong></div>`;
+  document.getElementById('confirmModal').classList.remove('hidden');
+}
+
+function closeConfirmModal() {
+  document.getElementById('confirmModal').classList.add('hidden');
+}
+
+async function submitReport() {
+  const button = document.querySelector('#confirmModal .primary-btn');
+  button.disabled = true;
+  try {
+    const report = await VaultCoreApi.request('/api/fraud-reports', {
+      method: 'POST',
+      body: JSON.stringify({
+        accountId: Number(document.getElementById('account').value),
+        transactionId: document.getElementById('transaction').value
+          ? Number(document.getElementById('transaction').value) : null,
+        fraudType: document.getElementById('fraudType').value,
+        description: document.getElementById('description').value.trim(),
+        incidentDate: document.getElementById('incidentDate').value,
+        contactPreference: document.querySelector('input[name="contact"]:checked').value
+      })
+    });
+    closeConfirmModal();
+    document.getElementById('successDetails').innerHTML = `<div><span>Report ID</span><strong>${escapeHtml(report.reportId)}</strong></div><div><span>Status</span><strong>${escapeHtml(report.status)}</strong></div>`;
+    document.getElementById('successSection').classList.remove('hidden');
+    document.getElementById('fraudForm').reset();
+    await loadReports();
+  } catch (error) {
+    closeConfirmModal();
+    document.getElementById('descriptionError').textContent = `Unable to submit report: ${error.message || 'Please try again.'}`;
+  } finally {
+    button.disabled = false;
+  }
+}
+
+function viewReport(index) {
+  const report = reports[index];
+  document.getElementById('reportDetails').innerHTML = `<div><span>Report ID</span><strong>${escapeHtml(report.reportId)}</strong></div><div><span>Account</span><strong>${escapeHtml(report.account?.accountType || '—')}</strong></div><div><span>Fraud Type</span><strong>${escapeHtml(report.fraudType)}</strong></div><div><span>Incident Date</span><strong>${escapeHtml(report.incidentDate)}</strong></div><div><span>Submitted</span><strong>${escapeHtml(report.createdAt)}</strong></div><div><span>Status</span><strong>${escapeHtml(report.status)}</strong></div><div class="full"><span>Description</span><strong>${escapeHtml(report.description)}</strong></div><div class="full"><span>Related Transaction</span><strong>${escapeHtml(report.transaction?.transactionId ?? 'None')}</strong></div>`;
+  document.getElementById('detailsModal').classList.remove('hidden');
+}
+
+function closeDetailsModal() {
+  document.getElementById('detailsModal').classList.add('hidden');
+}
+
+function showReports() {
+  document.getElementById('reportMessage').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+document.getElementById('fraudForm').addEventListener('submit', event => {
+  event.preventDefault();
+  if (validateForm()) openConfirmModal();
+});
+document.getElementById('fraudForm').addEventListener('reset', () => setTimeout(clearErrors, 0));
+document.getElementById('account').addEventListener('change', loadAccountTransactions);
+reportRows.addEventListener('click', event => {
+  const button = event.target.closest('[data-report-index]');
+  if (button) viewReport(Number(button.dataset.reportIndex));
+});
+loadAccounts();
+loadReports();
 </script>
 </body>
 </html>

@@ -48,7 +48,7 @@ th{background:#F8F6F2;}
 .sidebar{position:fixed;inset:0 auto 0 0;width:250px;box-sizing:border-box;background:#20262E;padding:24px 16px;display:flex;flex-direction:column;color:#fff;z-index:10;}.brand{display:flex;align-items:center;gap:10px;padding:0 12px 28px;border-bottom:1px solid rgba(255,255,255,.15);margin-bottom:20px;text-decoration:none;color:#fff;}.brand-mark{background:#8A1538;border-radius:10px;width:36px;height:36px;display:grid;place-items:center;font-weight:800;}.brand strong,.brand small{display:block;}.brand small{color:#D4AF37;font-size:10px;letter-spacing:1px;}.side-nav{display:flex;flex:1;flex-direction:column;gap:7px;}.side-nav a{color:#d9dce0;text-decoration:none;padding:12px;border-radius:8px;font-size:14px;font-weight:600;transition:background .2s,color .2s;}.side-nav a:hover{background:#5A6572;color:#fff;}.side-nav a.active{background:#8A1538;color:#fff;box-shadow:0 4px 12px rgba(138,21,56,.3);}.side-nav .logout-link{margin-top:auto;color:#fff;border:1px solid rgba(255,255,255,.2);}.side-nav .logout-link:hover{background:#8A1538;}body{padding-left:250px;box-sizing:border-box;}.container{width:calc(100% - 60px);}@media(max-width:800px){body{padding-left:76px;}.sidebar{width:76px;padding:18px 10px;}.brand{padding:0 10px 22px;justify-content:center;}.brand-text,.side-nav .label{display:none;}.side-nav a{text-align:center;padding:12px 6px;}.container{width:calc(100% - 30px);padding:25px;}}
 </style>
 
-</head>
+<script src="api.js"></script><script>VaultCoreApi.requireAuthentication();</script></head>
 <body>
 
 <aside class="sidebar"><a class="brand" href="user_dashboard.html"><span class="brand-mark">V</span><span class="brand-text"><strong>VAULTCORE</strong><small>BANKING SYSTEM</small></span></a><nav class="side-nav"><a href="user_dashboard.html">🏠 <span class="label">Home</span></a><a href="profile.html">👤 <span class="label">Profile</span></a><a class="active" href="account.html">🏦 <span class="label">Accounts</span></a><a href="transactions.html">📜 <span class="label">Transactions</span></a><a href="support.html">📞 <span class="label">Support</span></a><a class="logout-link" href="index.html">🚪 <span class="label">Logout</span></a></nav></aside>
@@ -70,6 +70,7 @@ th{background:#F8F6F2;}
 <fieldset>
 <legend>MY ACCOUNTS</legend>
 <p style="margin-top:0;color:#5A6572;">Select an account to view its complete details.</p>
+<p id="accountMessage" role="status" style="color:#5A6572;">Loading accounts...</p>
 <div id="accountCards" class="account-grid"></div>
 
 </fieldset>
@@ -84,8 +85,6 @@ th{background:#F8F6F2;}
 <br>
 
 <center>
-<button class="action-btn">Download Statement</button>
-<button type="button" class="action-btn" onclick="openPassbook()">View Passbook</button>
 <a href="open_account.html" class="action-btn" style="text-decoration:none;display:inline-block;">Open New Account</a>
 </center>
 
@@ -95,51 +94,67 @@ th{background:#F8F6F2;}
 
 </div>
 
-<div id="passbookModal" style="display:none;position:fixed;inset:0;background:rgba(32,38,46,.55);z-index:30;padding:20px;align-items:center;justify-content:center;">
-<section class="card" style="width:100%;max-width:760px;max-height:90vh;overflow:auto;padding:28px;box-sizing:border-box;background:#F8F6F2;border:1px solid #D4AF37;box-shadow:0 18px 45px rgba(32,38,46,.3);">
-<div style="display:flex;justify-content:space-between;gap:20px;align-items:start;border-bottom:1px solid #D4AF37;padding-bottom:16px;margin-bottom:20px;"><div><h2 style="margin:0;color:#8A1538;">Account Passbook</h2><p id="passbookAccount" style="margin:6px 0 0;color:#5A6572;"></p></div><button type="button" onclick="closePassbook()" aria-label="Close passbook" style="border:0;background:transparent;color:#8A1538;font-size:28px;line-height:1;cursor:pointer;">×</button></div>
-<div id="passbookSummary" class="details-grid"></div>
-<div style="margin-top:22px;overflow:auto;border:1px solid #E7DED3;border-radius:10px;"><table style="min-width:560px;"><thead><tr><th>Date</th><th>Description</th><th>Transaction Type</th><th>Amount</th></tr></thead><tbody id="passbookRows"></tbody></table></div>
-<div style="text-align:right;margin-top:18px;"><button type="button" class="action-btn" onclick="closePassbook()">Close</button></div>
-</section>
-</div>
-
 <script>
-/* Future Spring Boot integration: GET /api/accounts/my-accounts and GET /api/accounts/{accountId}. */
-const accounts = [
-  { id: 'savings', type: 'Savings Account', number: 'XXXX4582', branch: 'Kochi Main', balance: '₹2,45,800', status: 'Active', opened: '15 January 2024', ifsc: 'VBMS0001021', minimum: '₹5,000', rate: '3.25% p.a.', nominee: 'Anna Shibu', note: 'Everyday account for deposits, payments and transfers.', transactions: [['16 Sep 2026', 'Salary Credit', '+ ₹42,000', 'credit'], ['15 Sep 2026', 'UPI Transfer', '- ₹2,500', 'debit'], ['12 Sep 2026', 'Electricity Bill', '- ₹1,240', 'debit']] },
-  { id: 'current', type: 'Current Account', number: 'XXXX8974', branch: 'Trivandrum Main', balance: '₹1,12,500', status: 'Active', opened: '02 June 2025', ifsc: 'VBMS0001001', minimum: '₹10,000', rate: 'No interest', nominee: 'Anna Shibu', note: 'Account for frequent transactions and business payments.', transactions: [['16 Sep 2026', 'Client Payment', '+ ₹18,500', 'credit'], ['14 Sep 2026', 'Vendor Transfer', '- ₹7,200', 'debit'], ['10 Sep 2026', 'Cash Deposit', '+ ₹12,000', 'credit']] },
-  { id: 'fd', type: 'Fixed Deposit', number: 'FD009621', branch: 'Kochi Main', balance: '₹1,16,700', status: 'Locked', opened: '08 March 2026', ifsc: 'VBMS0001021', minimum: '₹25,000', rate: '6.75% p.a.', nominee: 'Anna Shibu', note: 'Fixed deposit account. Premature withdrawal terms may apply.', transactions: [['08 Mar 2026', 'Deposit Created', '+ ₹1,00,000', 'credit'], ['08 Sep 2026', 'Interest Credited', '+ ₹6,700', 'credit']] }
-];
-let selectedAccountId = 'savings';
+const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+})[char]);
+const money = value => `₹${Number(value || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+const date = value => value ? new Date(value).toLocaleDateString() : '—';
+const message = document.getElementById('accountMessage');
+const cards = document.getElementById('accountCards');
 
-function renderCards() {
-  document.getElementById('accountCards').innerHTML = accounts.map((account, index) => `<button type="button" class="account-card ${index === 0 ? 'selected' : ''}" data-id="${account.id}" onclick="selectAccount('${account.id}')"><div class="account-card-head"><div><strong>${account.type}</strong><p class="account-number">${account.number}</p></div><span class="status ${account.status.toLowerCase()}">${account.status}</span></div><p class="account-balance">${account.balance}</p><small>${account.branch}</small></button>`).join('');
+function showTransactions(account) {
+  const title = document.getElementById('detailTitle');
+  const note = document.getElementById('detailNote');
+  const details = document.getElementById('accountDetails');
+  const transactions = document.getElementById('recentTransactions');
+  document.querySelectorAll('.account-card').forEach(card => {
+    card.classList.toggle('selected', card.dataset.id === String(account.accountId));
+  });
+  title.textContent = `${account.accountType} · ${account.accountNumber}`;
+  note.textContent = 'Account details and transaction history';
+  details.innerHTML = `<div class="details-grid">
+    ${[['Account ID', account.accountId], ['Account Number', account.accountNumber], ['Account Type', account.accountType],
+      ['Balance', money(account.balance)], ['Status', account.status], ['Created', date(account.createdAt)]]
+      .map(([label, value]) => `<div><span>${label}</span><strong>${escapeHtml(value || '—')}</strong></div>`).join('')}
+  </div>`;
+  transactions.innerHTML = '<div class="transaction-row">Loading transaction history…</div>';
+  VaultCoreApi.request(`/api/accounts/${encodeURIComponent(account.accountId)}/transactions`).then(items => {
+    transactions.innerHTML = `<div style="padding:13px;background:#F8F6F2;font-weight:700;color:#8A1538;">Transaction History</div>${
+      items.length ? items.map(item => `<div class="transaction-row">
+        <div><strong>${escapeHtml(item.transactionType)}</strong><br><small style="color:#5A6572;">Transaction #${escapeHtml(item.transactionId)} · ${escapeHtml(date(item.transactionDate))}</small><br><small style="color:#5A6572;">${escapeHtml(item.description || '—')}</small>${item.receiverAccount ? `<br><small style="color:#5A6572;">Receiver: ${escapeHtml(item.receiverAccount)}</small>` : ''}</div>
+        <span>${money(item.amount)}</span>
+      </div>`).join('') : '<div class="transaction-row">No transactions for this account.</div>'
+    }`;
+  }).catch(error => {
+    transactions.innerHTML = `<div class="transaction-row" style="color:#B1124D;">Unable to load transactions: ${escapeHtml(error.message || 'Please try again.')}</div>`;
+  });
 }
 
-function selectAccount(id) {
-  const account = accounts.find(item => item.id === id);
-  selectedAccountId = id;
-  document.querySelectorAll('.account-card').forEach(card => card.classList.toggle('selected', card.dataset.id === id));
-  document.getElementById('detailTitle').textContent = `${account.type} · ${account.number}`;
-  document.getElementById('detailNote').textContent = account.note;
-  const details = [['Account Number', account.number], ['Account Type', account.type], ['Current Balance', account.balance], ['Account Status', account.status], ['Branch', account.branch], ['IFSC Code', account.ifsc], ['Date Opened', account.opened], ['Minimum Balance', account.minimum], ['Interest Rate', account.rate], ['Nominee', account.nominee]];
-  document.getElementById('accountDetails').innerHTML = `<div class="details-grid">${details.map(([label, value]) => `<div><span>${label}</span><strong>${value}</strong></div>`).join('')}</div>`;
-  document.getElementById('recentTransactions').innerHTML = `<div style="padding:13px;background:#F8F6F2;font-weight:700;color:#8A1538;">Recent Transactions</div>${account.transactions.map(([date, description, amount, kind]) => `<div class="transaction-row"><div><strong>${description}</strong><br><small style="color:#5A6572;">${date}</small></div><span class="${kind}">${amount}</span></div>`).join('')}`;
-}
-
-function openPassbook() {
-  const account = accounts.find(item => item.id === selectedAccountId);
-  document.getElementById('passbookAccount').textContent = `${account.type} · ${account.number}`;
-  document.getElementById('passbookSummary').innerHTML = `<div><span>Branch</span><strong>${account.branch}</strong></div><div><span>Current Balance</span><strong class="balance">${account.balance}</strong></div><div><span>IFSC Code</span><strong>${account.ifsc}</strong></div><div><span>Account Status</span><strong>${account.status}</strong></div>`;
-  document.getElementById('passbookRows').innerHTML = account.transactions.map(([date, description, amount, kind]) => `<tr><td>${date}</td><td>${description}</td><td>${kind === 'credit' ? 'Credit' : 'Debit'}</td><td class="${kind}">${amount}</td></tr>`).join('');
-  document.getElementById('passbookModal').style.display = 'flex';
-}
-
-function closePassbook() { document.getElementById('passbookModal').style.display = 'none'; }
-
-renderCards();
-selectAccount('savings');
+VaultCoreApi.request('/api/accounts/mine').then(accounts => {
+  if (!accounts.length) {
+    message.textContent = 'No accounts are linked to this customer.';
+    document.getElementById('detailTitle').textContent = 'No account selected';
+    document.getElementById('detailNote').textContent = '';
+    return;
+  }
+  message.textContent = '';
+  cards.innerHTML = accounts.map(account => `<button type="button" class="account-card" data-id="${escapeHtml(account.accountId)}">
+    <div class="account-card-head"><div><strong>${escapeHtml(account.accountType)}</strong><p class="account-number">${escapeHtml(account.accountNumber)}</p></div><span class="status">${escapeHtml(account.status)}</span></div>
+    <p class="account-balance">${money(account.balance)}</p><small>Created ${escapeHtml(date(account.createdAt))}</small>
+  </button>`).join('');
+  cards.addEventListener('click', event => {
+    const card = event.target.closest('.account-card');
+    if (card) showTransactions(accounts.find(account => String(account.accountId) === card.dataset.id));
+  });
+  const requestedId = new URLSearchParams(location.search).get('account');
+  const selected = accounts.find(account => String(account.accountId) === requestedId) || accounts[0];
+  showTransactions(selected);
+}).catch(error => {
+  message.textContent = `Unable to load accounts: ${error.message || 'Please try again.'}`;
+  document.getElementById('detailTitle').textContent = 'Account information unavailable';
+  document.getElementById('detailNote').textContent = '';
+});
 </script>
 
 </body>

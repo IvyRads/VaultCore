@@ -39,7 +39,7 @@
             text-decoration: none;
         }
     </style>
-</head>
+<script src="api.js"></script><script>VaultCoreApi.requireAuthentication();</script></head>
 
 <body style="background: linear-gradient(135deg, #F8F6F2 0%, #E7DED3 100%); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #20262E; margin: 0; padding: 0;">
 
@@ -63,16 +63,16 @@
     <!-- Customer Details Info Table -->
     <table width="100%" cellpadding="10" style="background-color: #F8F6F2; border-radius: 10px; border: 1px solid #E7DED3; font-size: 14px; color: #20262E; margin-bottom: 25px;">
         <tr>
-            <td style="text-align: left;"><b>Welcome :</b> <span style="color: #8A1538; font-weight: 600;">[Customer Name]</span></td>
-            <td style="text-align: right;"><b>Customer ID :</b> <span style="color: #5A6572; font-weight: 600;">CUST10001</span></td>
+            <td style="text-align: left;"><b>Welcome :</b> <span id="welcomeEmail" style="color: #8A1538; font-weight: 600;">Loading...</span></td>
+            <td style="text-align: right;"><b>User ID :</b> <span id="userId" style="color: #5A6572; font-weight: 600;">Loading...</span></td>
         </tr>
         <tr>
-            <td style="text-align: left;"><b>Total Accounts :</b> <span style="color: #20262E; font-weight: 700;">3</span></td>
+            <td style="text-align: left;"><b>Total Accounts :</b> <span id="accountCount" style="color: #20262E; font-weight: 700;">Loading...</span></td>
             <td style="text-align: right;"><b>Last Login :</b> <span id="lastLoginTime" style="color: #D4AF37; font-weight: 600;">Loading...</span></td>
         </tr>
         <tr>
-            <td style="text-align: left;"><b>Customer Since :</b> <span style="color: #5A6572;">15-01-2024</span></td>
-            <td style="text-align: right;"><b>Status :</b> <span style="background-color: #E7DED3; color: #8A1538; padding: 2px 8px; border-radius: 6px; font-weight: 700; font-size: 12px;">Active</span></td>
+            <td style="text-align: left;"><b>Account Balance Total :</b> <span id="combinedBalance" style="color: #5A6572;">Loading...</span></td>
+            <td style="text-align: right;"><b>Role :</b> <span id="userRole" style="color: #8A1538; font-weight: 700; font-size: 12px;">Loading...</span></td>
         </tr>
     </table>
 
@@ -122,22 +122,22 @@
 
         <table width="100%" cellpadding="12" style="border-collapse: collapse; border: 1px solid #E7DED3; font-size: 14px;">
             <tr style="border-bottom: 1px solid #E7DED3;">
-                <th style="background-color: #F8F6F2; color: #20262E; width: 25%; text-align: left; padding-left: 15px;">Customer Name</th>
-                <td style="width: 25%; color: #20262E; font-weight: 600;">[Customer Name]</td>
-                <th style="background-color: #F8F6F2; color: #20262E; width: 25%; text-align: left; padding-left: 15px;">Customer ID</th>
-                <td style="width: 25%; color: #5A6572; font-weight: 600;">CUST10001</td>
+                <th style="background-color: #F8F6F2; color: #20262E; width: 25%; text-align: left; padding-left: 15px;">Email</th>
+                <td id="summaryEmail" style="width: 25%; color: #20262E; font-weight: 600;">Loading...</td>
+                <th style="background-color: #F8F6F2; color: #20262E; width: 25%; text-align: left; padding-left: 15px;">User ID</th>
+                <td id="summaryUserId" style="width: 25%; color: #5A6572; font-weight: 600;">Loading...</td>
             </tr>
             <tr style="border-bottom: 1px solid #E7DED3;">
                 <th style="background-color: #F8F6F2; color: #20262E; text-align: left; padding-left: 15px;">Total Accounts</th>
-                <td style="color: #20262E; font-weight: 700;">3</td>
+                <td id="summaryAccountCount" style="color: #20262E; font-weight: 700;">Loading...</td>
                 <th style="background-color: #F8F6F2; color: #20262E; text-align: left; padding-left: 15px;">Combined Balance</th>
-                <td style="color: #8A1538; font-weight: 700; font-size: 15px;">₹4,75,000</td>
+                <td id="summaryBalance" style="color: #8A1538; font-weight: 700; font-size: 15px;">Loading...</td>
             </tr>
             <tr>
-                <th style="background-color: #F8F6F2; color: #20262E; text-align: left; padding-left: 15px;">Registered Mobile Number</th>
-                <td style="color: #5A6572;">1234567890</td>
-                <th style="background-color: #F8F6F2; color: #20262E; text-align: left; padding-left: 15px;">Registered Mail ID</th>
-                <td style="color: #5A6572;">someone@gmail.com</td>
+                <th style="background-color: #F8F6F2; color: #20262E; text-align: left; padding-left: 15px;">Role</th>
+                <td id="summaryRole" style="color: #5A6572;">Loading...</td>
+                <th style="background-color: #F8F6F2; color: #20262E; text-align: left; padding-left: 15px;">Account Data</th>
+                <td style="color: #5A6572;">Loaded from your authenticated accounts</td>
             </tr>
         </table>
     </fieldset>
@@ -181,39 +181,33 @@
         </div>
     </fieldset>
 
-    <!-- Recent Transactions Fieldset -->
+    <!-- Customer Accounts Fieldset -->
     <fieldset style="border: 2px solid #E7DED3; border-radius: 12px; padding: 20px; background-color: #FFFFFF; text-align: left; margin-bottom: 25px;">
-        <legend style="background-color: #8A1538; color: #FFFFFF; padding: 6px 15px; border-radius: 20px; font-size: 13px; font-weight: bold; letter-spacing: 0.5px;">RECENT TRANSACTIONS</legend>
+        <legend style="background-color: #8A1538; color: #FFFFFF; padding: 6px 15px; border-radius: 20px; font-size: 13px; font-weight: bold; letter-spacing: 0.5px;">MY ACCOUNTS</legend>
 
-        <table width="100%" cellpadding="10" style="border-collapse: collapse; border: 1px solid #E7DED3; font-size: 14px;">
+        <p id="accountsMessage" role="status" style="color:#5A6572;font-size:14px;">Loading accounts...</p>
+        <table id="accountsTable" width="100%" cellpadding="10" style="border-collapse: collapse; border: 1px solid #E7DED3; font-size: 14px; display:none;">
             <tr style="background-color: #F8F6F2; border-bottom: 2px solid #E7DED3; color: #20262E;">
-                <th style="text-align: left; padding-left: 15px;">Date</th>
-                <th style="text-align: left;">Account</th>
-                <th style="text-align: left;">Transaction</th>
+                <th style="text-align: left; padding-left: 15px;">Account Number</th>
+                <th style="text-align: left;">Account Type</th>
                 <th style="text-align: left;">Amount</th>
                 <th style="text-align: left;">Status</th>
+                <th style="text-align: left;">Created</th>
             </tr>
-            <tr style="border-bottom: 1px solid #E7DED3;" onmouseover="this.style.backgroundColor='#F8F6F2'" onmouseout="this.style.backgroundColor='transparent'">
-                <td style="padding-left: 15px; color: #5A6572;">24-07-2026</td>
-                <td style="color: #20262E;">********4582</td>
-                <td style="color: #20262E; font-weight: 500;">Deposit</td>
-                <td style="color: #27ae60; font-weight: 700;">₹5,000</td>
-                <td><span style="color: #27ae60; font-weight: 600;">✔ Success</span></td>
-            </tr>
-            <tr style="border-bottom: 1px solid #E7DED3;" onmouseover="this.style.backgroundColor='#F8F6F2'" onmouseout="this.style.backgroundColor='transparent'">
-                <td style="padding-left: 15px; color: #5A6572;">23-07-2026</td>
-                <td style="color: #20262E;">********4582</td>
-                <td style="color: #20262E; font-weight: 500;">Transfer</td>
-                <td style="color: #B1124D; font-weight: 700;">₹2,500</td>
-                <td><span style="color: #27ae60; font-weight: 600;">✔ Success</span></td>
-            </tr>
-            <tr onmouseover="this.style.backgroundColor='#F8F6F2'" onmouseout="this.style.backgroundColor='transparent'">
-                <td style="padding-left: 15px; color: #5A6572;">22-07-2026</td>
-                <td style="color: #20262E;">********8974</td>
-                <td style="color: #20262E; font-weight: 500;">Withdrawal</td>
-                <td style="color: #B1124D; font-weight: 700;">₹1,000</td>
-                <td><span style="color: #27ae60; font-weight: 600;">✔ Success</span></td>
-            </tr>
+            <tbody id="accountsBody"></tbody>
+        </table>
+    </fieldset>
+
+    <fieldset style="border: 2px solid #E7DED3; border-radius: 12px; padding: 20px; background-color: #FFFFFF; text-align: left; margin-bottom: 25px;">
+        <legend style="background-color: #8A1538; color: #FFFFFF; padding: 6px 15px; border-radius: 20px; font-size: 13px; font-weight: bold; letter-spacing: 0.5px;">RECENT TRANSACTIONS</legend>
+        <p id="recentTransactionsMessage" role="status" style="color:#5A6572;font-size:14px;">Loading transactions...</p>
+        <table id="recentTransactionsTable" width="100%" cellpadding="10" style="border-collapse: collapse; border: 1px solid #E7DED3; font-size: 14px; display:none;">
+            <thead><tr style="background-color:#F8F6F2;">
+                <th style="text-align:left;">Type</th><th style="text-align:left;">Amount</th>
+                <th style="text-align:left;">Counterparty</th><th style="text-align:left;">Description</th>
+                <th style="text-align:left;">Date</th>
+            </tr></thead>
+            <tbody id="recentTransactionsBody"></tbody>
         </table>
     </fieldset>
 
@@ -223,10 +217,8 @@
         
         <div style="background-color: #F8F6F2; padding: 15px 20px; border-radius: 8px; border: 1px solid #E7DED3;">
             <ul style="margin: 0; padding-left: 20px; color: #5A6572; font-size: 14px; line-height: 1.8;">
-                <li><strong style="color: #8A1538;">Welcome to Banking Management System.</strong></li>
-                <li>No pending notifications.</li>
-                <li>Your profile is up to date.</li>
-                <li>Thank you for banking with us.</li>
+                <li>Dashboard account information is loaded from your authenticated account list.</li>
+                <li>Notifications are not available through the current customer APIs.</li>
             </ul>
         </div>
     </fieldset>
@@ -246,17 +238,94 @@
 
 <!-- Interactive JavaScript Engine -->
 <script>
-    window.addEventListener('DOMContentLoaded', () => {
-        const now = new Date();
-        const formattedDate = String(now.getDate()).padStart(2, '0') + '-' + 
-                              String(now.getMonth() + 1).padStart(2, '0') + '-' + 
-                              now.getFullYear() + ' ' + 
-                              String(now.getHours()).padStart(2, '0') + ':' + 
-                              String(now.getMinutes()).padStart(2, '0');
-        
-        document.getElementById('lastLoginTime').innerText = formattedDate;
-        console.log("VaultCore Customer Dashboard Loaded with Modern UI Theme.");
+    const sessionUser = VaultCoreApi.getUser() || {};
+    const setText = (id, value) => { document.getElementById(id).textContent = value || '—'; };
+    const formatDate = value => value ? new Date(value).toLocaleDateString() : '—';
+    setText('welcomeEmail', sessionUser.email);
+    setText('userId', sessionUser.userId);
+    setText('summaryEmail', sessionUser.email);
+    setText('summaryUserId', sessionUser.userId);
+    setText('userRole', sessionUser.role);
+    setText('summaryRole', sessionUser.role);
+    setText('lastLoginTime', sessionUser.lastLogin
+        ? new Date(sessionUser.lastLogin).toLocaleString('en-IN')
+        : (Object.prototype.hasOwnProperty.call(sessionUser, 'lastLogin') ? 'First login' : 'Loading...'));
+
+    const accountsMessage = document.getElementById('accountsMessage');
+    VaultCoreApi.request('/api/accounts/mine').then(accounts => {
+const body = document.getElementById('accountsBody');
+const total = accounts.reduce((sum, account) => sum + Number(account.balance || 0), 0);
+setText('accountCount', accounts.length);
+setText('combinedBalance', `₹${total.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`);
+setText('summaryAccountCount', accounts.length);
+setText('summaryBalance', `₹${total.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`);
+if (!accounts.length) {
+    accountsMessage.textContent = 'No accounts are linked to this customer.';
+    return;
+}
+body.innerHTML = accounts.map(account => `<tr style="border-top:1px solid #E7DED3;">
+    <td style="padding-left:15px;">${escapeHtml(account.accountNumber)}</td>
+    <td>${escapeHtml(account.accountType)}</td>
+    <td>₹${Number(account.balance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+    <td>${escapeHtml(account.status)}</td>
+    <td>${escapeHtml(formatDate(account.createdAt))}</td>
+</tr>`).join('');
+accountsMessage.textContent = '';
+document.getElementById('accountsTable').style.display = 'table';
+    }).catch(error => {
+accountsMessage.textContent = `Unable to load accounts: ${error.message || 'Please try again.'}`;
+setText('accountCount', 'Unavailable');
+setText('combinedBalance', 'Unavailable');
+setText('summaryAccountCount', 'Unavailable');
+setText('summaryBalance', 'Unavailable');
     });
+
+    async function loadRecentTransactions() {
+        const message = document.getElementById('recentTransactionsMessage');
+        try {
+            const accounts = await VaultCoreApi.request('/api/accounts/mine');
+            const histories = await Promise.all(accounts.map(account =>
+                VaultCoreApi.request(`/api/accounts/${encodeURIComponent(account.accountId)}/transactions`)
+            ));
+            const items = histories.flat().sort((left, right) =>
+                new Date(right.transactionDate || 0) - new Date(left.transactionDate || 0)
+            ).slice(0, 5);
+            if (!items.length) {
+                message.textContent = 'No recent transactions.';
+                return;
+            }
+            document.getElementById('recentTransactionsBody').innerHTML = items.map(item => `<tr style="border-top:1px solid #E7DED3;">
+                <td>${escapeHtml(item.transactionType)}</td>
+                <td>₹${Number(item.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                <td>${escapeHtml(item.receiverAccount || '—')}</td>
+                <td>${escapeHtml(item.description || '—')}</td>
+                <td>${escapeHtml(item.transactionDate ? new Date(item.transactionDate).toLocaleString('en-IN') : '—')}</td>
+            </tr>`).join('');
+            message.textContent = '';
+            document.getElementById('recentTransactionsTable').style.display = 'table';
+        } catch (error) {
+            message.textContent = `Unable to load recent transactions: ${error.message || 'Please try again.'}`;
+        }
+    }
+    loadRecentTransactions();
+
+    VaultCoreApi.request('/api/customers/me/profile').then(profile => {
+        if (!Object.prototype.hasOwnProperty.call(sessionUser, 'lastLogin')) {
+            setText('lastLoginTime', profile.lastLogin
+                ? new Date(profile.lastLogin).toLocaleString('en-IN')
+                : 'First login');
+        }
+    }).catch(error => {
+        if (!Object.prototype.hasOwnProperty.call(sessionUser, 'lastLogin')) {
+            setText('lastLoginTime', `Unable to load: ${error.message || 'Please try again.'}`);
+        }
+    });
+
+    function escapeHtml(value) {
+return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+})[char]);
+    }
 </script>
 
 </body>

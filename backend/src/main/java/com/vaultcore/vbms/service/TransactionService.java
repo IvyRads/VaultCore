@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.vaultcore.vbms.dto.TransactionDtos.MoneyRequest;
 import com.vaultcore.vbms.dto.TransactionDtos.TransferRequest;
 import com.vaultcore.vbms.dto.TransactionDtos.TransferResponse;
+import com.vaultcore.vbms.dto.TransactionDtos.TransactionMonitoringResponse;
+import com.vaultcore.vbms.dto.TransactionDtos.TransactionResponse;
 import com.vaultcore.vbms.entity.Account;
 import com.vaultcore.vbms.entity.Transaction;
 import com.vaultcore.vbms.entity.TransactionLog;
@@ -45,7 +47,7 @@ public class TransactionService {
         active(account);
         account.setBalance(account.getBalance().add(request.amount()));
         accounts.save(account);
-        return record(account, "DEPOSIT", request.amount(), request.description(), caller.userId());
+        return record(account, "DEPOSIT", request.amount(), request.description(), caller.userId(), null);
     }
 
     @Transactional
@@ -56,7 +58,7 @@ public class TransactionService {
         if (account.getBalance().compareTo(request.amount()) < 0) throw new InsufficientBalance();
         account.setBalance(account.getBalance().subtract(request.amount()));
         accounts.save(account);
-        return record(account, "WITHDRAWAL", request.amount(), request.description(), caller.userId());
+        return record(account, "WITHDRAWAL", request.amount(), request.description(), caller.userId(), null);
     }
 
     @Transactional
@@ -76,8 +78,10 @@ public class TransactionService {
         if (sender.getBalance().compareTo(request.amount()) < 0) throw new InsufficientBalance();
         sender.setBalance(sender.getBalance().subtract(request.amount()));
         receiver.setBalance(receiver.getBalance().add(request.amount()));
-        record(sender, "TRANSFER_OUT", request.amount(), "Transfer to " + receiver.getAccountNumber(), caller.userId());
-        record(receiver, "TRANSFER_IN", request.amount(), "Transfer from " + sender.getAccountNumber(), caller.userId());
+        record(sender, "TRANSFER_OUT", request.amount(), "Transfer to " + receiver.getAccountNumber(), caller.userId(),
+                receiver.getAccountNumber());
+        record(receiver, "TRANSFER_IN", request.amount(), "Transfer from " + sender.getAccountNumber(), caller.userId(),
+                sender.getAccountNumber());
         Transfer transfer = new Transfer();
         transfer.setSenderAccount(sender);
         transfer.setReceiverAccount(receiver);
@@ -88,16 +92,50 @@ public class TransactionService {
     }
 
     @Transactional(readOnly = true)
-    public List<Transaction> accountTransactions(int accountId, Caller caller) {
+    public List<TransactionResponse> accountTransactions(int accountId, Caller caller) {
         Account account = accounts.findById(accountId).orElseThrow(() -> new NotFound("Account not found"));
         authorization.requireAccountAccess(account, caller);
-        return transactions.findByAccountAccountIdOrderByTransactionDateDesc(accountId);
+        return transactions.findByAccountAccountIdOrderByTransactionDateDesc(accountId).stream()
+                .map(this::transactionResponse)
+                .toList();
     }
 
     @Transactional(readOnly = true)
-    public List<Transaction> customerTransactions(int customerId, Caller caller) {
+    public List<TransactionResponse> customerTransactions(int customerId, Caller caller) {
         authorization.requireCustomerAccess(customerId, caller);
-        return transactions.findByAccountCustomerCustomerIdOrderByTransactionDateDesc(customerId);
+        return transactions.findByAccountCustomerCustomerIdOrderByTransactionDateDesc(customerId).stream()
+                .map(this::transactionResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<TransactionResponse> myTransactions(Caller caller) {
+        return transactions.findByAccountCustomerCustomerIdOrderByTransactionDateDesc(caller.requireCustomerId()).stream()
+                .map(this::transactionResponse)
+                .toList();
+    }
+
+    @Transactional
+    public Transaction recordInitialDeposit(Account account, java.math.BigDecimal amount, Integer actor) {
+        if (amount == null || amount.signum() <= 0) {
+            throw new BadRequest("Initial deposit must be greater than 0");
+        }
+        return record(account, "DEPOSIT", amount, "Initial deposit", actor, null);
+    }
+
+    @Transactional(readOnly = true)
+    public List<TransactionMonitoringResponse> monitorTransactions(String transactionType, Integer accountId,
+            LocalDateTime from, LocalDateTime to) {
+        return transactions.findForMonitoring(transactionType, accountId, from, to).stream()
+                .map(this::transactionMonitoringResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public TransactionMonitoringResponse monitorTransaction(Integer transactionId) {
+        Transaction transaction = transactions.findById(transactionId)
+                .orElseThrow(() -> new NotFound("Transaction not found"));
+        return transactionMonitoringResponse(transaction);
     }
 
     @Transactional(readOnly = true)
@@ -118,11 +156,13 @@ public class TransactionService {
         if (!"ACTIVE".equalsIgnoreCase(account.getStatus())) throw new BadRequest("Account is not active");
     }
 
-    private Transaction record(Account account, String type, java.math.BigDecimal amount, String description, Integer actor) {
+    private Transaction record(Account account, String type, java.math.BigDecimal amount, String description, Integer actor,
+            String receiverAccount) {
         Transaction transaction = new Transaction();
         transaction.setAccount(account);
         transaction.setTransactionType(type);
         transaction.setAmount(amount);
+        transaction.setReceiverAccount(receiverAccount);
         transaction.setDescription(description);
         transaction.setTransactionDate(LocalDateTime.now());
         transactions.save(transaction);
@@ -144,5 +184,27 @@ public class TransactionService {
                 transfer.getAmount(),
                 transfer.getTransferDate(),
                 transfer.getStatus());
+    }
+
+    private TransactionMonitoringResponse transactionMonitoringResponse(Transaction transaction) {
+        Account account = transaction.getAccount();
+        return new TransactionMonitoringResponse(
+                transaction.getTransactionId(),
+                account.getAccountId(),
+                account.getAccountNumber(),
+                account.getCustomer().getCustomerId(),
+                account.getCustomer().getCustomerNumber(),
+                transaction.getTransactionType(),
+                transaction.getAmount(),
+                transaction.getReceiverAccount(),
+                transaction.getDescription(),
+                transaction.getTransactionDate());
+    }
+
+    private TransactionResponse transactionResponse(Transaction transaction) {
+        return new TransactionResponse(transaction.getTransactionId(), transaction.getAccount().getAccountId(),
+                transaction.getAccount().getAccountNumber(), transaction.getTransactionType(),
+                transaction.getAmount(), transaction.getReceiverAccount(), transaction.getDescription(),
+                transaction.getTransactionDate());
     }
 }

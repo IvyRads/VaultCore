@@ -28,7 +28,7 @@ tr:hover{background:#F8F6F2;}
 .sidebar{position:fixed;inset:0 auto 0 0;width:250px;box-sizing:border-box;background:#20262E;padding:24px 16px;display:flex;flex-direction:column;color:#fff;z-index:10;}.brand{display:flex;align-items:center;gap:10px;padding:0 12px 28px;border-bottom:1px solid rgba(255,255,255,.15);margin-bottom:20px;text-decoration:none;color:#fff;}.brand-mark{background:#8A1538;border-radius:10px;width:36px;height:36px;display:grid;place-items:center;font-weight:800;}.brand strong,.brand small{display:block;}.brand small{color:#D4AF37;font-size:10px;letter-spacing:1px;}.side-nav{display:flex;flex:1;flex-direction:column;gap:7px;}.side-nav a{color:#d9dce0;text-decoration:none;padding:12px;border-radius:8px;font-size:14px;font-weight:600;transition:background .2s,color .2s;}.side-nav a:hover{background:#5A6572;color:#fff;}.side-nav a.active{background:#8A1538;color:#fff;box-shadow:0 4px 12px rgba(138,21,56,.3);}.side-nav .logout-link{margin-top:auto;color:#fff;border:1px solid rgba(255,255,255,.2);}.side-nav .logout-link:hover{background:#8A1538;}body{padding-left:250px;box-sizing:border-box;}.container{width:calc(100% - 60px);}@media(max-width:800px){body{padding-left:76px;}.sidebar{width:76px;padding:18px 10px;}.brand{padding:0 10px 22px;justify-content:center;}.brand-text,.side-nav .label{display:none;}.side-nav a{text-align:center;padding:12px 6px;}.container{width:calc(100% - 30px);padding:25px;}}
 </style>
 
-</head>
+<script src="api.js"></script><script>VaultCoreApi.requireAuthentication();</script></head>
 <body>
 
 <aside class="sidebar"><a class="brand" href="user_dashboard.html"><span class="brand-mark">V</span><span class="brand-text"><strong>VAULTCORE</strong><small>BANKING SYSTEM</small></span></a><nav class="side-nav"><a href="user_dashboard.html">🏠 <span class="label">Home</span></a><a href="profile/profile.html">👤 <span class="label">Profile</span></a><a href="account.html">🏦 <span class="label">Accounts</span></a><a class="active" href="transactions.html">📜 <span class="label">Transactions</span></a><a href="support.html">📞 <span class="label">Support</span></a><a class="logout-link" href="index.html">🚪 <span class="label">Logout</span></a></nav></aside>
@@ -49,33 +49,30 @@ tr:hover{background:#F8F6F2;}
 
 <fieldset>
 <legend>RECENT TRANSACTIONS</legend>
+<label for="accountSelector">Account:</label>
+<select id="accountSelector" aria-label="Filter transactions by account">
+  <option value="">All accounts</option>
+</select>
 
 <table>
-
+<thead>
 <tr>
-<th>Date</th>
-<th>Reference</th>
+<th>Transaction ID</th>
+<th>Account Number</th>
+<th>Type</th>
+<th>Amount</th>
+<th>Receiver Account</th>
 <th>Description</th>
-<th>Debit</th>
-<th>Credit</th>
-<th>Balance</th>
-<th>Status</th>
+<th>Date</th>
 </tr>
-
-<tr><td>24 Jul 2026</td><td>TXN98562145</td><td>Cash Deposit</td><td>-</td><td class="credit">₹5,000</td><td>₹2,45,800</td><td class="success">✔ Success</td></tr>
-
-<tr><td>23 Jul 2026</td><td>TXN98561027</td><td>UPI Transfer</td><td class="debit">₹2,500</td><td>-</td><td>₹2,40,800</td><td class="success">✔ Success</td></tr>
-
-<tr><td>22 Jul 2026</td><td>TXN98560110</td><td>ATM Withdrawal</td><td class="debit">₹1,000</td><td>-</td><td>₹2,43,300</td><td class="success">✔ Success</td></tr>
-
-<tr><td>20 Jul 2026</td><td>TXN98558820</td><td>Salary Credit</td><td>-</td><td class="credit">₹48,000</td><td>₹2,44,300</td><td class="success">✔ Success</td></tr>
-
+</thead>
+<tbody id="transactionRows"><tr><td colspan="7">Loading transactions…</td></tr></tbody>
 </table>
 
 <br>
 
 <center>
-<button id="downloadPdfBtn" class="action-btn" type="button">Download PDF</button>
+<button id="downloadPdfBtn" class="action-btn" type="button" disabled>Download PDF</button>
 </center>
 
 </fieldset>
@@ -87,40 +84,23 @@ tr:hover{background:#F8F6F2;}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 <script>
-  const transactionTable = document.querySelector('table');
-
-  function sanitizeCell(value) {
-    return String(value || '').replace(/\s+/g, ' ').trim();
-  }
-
-  function getTableData() {
-    const rows = Array.from(transactionTable.querySelectorAll('tr'));
-    const headers = rows[0] ? Array.from(rows[0].children).map((cell) => sanitizeCell(cell.textContent)) : [];
-    const body = rows.slice(1).map((row) =>
-      Array.from(row.children).map((cell) => sanitizeCell(cell.textContent))
-    );
-    return { headers, body };
-  }
-
-  function normalizeCsvValue(value) {
-    return String(value || '')
-      .replace(/₹/g, '')
-      .replace(/✔/g, '')
-      .replace(/-/g, '')
-      .replace(/\s+/g, ' ')
-      .trim();
-  }
-
-  function triggerDownload(blob, filename) {
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  }
+  const transactionRows = document.getElementById('transactionRows');
+  const downloadButton = document.getElementById('downloadPdfBtn');
+  const accountSelector = document.getElementById('accountSelector');
+  let accountSelectorInitialized = false;
+  const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[char]);
+  const displayDate = value => value ? new Date(value).toLocaleString() : '—';
+  const displayType = value => {
+    const type = String(value || '').toUpperCase();
+    if (type === 'TRANSFER_OUT') return 'Transfer Out';
+    if (type === 'TRANSFER_IN') return 'Transfer In';
+    if (type === 'DEPOSIT') return 'Deposit';
+    if (type === 'WITHDRAWAL') return 'Withdrawal';
+    if (type === 'TRANSFER') return 'Transfer';
+    return value || '—';
+  };
 
   function downloadPdf() {
     if (!window.jspdf || !window.jspdf.jsPDF) {
@@ -129,7 +109,11 @@ tr:hover{background:#F8F6F2;}
     }
 
     const { jsPDF } = window.jspdf;
-    const { headers, body } = getTableData();
+    const table = document.querySelector('table');
+    const headers = Array.from(table.querySelectorAll('thead th')).map(cell => cell.textContent.trim());
+    const body = Array.from(table.querySelectorAll('tbody tr[data-transaction-row]')).map(row =>
+      Array.from(row.children).map(cell => cell.textContent.trim())
+    );
     if (!headers.length) return;
 
     const doc = new jsPDF({ orientation: 'landscape' });
@@ -161,20 +145,76 @@ tr:hover{background:#F8F6F2;}
       margin: { left: 10, right: 10 },
       styles: { cellPadding: 3, overflow: 'linebreak', fontSize: 8 },
       columnStyles: {
-        0: { cellWidth: 25 },
-        1: { cellWidth: 28 },
-        2: { cellWidth: 42 },
-        3: { cellWidth: 20 },
-        4: { cellWidth: 20 },
-        5: { cellWidth: 22 },
-        6: { cellWidth: 24 }
+        0: { cellWidth: 20 },
+        1: { cellWidth: 30 },
+        2: { cellWidth: 25 },
+        3: { cellWidth: 22 },
+        4: { cellWidth: 30 },
+        5: { cellWidth: 45 },
+        6: { cellWidth: 35 }
       }
     });
 
     doc.save('vaultcore_transactions.pdf');
   }
 
-  document.getElementById('downloadPdfBtn').addEventListener('click', downloadPdf);
+  async function loadTransactions() {
+    try {
+      const accounts = await VaultCoreApi.request('/api/accounts/mine');
+      if (!accountSelectorInitialized) {
+        const requestedId = new URLSearchParams(location.search).get('account');
+        accountSelector.innerHTML = '<option value="">All accounts</option>' + accounts.map(account =>
+          `<option value="${escapeHtml(account.accountId)}">${escapeHtml(account.accountType)} — ${escapeHtml(account.accountNumber)}</option>`
+        ).join('');
+        if (requestedId && accounts.some(account => String(account.accountId) === requestedId)) {
+          accountSelector.value = requestedId;
+        }
+        accountSelectorInitialized = true;
+      }
+      const selectedId = accountSelector.value;
+      const selectedAccounts = selectedId
+        ? accounts.filter(account => String(account.accountId) === selectedId)
+        : accounts;
+
+      if (selectedId && !selectedAccounts.length) {
+        transactionRows.innerHTML = '<tr><td colspan="7">The selected account is unavailable.</td></tr>';
+        return;
+      }
+      if (!selectedAccounts.length) {
+        transactionRows.innerHTML = '<tr><td colspan="7">No accounts are linked to this customer.</td></tr>';
+        return;
+      }
+
+      const histories = await Promise.all(selectedAccounts.map(async account => {
+        const items = await VaultCoreApi.request(`/api/accounts/${encodeURIComponent(account.accountId)}/transactions`);
+        return items.map(item => ({ ...item, accountNumber: account.accountNumber }));
+      }));
+      const items = histories.flat().sort((left, right) =>
+        new Date(right.transactionDate || 0) - new Date(left.transactionDate || 0)
+      );
+      if (!items.length) {
+        transactionRows.innerHTML = '<tr><td colspan="7">No transactions found.</td></tr>';
+        return;
+      }
+
+      transactionRows.innerHTML = items.map(item => `<tr data-transaction-row>
+        <td>${escapeHtml(item.transactionId)}</td>
+        <td>${escapeHtml(item.accountNumber || item.account?.accountNumber || '—')}</td>
+        <td>${escapeHtml(displayType(item.transactionType))}</td>
+        <td>₹${Number(item.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+        <td>${escapeHtml(item.receiverAccount || '—')}</td>
+        <td>${escapeHtml(item.description || '—')}</td>
+        <td>${escapeHtml(displayDate(item.transactionDate))}</td>
+      </tr>`).join('');
+      downloadButton.disabled = false;
+    } catch (error) {
+      transactionRows.innerHTML = `<tr><td colspan="7" style="color:#B1124D;">Unable to load transactions: ${escapeHtml(error.message || 'Please try again.')}</td></tr>`;
+    }
+  }
+
+  accountSelector.addEventListener('change', loadTransactions);
+  downloadButton.addEventListener('click', downloadPdf);
+  loadTransactions();
 </script>
 
 </body>

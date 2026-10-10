@@ -139,15 +139,15 @@
                 <select name="accountType" data-label="Account Type"
                     style="width: 100%; padding: 12px 15px; margin-top: 5px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;">
                     <option value="">-- Select Account Type --</option>
-                    <option>Savings Account</option>
-                    <option>Current Account</option>
+                    <option value="SAVINGS">Savings Account</option>
+                    <option value="CURRENT">Current Account</option>
                     <option>Salary Account</option>
                     <option>Fixed Deposit</option>
                 </select>
                 <div id="accountTypeError" class="field-error"></div>
 
-                <label style="color: #20262E; font-weight: 600; font-size: 14px;">Initial Deposit Amount</label><br>
-                <input type="number" name="deposit" min="500" placeholder="Minimum ₹500" data-label="Initial Deposit Amount"
+                <label style="color: #20262E; font-weight: 600; font-size: 14px;">Initial Deposit</label><br>
+                <input type="number" name="deposit" min="0" required placeholder="Enter initial deposit (0 or more)" data-label="Initial Deposit"
                     style="width: 100%; padding: 12px 15px; margin-top: 5px; box-sizing: border-box; border: 1.5px solid #E7DED3; border-radius: 8px; font-size: 14px; background-color: #FFFFFF; outline: none;"
                     onfocus="this.style.borderColor='#8A1538';" onblur="this.style.borderColor='#E7DED3';">
                 <div id="depositError" class="field-error"></div>
@@ -222,6 +222,7 @@
                 </button>
             </center>
         </form>
+        <div id="signupMessage" class="field-error" role="alert" aria-live="polite"></div>
     </div>
 
     <br>
@@ -236,6 +237,7 @@
         </a>
     </center>
 
+    <script src="user/api.js"></script>
     <script>
         const fieldRules = {
             fullname: {
@@ -312,20 +314,6 @@
                     return '';
                 }
             },
-            accountNumber: {
-                validator: value => {
-                    if (!value.trim()) return 'Account number is required.';
-                    if (!/^\d{8,18}$/.test(value.trim())) return 'Account number should be 8 to 18 digits.';
-                    return '';
-                }
-            },
-            ifscCode: {
-                validator: value => {
-                    if (!value.trim()) return 'IFSC code is required.';
-                    if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(value.trim().toUpperCase())) return 'IFSC code must be in the format SBIN0001234.';
-                    return '';
-                }
-            },
             accountType: {
                 validator: value => {
                     if (!value.trim()) return 'Please select an account type.';
@@ -334,13 +322,7 @@
             },
             deposit: {
                 validator: value => {
-                    if (!value || Number(value) < 500) return 'Initial deposit must be at least ₹500.';
-                    return '';
-                }
-            },
-            branch: {
-                validator: value => {
-                    if (!value.trim()) return 'Please select a branch.';
+                    if (value === '' || !Number.isFinite(Number(value)) || Number(value) < 0) return 'Initial deposit must be 0 or more.';
                     return '';
                 }
             },
@@ -428,12 +410,19 @@
 
         function validateSignupForm() {
             let valid = true;
-            const names = Object.keys(fieldRules);
+            const names = ['fullname', 'dob', 'gender', 'email', 'phone', 'street', 'city', 'state',
+                'pincode', 'password', 'confirmPassword', 'accountType', 'deposit', 'termsCheck'];
 
             names.forEach((name) => {
                 const result = validateField(name);
                 if (!result) valid = false;
             });
+
+            const nameParts = getInputValue('fullname').trim().split(/\s+/);
+            if (nameParts.length < 2) {
+                setFieldState('fullname', 'Enter both your first and last name.');
+                valid = false;
+            }
 
             return valid;
         }
@@ -454,8 +443,10 @@
             });
         });
 
-        document.querySelector('#signupForm').addEventListener('submit', function (event) {
+        document.querySelector('#signupForm').addEventListener('submit', async function (event) {
             event.preventDefault();
+            const message = document.getElementById('signupMessage');
+            message.textContent = '';
             const valid = validateSignupForm();
 
             if (!valid) {
@@ -466,8 +457,37 @@
                 return;
             }
 
-            alert('🎉 Registration details validated successfully!\nConnecting to VaultCore Backend to save your profile...');
-            // window.location.href = 'login.html';
+            const nameParts = getInputValue('fullname').trim().split(/\s+/);
+            const payload = {
+                email: getInputValue('email').trim(),
+                password: getInputValue('password'),
+                firstName: nameParts.shift(),
+                lastName: nameParts.join(' '),
+                phone: getInputValue('phone').trim(),
+                dob: getInputValue('dob'),
+                gender: getInputValue('gender'),
+                accountType: getInputValue('accountType'),
+                initialDeposit: getInputValue('deposit'),
+                address: [
+                    getInputValue('street').trim(),
+                    getInputValue('city').trim(),
+                    getInputValue('state').trim(),
+                    getInputValue('pincode').trim()
+                ].join(', ')
+            };
+
+            try {
+                await VaultCoreApi.request('/api/auth/register', {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                message.style.color = '#15803D';
+                message.textContent = 'Registration successful. Redirecting to login...';
+                window.setTimeout(() => window.location.assign('login.html'), 1200);
+            } catch (error) {
+                message.style.color = '#B91C1C';
+                message.textContent = `Registration failed: ${error.message}`;
+            }
         });
 
         document.querySelector('button[type="reset"]').addEventListener('click', function () {

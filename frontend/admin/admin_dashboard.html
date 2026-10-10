@@ -42,7 +42,7 @@
             color: #8A1538; 
         }
     </style>
-</head>
+<script src="../user/api.js"></script><script>VaultCoreApi.requireAuthentication();</script></head>
 
 <body style="background: linear-gradient(135deg, #F8F6F2 0%, #E7DED3 100%); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #20262E; margin: 0; padding: 0;">
 
@@ -89,11 +89,11 @@
     <table width="100%" cellpadding="10" style="background-color: #F8F6F2; border-radius: 10px; border: 1px solid #E7DED3; font-size: 14px; color: #20262E;">
         <tr>
             <td style="text-align: left;"><b>Welcome :</b> <span style="color: #8A1538; font-weight: 600;">Administrator</span></td>
-            <td style="text-align: right;"><b>Admin ID :</b> <span style="color: #5A6572;">ADM0001</span></td>
+            <td style="text-align: right;"><b>Admin ID :</b> <span style="color: #5A6572;">Not provided</span></td>
         </tr>
         <tr>
             <td style="text-align: left;"><b>Role :</b> System Administrator</td>
-            <td style="text-align: right;"><b>Last Login :</b> <span id="lastLoginTime" style="color: #D4AF37; font-weight: 600;">Loading...</span></td>
+            <td style="text-align: right;"><b>Last Login :</b> <span style="color: #D4AF37; font-weight: 600;">Not provided</span></td>
         </tr>
     </table>
 
@@ -106,21 +106,21 @@
         <table width="100%" cellpadding="12" style="border-collapse: collapse; border: 1px solid #E7DED3; font-size: 14px;">
             <tr style="border-bottom: 1px solid #E7DED3;">
                 <th style="background-color: #F8F6F2; color: #20262E; width: 25%; text-align: left; padding-left: 15px;">Total Customers</th>
-                <td style="width: 25%; color: #8A1538; font-weight: 700;">1,250</td>
+                <td style="width: 25%; color: #8A1538; font-weight: 700;">Not available</td>
                 <th style="background-color: #F8F6F2; color: #20262E; width: 25%; text-align: left; padding-left: 15px;">Total Branches</th>
-                <td style="width: 25%; color: #8A1538; font-weight: 700;">14</td>
+                <td style="width: 25%; color: #8A1538; font-weight: 700;">Not available</td>
             </tr>
             <tr style="border-bottom: 1px solid #E7DED3;">
                 <th style="background-color: #F8F6F2; color: #20262E; text-align: left; padding-left: 15px;">Total Accounts</th>
-                <td style="color: #5A6572; font-weight: 700;">2,980</td>
+                <td style="color: #5A6572; font-weight: 700;">Not available</td>
                 <th style="background-color: #F8F6F2; color: #20262E; text-align: left; padding-left: 15px;">Total Transactions</th>
-                <td style="color: #5A6572; font-weight: 700;">18,640</td>
+                <td style="color: #5A6572; font-weight: 700;">Not available</td>
             </tr>
             <tr>
                 <th style="background-color: #F8F6F2; color: #20262E; text-align: left; padding-left: 15px;">Active Accounts</th>
-                <td style="color: #20262E; font-weight: 700;">2,845</td>
+                <td style="color: #20262E; font-weight: 700;">Not available</td>
                 <th style="background-color: #F8F6F2; color: #20262E; text-align: left; padding-left: 15px;">Bank Status</th>
-                <td><span style="background-color: #E7DED3; color: #8A1538; padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 12px;">Operational</span></td>
+                <td><span style="background-color: #E7DED3; color: #8A1538; padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 12px;">Not available</span></td>
             </tr>
         </table>
     </fieldset>
@@ -172,25 +172,8 @@
                 <th style="text-align: left;">Activity</th>
                 <th style="text-align: left;">Status</th>
             </tr>
-            <tr style="border-bottom: 1px solid #E7DED3;" onmouseover="this.style.backgroundColor='#F8F6F2'" onmouseout="this.style.backgroundColor='transparent'">
-                <td style="padding-left: 15px; color: #5A6572;">27-07-2026</td>
-                <td style="color: #20262E; font-weight: 500;">New Customer Registered</td>
-                <td><span style="color: #27ae60; font-weight: 600;">✔ Completed</span></td>
-            </tr>
-            <tr style="border-bottom: 1px solid #E7DED3;" onmouseover="this.style.backgroundColor='#F8F6F2'" onmouseout="this.style.backgroundColor='transparent'">
-                <td style="padding-left: 15px; color: #5A6572;">27-07-2026</td>
-                <td style="color: #20262E; font-weight: 500;">Savings Account Created</td>
-                <td><span style="color: #27ae60; font-weight: 600;">✔ Completed</span></td>
-            </tr>
-            <tr style="border-bottom: 1px solid #E7DED3;" onmouseover="this.style.backgroundColor='#F8F6F2'" onmouseout="this.style.backgroundColor='transparent'">
-                <td style="padding-left: 15px; color: #5A6572;">27-07-2026</td>
-                <td style="color: #20262E; font-weight: 500;">Branch Information Updated</td>
-                <td><span style="color: #27ae60; font-weight: 600;">✔ Completed</span></td>
-            </tr>
-            <tr onmouseover="this.style.backgroundColor='#F8F6F2'" onmouseout="this.style.backgroundColor='transparent'">
-                <td style="padding-left: 15px; color: #5A6572;">27-07-2026</td>
-                <td style="color: #20262E; font-weight: 500;">Transaction Record Verified</td>
-                <td><span style="color: #27ae60; font-weight: 600;">✔ Completed</span></td>
+            <tr>
+                <td colspan="3" style="padding: 15px; color: #5A6572; text-align: center;">Live activity history is not available.</td>
             </tr>
         </table>
     </fieldset>
@@ -201,11 +184,8 @@
         
         <div style="background-color: #F8F6F2; padding: 15px; border-radius: 8px; border: 1px solid #E7DED3; text-align: center;">
             <marquee direction="up" height="90" scrollamount="2" onmouseover="this.stop();" onmouseout="this.start();" style="color: #8A1538; font-weight: 600; font-size: 14px;">
-                ✔ Daily Database Backup Completed Successfully.<br><br>
-                ✔ No Critical System Alerts.<br><br>
-                ✔ Banking Services Operating Normally.<br><br>
-                ✔ Security Monitoring Active.<br><br>
-                ✔ Welcome to VaultCore Administrator Portal.
+                Live system notifications are not available.<br><br>
+                Use the administrative pages above to view current records.
             </marquee>
         </div>
     </fieldset>
@@ -222,21 +202,6 @@
 </div>
 
 </center>
-
-<!-- Interactive JavaScript Engine -->
-<script>
-    window.addEventListener('DOMContentLoaded', () => {
-        const now = new Date();
-        const formattedDate = String(now.getDate()).padStart(2, '0') + '-' + 
-                              String(now.getMonth() + 1).padStart(2, '0') + '-' + 
-                              now.getFullYear() + ' ' + 
-                              String(now.getHours()).padStart(2, '0') + ':' + 
-                              String(now.getMinutes()).padStart(2, '0');
-        
-        document.getElementById('lastLoginTime').innerText = formattedDate;
-        console.log("VaultCore Admin Dashboard Initialized with 2x3 Services Matrix Layout.");
-    });
-</script>
 
 </body>
 

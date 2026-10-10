@@ -8,4 +8,10 @@ public final class TransactionDtos {
     public record TransferRequest(@NotNull Integer senderAccountId, @NotNull Integer receiverAccountId, @NotNull @Positive BigDecimal amount) { }
     public record TransferResponse(Integer transferId, Integer senderAccountId, Integer receiverAccountId,
         BigDecimal amount, LocalDateTime transferDate, String status) { }
+    public record TransactionResponse(Integer transactionId, Integer accountId, String accountNumber,
+        String transactionType, BigDecimal amount, String receiverAccount, String description,
+        LocalDateTime transactionDate) { }
+    public record TransactionMonitoringResponse(Integer transactionId, Integer accountId, String accountNumber,
+        Integer customerId, String customerNumber, String transactionType, BigDecimal amount, String receiverAccount,
+        String description, LocalDateTime transactionDate) { }
 }

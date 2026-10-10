@@ -34,10 +34,6 @@ public class AuthorizationService {
         boolean admin = authentication.getAuthorities().stream()
                 .anyMatch(authority -> "ROLE_ADMIN".equals(authority.getAuthority()));
 
-        if (!admin && customerId == null) {
-            throw new Forbidden("A customer profile is required");
-        }
-
         return new Caller(user.getUserId(), customerId, admin);
     }
 

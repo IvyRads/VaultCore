@@ -130,7 +130,7 @@ align-items:start;
 body{padding-left:250px;box-sizing:border-box;}
 @media(max-width:800px){body{padding-left:76px;}}
 </style>
-</head>
+<script src="api.js"></script><script>VaultCoreApi.requireAuthentication();</script></head>
 
 <body>
 
@@ -182,15 +182,15 @@ Transfer money securely between bank accounts
 <div class="flex flex-wrap justify-between items-center">
 
 <div class="space-y-1">
-<p><span class="font-semibold text-[#8A1538]">Account Holder:</span> Neha J Shibu</p>
-<p><span class="font-semibold text-[#8A1538]">From Account:</span> <span id="summaryAccount">Savings Account</span></p>
-<p><span class="font-semibold text-[#8A1538]">Account Number:</span> <span id="summaryNumber">1000234567</span></p>
-<p><span class="font-semibold text-[#8A1538]">Branch:</span> Trivandrum Main Branch</p>
+<p><span class="font-semibold text-[#8A1538]">Account Holder:</span> <span id="accountHolder">Loading...</span></p>
+<p><span class="font-semibold text-[#8A1538]">From Account:</span> <span id="summaryAccount">Select an account</span></p>
+<p><span class="font-semibold text-[#8A1538]">Account Number:</span> <span id="summaryNumber">—</span></p>
+<p><span class="font-semibold text-[#8A1538]">Branch:</span> <span id="summaryBranch">—</span></p>
 </div>
 
 <div class="text-center mt-4 md:mt-0">
 <p class="text-gray-500">Available Balance</p>
-<h3 id="balanceDisplay" class="text-4xl font-bold text-[#8A1538]">₹45,000</h3>
+<h3 id="balanceDisplay" class="text-4xl font-bold text-[#8A1538]">—</h3>
 </div>
 
 </div>
@@ -222,13 +222,11 @@ Sender Account
 
 <select id="senderAccount">
 <option value="">Select Account</option>
-<option value="Savings">Savings Account</option>
-<option value="Current">Current Account</option>
 </select>
 
 <p class="mt-2 text-gray-600">
 Current Balance:
-<span id="senderBalance" class="font-bold">₹45,000</span>
+<span id="senderBalance" class="font-bold">—</span>
 </p>
 
 <div id="senderError" class="error"></div>
@@ -343,6 +341,7 @@ Transfer Successful
 <p><strong>Recipient Account:</strong> <span id="successAccount"></span></p>
 <p><strong>Remaining Balance:</strong> <span id="successBalance"></span></p>
 <p><strong>Date & Time:</strong> <span id="successTime"></span></p>
+<p id="refreshWarning" class="text-sm text-amber-700" role="status"></p>
 
 </div>
 
@@ -380,6 +379,7 @@ View All Transactions
 
 <div>
 
+<p id="recentTransferMessage" role="status" class="mb-2 text-sm text-gray-600"></p>
 <table class="w-full table-fixed">
 
 <colgroup>
@@ -451,19 +451,8 @@ Confirm Transfer
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 
-/* =====================================================
-MOCK DATA
-
-Future Spring Boot APIs:
-
-GET /api/accounts
-POST /api/transactions/transfer
-=====================================================*/
-
-const accounts={
-Savings:{number:"1000234567",balance:45000},
-Current:{number:"2000456789",balance:72000}
-};
+const accounts = [];
+let transferHistory = [];
 
 let recentTransfers=[
 ["TXN001","Arjun Nair","₹5,000","16 Sep","Success"],
@@ -473,45 +462,88 @@ let recentTransfers=[
 ["TXN005","Ananya S","₹6,000","02 Sep","Success"]
 ];
 
-/* Load tables */
-
 function loadRecent(){
-
 const tbody=document.getElementById("recentTable");
-
-tbody.innerHTML="";
-
-recentTransfers.forEach(r=>{
-
-tbody.innerHTML+=`
+const realRows = transferHistory.map(item => [
+    item.transactionId || "—",
+    item.receiverAccount || "—",
+    "₹" + Number(item.amount || 0).toLocaleString("en-IN"),
+    item.transactionDate ? new Date(item.transactionDate).toLocaleDateString("en-IN") : "—",
+    "Success"
+]);
+tbody.innerHTML = [...realRows, ...recentTransfers].map(r => `
 <tr class="border-b">
-<td class="p-2 text-sm">${r[0]}</td>
-<td class="p-2 text-sm">${r[1]}</td>
-<td class="p-2 text-sm">${r[2]}</td>
-<td class="p-2 text-sm">${r[3]}</td>
-<td class="p-2 text-sm ${r[4]=="Success"?"text-green-700":"text-red-700"}">${r[4]}</td>
-</tr>`;
-
-});
-
+<td class="p-2 text-sm">${escapeHtml(r[0])}</td>
+<td class="p-2 text-sm">${escapeHtml(r[1])}</td>
+<td class="p-2 text-sm">${escapeHtml(r[2])}</td>
+<td class="p-2 text-sm">${escapeHtml(r[3])}</td>
+<td class="p-2 text-sm ${r[4]=="Success"?"text-green-700":"text-red-700"}">${escapeHtml(r[4])}</td>
+</tr>`).join("");
 }
 
 loadRecent();
 
-/* Update account */
+function escapeHtml(value) {
+return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+})[char]);
+}
 
-document.getElementById("senderAccount").addEventListener("change",e=>{
+function formatMoney(value) {
+return "₹" + Number(value || 0).toLocaleString("en-IN", {minimumFractionDigits:2});
+}
 
-if(!e.target.value)return;
+function updateSelectedAccount() {
+const account = accounts.find(item => String(item.accountId) === document.getElementById("senderAccount").value);
+if (!account) {
+    document.getElementById("senderBalance").innerText = "—";
+    document.getElementById("summaryAccount").innerText = "Select an account";
+    document.getElementById("summaryNumber").innerText = "—";
+    document.getElementById("balanceDisplay").innerText = "—";
+    return;
+}
+document.getElementById("senderBalance").innerText = formatMoney(account.balance);
+document.getElementById("summaryAccount").innerText = account.accountType;
+document.getElementById("summaryNumber").innerText = account.accountNumber;
+document.getElementById("balanceDisplay").innerText = formatMoney(account.balance);
+}
 
-const a=accounts[e.target.value];
+async function loadAccounts() {
+const [accountData, profile] = await Promise.all([
+    VaultCoreApi.request("/api/accounts/mine"),
+    VaultCoreApi.request("/api/customers/me/profile")
+]);
+accounts.splice(0, accounts.length, ...accountData);
+document.getElementById("accountHolder").innerText = `${profile.firstName || ""} ${profile.lastName || ""}`.trim() || "—";
+document.getElementById("summaryBranch").innerText = profile.branchName || "—";
+const select = document.getElementById("senderAccount");
+const selected = select.value;
+select.innerHTML = '<option value="">Select Account</option>' + accounts.map(account =>
+    `<option value="${escapeHtml(account.accountId)}">${escapeHtml(account.accountType)} — ${escapeHtml(account.accountNumber)} (${formatMoney(account.balance)})</option>`
+).join("");
+select.value = accounts.some(account => String(account.accountId) === selected)
+    ? selected : (accounts[0] ? String(accounts[0].accountId) : "");
+updateSelectedAccount();
+}
 
-document.getElementById("senderBalance").innerText="₹"+a.balance.toLocaleString();
-document.getElementById("summaryAccount").innerText=e.target.value+" Account";
-document.getElementById("summaryNumber").innerText=a.number;
-document.getElementById("balanceDisplay").innerText="₹"+a.balance.toLocaleString();
+async function loadTransferHistory() {
+try {
+    const histories = await Promise.all(accounts.map(account =>
+        VaultCoreApi.request(`/api/accounts/${encodeURIComponent(account.accountId)}/transactions`)
+    ));
+    transferHistory = histories.flat()
+        .filter(item => ["TRANSFER_OUT", "TRANSFER"].includes((item.transactionType || "").toUpperCase()))
+        .sort((left, right) => new Date(right.transactionDate || 0) - new Date(left.transactionDate || 0));
+    document.getElementById("recentTransferMessage").textContent = "";
+    loadRecent();
+} catch (error) {
+    document.getElementById("recentTransferMessage").textContent =
+        `Unable to load transfers: ${error.message || "Please try again."}`;
+    loadRecent();
+}
+}
 
-});
+document.getElementById("senderAccount").addEventListener("change", updateSelectedAccount);
 
 /* Validation */
 
@@ -527,13 +559,10 @@ document.getElementById("senderError").innerText="Please select a sender account
 return false;
 }
 
-const name=document.getElementById("newName").value.trim();
 const a=document.getElementById("newAccount").value;
 const c=document.getElementById("confirmAccount").value;
-const ifsc=document.getElementById("ifsc").value.trim();
-
-if(!name||!a||!c||!ifsc){
-document.getElementById("newError").innerText="Please complete all recipient details.";
+if(!a||!c){
+document.getElementById("newError").innerText="Please enter and confirm the recipient account number.";
 return false;
 }
 
@@ -542,18 +571,8 @@ document.getElementById("newError").innerText="Account numbers do not match.";
 return false;
 }
 
-if(!ifsc){
-document.getElementById("newError").innerText="Please enter a valid IFSC code.";
-return false;
-}
-
 if(!amount||amount<=0){
 document.getElementById("amountError").innerText="Please enter a valid amount.";
-return false;
-}
-
-if(amount>accounts[sender].balance){
-showFailure("Insufficient Balance");
 return false;
 }
 
@@ -572,7 +591,9 @@ const sender=document.getElementById("senderAccount").value;
 const recipient=document.getElementById("newName").value.trim();
 const account=document.getElementById("newAccount").value;
 
-document.getElementById("confirmFrom").innerText=sender+" Account";
+const senderAccount=accounts.find(item => String(item.accountId) === sender);
+document.getElementById("confirmFrom").innerText=senderAccount
+    ? `${senderAccount.accountType} (${senderAccount.accountNumber})` : "—";
 document.getElementById("confirmTo").innerText=recipient;
 document.getElementById("confirmAccountNo").innerText=account;
 document.getElementById("confirmAmount").innerText="₹"+Number(document.getElementById("amount").value).toLocaleString();
@@ -612,34 +633,49 @@ COMMIT
 On failure: ROLLBACK
 =====================================================*/
 
-function confirmTransfer(){
-
-closeModal();
-
+async function confirmTransfer(){
 const sender=document.getElementById("senderAccount").value;
-const amount=Number(document.getElementById("amount").value);
-
-accounts[sender].balance-=amount;
-
-const ref="TXN2026"+Math.floor(Math.random()*9000+1000);
-
+const enteredAmount=document.getElementById("amount").value;
 const recipient=document.getElementById("newName").value.trim();
-const account=document.getElementById("newAccount").value;
-
-document.getElementById("successRef").innerText=ref;
-document.getElementById("successAmount").innerText="₹"+amount.toLocaleString();
-document.getElementById("successRecipient").innerText=recipient;
-document.getElementById("successAccount").innerText=account;
-document.getElementById("successBalance").innerText="₹"+accounts[sender].balance.toLocaleString();
-document.getElementById("successTime").innerText=new Date().toLocaleString("en-IN");
-
-recentTransfers.unshift([ref,recipient,"₹"+amount.toLocaleString(),new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"short"}),"Success"]);
-recentTransfers=recentTransfers.slice(0,5);
-loadRecent();
-
-document.getElementById("formCard").classList.add("hidden");
-document.getElementById("successCard").classList.remove("hidden");
-
+const accountNumber=document.getElementById("newAccount").value.trim();
+const confirmButton=document.querySelector("#confirmModal button.primary-btn");
+confirmButton.disabled=true;
+closeModal();
+try {
+    const receiver=await VaultCoreApi.request(`/api/accounts/lookup/${encodeURIComponent(accountNumber)}`);
+    const result=await VaultCoreApi.request("/api/transfers", {
+        method:"POST",
+        body:JSON.stringify({
+            senderAccountId:Number(sender),
+            receiverAccountId:receiver.accountId,
+            amount:enteredAmount
+        })
+    });
+    let refreshError = "";
+    try {
+        await loadAccounts();
+    } catch (error) {
+        refreshError = error.message || "Please refresh the account balances.";
+    }
+    await loadTransferHistory();
+    const senderAccount=accounts.find(item => String(item.accountId) === sender);
+    document.getElementById("successRef").innerText=result.transferId || "—";
+    document.getElementById("successAmount").innerText=formatMoney(enteredAmount);
+    document.getElementById("successRecipient").innerText=recipient || receiver.ownerDisplayName || "VaultCore customer";
+    document.getElementById("successAccount").innerText=accountNumber;
+    document.getElementById("successBalance").innerText=refreshError
+        ? "Unable to refresh" : (senderAccount ? formatMoney(senderAccount.balance) : "—");
+    document.getElementById("successTime").innerText=result.transferDate
+        ? new Date(result.transferDate).toLocaleString("en-IN") : new Date().toLocaleString("en-IN");
+    document.getElementById("refreshWarning").innerText=refreshError
+        ? `Transfer completed, but balances could not be refreshed: ${refreshError}` : "";
+    document.getElementById("formCard").classList.add("hidden");
+    document.getElementById("successCard").classList.remove("hidden");
+} catch (error) {
+    showFailure(error.message || "Unable to complete the transfer.");
+} finally {
+    confirmButton.disabled=false;
+}
 }
 
 function downloadReceipt(){
@@ -718,6 +754,10 @@ document.getElementById("remarks").value="";
 document.querySelectorAll(".error").forEach(e=>e.innerHTML="");
 
 }
+
+loadAccounts().then(loadTransferHistory).catch(error => {
+    showFailure(`Unable to load accounts: ${error.message || "Please try again."}`);
+});
 
 </script>
 

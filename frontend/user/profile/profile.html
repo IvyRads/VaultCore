@@ -80,7 +80,7 @@ margin:8px;
 .sidebar{position:fixed;inset:0 auto 0 0;width:250px;box-sizing:border-box;background:#20262E;padding:24px 16px;display:flex;flex-direction:column;color:#fff;z-index:10;}.brand{display:flex;align-items:center;gap:10px;padding:0 12px 28px;border-bottom:1px solid rgba(255,255,255,.15);margin-bottom:20px;text-decoration:none;color:#fff;}.brand-mark{background:#8A1538;border-radius:10px;width:36px;height:36px;display:grid;place-items:center;font-weight:800;}.brand strong,.brand small{display:block;}.brand small{color:#D4AF37;font-size:10px;letter-spacing:1px;}.side-nav{display:flex;flex:1;flex-direction:column;gap:7px;}.side-nav a{color:#d9dce0;text-decoration:none;padding:12px;border-radius:8px;font-size:14px;font-weight:600;transition:background .2s,color .2s;}.side-nav a:hover{background:#5A6572;color:#fff;}.side-nav a.active{background:#8A1538;color:#fff;box-shadow:0 4px 12px rgba(138,21,56,.3);}.side-nav .logout-link{margin-top:auto;color:#fff;border:1px solid rgba(255,255,255,.2);}.side-nav .logout-link:hover{background:#8A1538;}body{padding-left:250px;box-sizing:border-box;}.container{width:calc(100% - 60px);}@media(max-width:800px){body{padding-left:76px;}.sidebar{width:76px;padding:18px 10px;}.brand{padding:0 10px 22px;justify-content:center;}.brand-text,.side-nav .label{display:none;}.side-nav a{text-align:center;padding:12px 6px;}.container{width:calc(100% - 30px);padding:25px;}}
 </style>
 
-</head>
+<script src="../api.js"></script><script>VaultCoreApi.requireAuthentication();</script></head>
 <body>
 
 <aside class="sidebar"><a class="brand" href="../user_dashboard.html"><span class="brand-mark">V</span><span class="brand-text"><strong>VAULTCORE</strong><small>BANKING SYSTEM</small></span></a><nav class="side-nav"><a href="../user_dashboard.html">🏠 <span class="label">Home</span></a><a class="active" href="profile.html">👤 <span class="label">Profile</span></a><a href="../account.html">🏦 <span class="label">Accounts</span></a><a href="../transactions.html">📜 <span class="label">Transactions</span></a><a href="../support.html">📞 <span class="label">Support</span></a><a class="logout-link" href="../../index.html">🚪 <span class="label">Logout</span></a></nav></aside>
@@ -103,12 +103,11 @@ margin:8px;
 <legend>PERSONAL INFORMATION</legend>
 
 <table>
-<tr><th>Customer Name</th><td>Neha J. Shibu</td></tr>
-<tr><th>Customer ID</th><td>CUST10001</td></tr>
-<tr><th>Date of Birth</th><td>12 May 2006</td></tr>
-<tr><th>Gender</th><td>Female</td></tr>
-<tr><th>PAN</th><td>ABCDE1234F</td></tr>
-<tr><th>Aadhaar</th><td>XXXX XXXX 4582</td></tr>
+<tr><th>Full Name</th><td id="profileFullName">Loading...</td></tr>
+<tr><th>Email</th><td id="profileEmail">Loading...</td></tr>
+<tr><th>Customer Number</th><td id="profileCustomerNumber">Loading...</td></tr>
+<tr><th>Branch</th><td id="profileBranch">Loading...</td></tr>
+<tr><th>Role</th><td id="profileRole">Loading...</td></tr>
 </table>
 
 </fieldset>
@@ -117,37 +116,57 @@ margin:8px;
 <legend>CONTACT INFORMATION</legend>
 
 <table>
-<tr><th>Mobile</th><td>+91 98765 43210</td></tr>
-<tr><th>Email</th><td>nehajshibu@example.com</td></tr>
-<tr><th>Address</th><td>Vazhakala, Kochi, Kerala – 682021</td></tr>
-<tr><th>Customer Since</th><td>15 January 2024</td></tr>
+<tr><th>Phone</th><td id="profilePhone">Loading...</td></tr>
+<tr><th>Date of Birth</th><td id="profileDob">Loading...</td></tr>
+<tr><th>Gender</th><td id="profileGender">Loading...</td></tr>
+<tr><th>Address</th><td id="profileAddress">Loading...</td></tr>
+<tr><th>Member Since</th><td id="profileMemberSince">Loading...</td></tr>
+<tr><th>Profile Update</th><td><a href="edit_profile.html">Update your profile details</a></td></tr>
 </table>
 
 </fieldset>
 
 <fieldset>
-<legend>SECURITY SETTINGS</legend>
-
-<table>
-<tr><th>Password</th><td>********</td></tr>
-<tr><th>Transaction PIN</th><td>••••</td></tr>
-<tr><th>Email Verification</th><td>Verified ✓</td></tr>
-<tr><th>Mobile Verification</th><td>Verified ✓</td></tr>
-<tr><th>Two-Factor Authentication</th><td>Enabled</td></tr>
-</table>
-
-<br>
-
-<center>
-<a href="edit_profile.html" class="action-btn" style="text-decoration:none;">Edit Profile</a>
-<a href="change_password.html" class="action-btn" style="text-decoration:none;">Change Password</a>
-</center>
-
+<legend>PROFILE</legend>
+<center><a href="edit_profile.html" class="action-btn" style="text-decoration:none;">Edit Profile</a></center>
 </fieldset>
 
 <p style="text-align:center;color:#5A6572;">© 2026 VaultCore Banking Management System</p>
 
 </div>
 
+<script>
+const profileUser = VaultCoreApi.getUser() || {};
+const profileFields = {
+  profileEmail: 'email',
+  profileCustomerNumber: 'customerNumber',
+  profileBranch: 'branchName',
+  profilePhone: 'phone',
+  profileDob: 'dob',
+  profileGender: 'gender',
+  profileAddress: 'address',
+  profileMemberSince: 'createdAt'
+};
+document.getElementById('profileRole').textContent = profileUser.role || 'Unavailable';
+VaultCoreApi.request('/api/customers/me/profile').then(profile => {
+  document.getElementById('profileFullName').textContent =
+    `${profile.firstName || ''} ${profile.lastName || ''}`.trim() || 'Unavailable';
+  Object.entries(profileFields).forEach(([elementId, field]) => {
+    const value = profile[field];
+    const formattedValue = field === 'dob' && value
+      ? new Date(`${value}T00:00:00`).toLocaleDateString('en-IN')
+      : field === 'createdAt' && value
+        ? new Date(value).toLocaleDateString('en-IN')
+        : value;
+    document.getElementById(elementId).textContent = formattedValue || 'Unavailable';
+  });
+}).catch(error => {
+  document.getElementById('profileFullName').textContent =
+    `Unable to load: ${error.message || 'Please try again.'}`;
+  Object.keys(profileFields).forEach(elementId => {
+    document.getElementById(elementId).textContent = `Unable to load: ${error.message || 'Please try again.'}`;
+  });
+});
+</script>
 </body>
 </html>

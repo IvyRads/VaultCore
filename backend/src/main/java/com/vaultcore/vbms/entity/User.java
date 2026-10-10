@@ -13,4 +13,5 @@ public class User {
     @Column(nullable=false) private String role;
     @Column(name="is_verified") private Boolean verified;
     @Column(name="created_at") private LocalDateTime createdAt;
+    @Column(name="last_login") private LocalDateTime lastLogin;
 }

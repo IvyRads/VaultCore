@@ -28,16 +28,27 @@ public class AccountStatusService {
     }
 
     public List<Account> list(Caller caller) {
-        return caller.admin() ? accounts.findAll() : accounts.findByCustomerCustomerId(caller.requireCustomerId());
+        if (caller.admin()) return accounts.findAll();
+        return caller.customerId() == null ? List.of() : accounts.findByCustomerCustomerId(caller.customerId());
     }
 
     @Transactional
     public Account changeStatus(Integer accountId, String action, String reason, String remarks, Caller caller) {
         Account account = accounts.findForUpdate(accountId).orElseThrow(() -> new NotFound("Account not found"));
         authorization.requireAccountAccess(account, caller);
+        if ("CLOSED".equalsIgnoreCase(account.getStatus())) {
+            throw new BadRequest("Closed accounts cannot be frozen or unfrozen");
+        }
         String targetStatus;
-        if ("FREEZE".equalsIgnoreCase(action)) targetStatus = "FROZEN";
-        else if ("UNFREEZE".equalsIgnoreCase(action)) targetStatus = "ACTIVE";
+        if ("FREEZE".equalsIgnoreCase(action) && "ACTIVE".equalsIgnoreCase(account.getStatus())) {
+            targetStatus = "FROZEN";
+        } else if ("UNFREEZE".equalsIgnoreCase(action) && "FROZEN".equalsIgnoreCase(account.getStatus())) {
+            targetStatus = "ACTIVE";
+        } else if ("FREEZE".equalsIgnoreCase(action)) {
+            throw new BadRequest("Only active accounts can be frozen");
+        } else if ("UNFREEZE".equalsIgnoreCase(action)) {
+            throw new BadRequest("Only frozen accounts can be unfrozen");
+        }
         else throw new BadRequest("Action must be FREEZE or UNFREEZE");
         account.setStatus(targetStatus);
         Account saved = accounts.save(account);

@@ -16,7 +16,7 @@ body{background:linear-gradient(135deg,#F8F6F2,#E7DED3);font-family:'Segoe UI',T
 @media(max-width:800px){body{padding-left:76px;}.sidebar{width:76px;padding:18px 10px;}.brand{padding:0 10px 22px;justify-content:center;}.brand-text,.side-nav .label{display:none;}.side-nav a{text-align:center;padding:12px 6px;}.container{width:calc(100% - 30px);padding:25px;margin:18px auto;}.success-details{grid-template-columns:1fr;}}
 body{padding-left:250px;box-sizing:border-box;}
 </style>
-</head>
+<script src="api.js"></script><script>VaultCoreApi.requireAuthentication();</script></head>
 <body>
 <aside class="sidebar"><a class="brand" href="user_dashboard.html"><span class="brand-mark">V</span><span class="brand-text"><strong>VAULTCORE</strong><small>BANKING SYSTEM</small></span></a><nav class="side-nav"><a href="user_dashboard.html">🏠 <span class="label">Home</span></a><a href="profile/profile.html">👤 <span class="label">Profile</span></a><a href="account.html">🏦 <span class="label">Accounts</span></a><a href="transactions.html">📜 <span class="label">Transactions</span></a><a class="active" href="support.html">📞 <span class="label">Support</span></a><a class="logout-link" href="index.html">🚪 <span class="label">Logout</span></a></nav></aside>
 
@@ -28,50 +28,121 @@ body{padding-left:250px;box-sizing:border-box;}
 
 <div class="alert mb-7"><span aria-hidden="true">⚠</span><div><strong>Freezing your account will temporarily stop deposits, withdrawals, and transfers until the account is reactivated.</strong><br><span class="text-sm">Choose the affected account below and confirm the reason for freezing.</span></div></div>
 
-<section class="section"><h3 class="section-title">MY ACCOUNTS</h3><div id="accountList" class="account-grid"></div></section>
+<section class="section"><h3 class="section-title">MY ACCOUNTS</h3><p id="accountMessage" role="status">Loading accounts…</p><div id="accountList" class="account-grid"></div></section>
 
-<section id="successSection" class="section hidden"><div class="success-panel"><div class="text-4xl text-yellow-700">✓</div><h2 id="successTitle">Account Frozen Successfully</h2><div id="successDetails" class="success-details"></div><div class="next-steps mt-5"><strong class="text-[#8A1538]">Next Steps:</strong><ul id="successNextSteps" class="list-disc pl-5"><li>Online banking remains accessible.</li><li>Your account cannot perform transactions while frozen.</li><li>Contact VaultCore Support to reactivate your account.</li></ul></div><div class="flex flex-col sm:flex-row gap-3 mt-6"><a href="support.html" class="secondary-btn text-center">Return to Support</a><a href="user_dashboard.html" class="primary-btn text-center">Back to Dashboard</a></div></div></section>
-
-<section class="section"><h3 class="section-title">ACCOUNT STATUS HISTORY</h3><div class="history-wrap"><table><thead><tr><th>Reference ID</th><th>Account</th><th>Date</th><th>Reason</th><th>Status</th></tr></thead><tbody id="historyRows"></tbody></table></div></section>
+<section id="successSection" class="section hidden"><div class="success-panel"><div class="text-4xl text-yellow-700">✓</div><h2 id="successTitle">Account status updated</h2><div id="successDetails" class="success-details"></div></div></section>
 <p class="text-center text-[#5A6572]">© 2026 VaultCore Banking Management System</p>
 </main>
 
 <div id="freezeModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><section class="modal"><h2 id="modalTitle">Confirm Account Freeze</h2><p id="modalDescription">This action will temporarily freeze your selected account. Deposits, withdrawals, and transfers will be disabled until the account is reactivated.</p><div class="bg-[#F8F6F2] rounded-lg p-3 mt-4"><strong>Selected Account:</strong> <span id="selectedAccount"></span><br><strong>Account Number:</strong> <span id="selectedNumber"></span></div><label id="reasonLabel" for="freezeReason">Reason for Freezing</label><select id="freezeReason"><option value="">Select a reason</option></select><div id="reasonError" class="error" role="alert"></div><label for="freezeRemarks">Additional Remarks <span class="font-normal text-[#5A6572]">(optional)</span></label><textarea id="freezeRemarks" placeholder="Add any helpful details"></textarea><div class="modal-actions"><button type="button" class="secondary-btn" onclick="closeFreezeModal()">Cancel</button><button id="confirmActionButton" type="button" class="danger-btn" onclick="confirmAccountAction()">Confirm Freeze</button></div></section></div>
 
-<script src="api.js"></script>
-<script>
-/* Future Spring Boot integration: GET /api/accounts/my-accounts and POST /api/accounts/{accountNo}/freeze. */
-const accounts=[
- {accountNo:'1000234567',type:'Savings Account',masked:'******4567',balance:'₹45,000',branch:'Trivandrum Main Branch',status:'Active'},
- {accountNo:'2000456789',type:'Current Account',masked:'******6789',balance:'₹72,000',branch:'Trivandrum Main Branch',status:'Active'},
- {accountNo:'3000112233',type:'Salary Account',masked:'******2233',balance:'₹86,500',branch:'Kochi Main Branch',status:'Frozen'}
-];
-/* Future API response: accountRequests records would be loaded from account_requests. */
-const accountHistory=[{reference:'FRZ001',account:'Savings',date:'15 Sep 2026',reason:'Suspicious Activity',status:'Frozen'}];
-let selectedAccountNo=null;
-let selectedAction='FREEZE';
-const actionReasons={FREEZE:['Suspicious Activity','Lost Phone','Security Concern','Temporary Personal Request','Other'],UNFREEZE:['Security Concern Resolved','Account Reactivation Request','Other']};
 
-async function loadAccountsFromApi(){
- if(!VaultCoreApi.isAuthenticated()){renderAccounts();return;}
- try{
-  const data=await VaultCoreApi.request('/api/accounts');
-  accounts.splice(0,accounts.length,...data.map(account=>({id:account.accountId,accountNo:account.accountId,type:account.accountType,masked:'******'+String(account.accountNumber).slice(-4),balance:'₹'+Number(account.balance).toLocaleString('en-IN'),branch:'',status:String(account.status).replace('FROZEN','Frozen').replace('ACTIVE','Active')})));
- }catch(error){alert(`Accounts could not be loaded from the server. Mock data is being shown. ${error.message}`);}
- renderAccounts();
+<script>
+const accountList = document.getElementById('accountList');
+const accountMessage = document.getElementById('accountMessage');
+const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+})[char]);
+let accounts = [];
+let selectedAccountId = null;
+let selectedAction = 'FREEZE';
+const actionReasons = {
+  FREEZE: ['Suspicious Activity', 'Lost Phone', 'Security Concern', 'Temporary Personal Request', 'Other'],
+  UNFREEZE: ['Security Concern Resolved', 'Account Reactivation Request', 'Other']
+};
+
+function statusName(status) {
+  const normalized = String(status || '').toUpperCase();
+  if (normalized === 'FROZEN') return 'Frozen';
+  if (normalized === 'ACTIVE') return 'Active';
+  return String(status || 'Unknown');
 }
 
-function renderAccounts(){document.getElementById('accountList').innerHTML=accounts.map(account=>`<article class="account-card ${account.status==='Frozen'?'frozen':''}"><div class="account-head"><div><div class="account-type">${account.type}</div><div class="account-number">Account Number: ${account.masked}</div></div><span class="status ${account.status.toLowerCase()}">${account.status}</span></div><div class="account-balance">${account.balance}</div><div class="account-footer"><div><span class="account-label">Branch</span><span class="account-value">${account.branch}</span></div><button type="button" class="${account.status==='Frozen'?'primary-btn':'danger-btn'}" onclick="openAccountAction('${account.accountNo}')">${account.status==='Frozen'?'Unfreeze Account':'Freeze Account'}</button></div></article>`).join('');}
-function renderHistory(){document.getElementById('historyRows').innerHTML=accountHistory.map(item=>`<tr><td>${item.reference}</td><td>${item.account}</td><td>${item.date}</td><td>${item.reason}</td><td class="history-status">${item.status}</td></tr>`).join('');}
-function openAccountAction(accountNo){const account=accounts.find(item=>item.accountNo===accountNo);if(!account)return;selectedAccountNo=accountNo;selectedAction=account.status==='Frozen'?'UNFREEZE':'FREEZE';document.getElementById('selectedAccount').textContent=account.type;document.getElementById('selectedNumber').textContent=account.masked;document.getElementById('freezeReason').innerHTML='<option value="">Select a reason</option>'+actionReasons[selectedAction].map(reason=>`<option>${reason}</option>`).join('');document.getElementById('freezeReason').value='';document.getElementById('freezeRemarks').value='';document.getElementById('reasonError').textContent='';document.getElementById('modalTitle').textContent=selectedAction==='FREEZE'?'Confirm Account Freeze':'Confirm Account Unfreeze';document.getElementById('modalDescription').textContent=selectedAction==='FREEZE'?'This action will temporarily freeze your selected account. Deposits, withdrawals, and transfers will be disabled until the account is reactivated.':'This action will reactivate your selected account and allow deposits, withdrawals, and transfers again.';document.getElementById('reasonLabel').textContent=selectedAction==='FREEZE'?'Reason for Freezing':'Reason for Unfreezing';document.getElementById('confirmActionButton').textContent=selectedAction==='FREEZE'?'Confirm Freeze':'Confirm Unfreeze';document.getElementById('confirmActionButton').className=selectedAction==='FREEZE'?'danger-btn':'primary-btn';document.getElementById('freezeModal').classList.remove('hidden');}
-function closeFreezeModal(){document.getElementById('freezeModal').classList.add('hidden');selectedAccountNo=null;}
-async function confirmAccountAction(){const reason=document.getElementById('freezeReason').value;if(!selectedAccountNo)return;if(!reason){document.getElementById('reasonError').textContent='Please select a reason.';return;}const account=accounts.find(item=>item.accountNo===selectedAccountNo);const isFreeze=selectedAction==='FREEZE';const statusLabel=isFreeze?'Frozen':'Active';const reference=(isFreeze?'FRZ':'UFR')+'2026'+String(Math.floor(Math.random()*9000)+1000);const now=new Date();const date=now.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});const time=now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
- if(VaultCoreApi.isAuthenticated()){
-  try{await VaultCoreApi.request(`/api/accounts/${account.id||account.accountNo}/${isFreeze?'freeze':'unfreeze'}`,{method:'POST',body:JSON.stringify({reason,remarks:document.getElementById('freezeRemarks').value.trim()})});}catch(error){alert(error.message);return;}
- }
- /* Future API call: transactionally UPDATE accounts.status and INSERT account_requests, then render the returned result. */
- account.status=statusLabel;accountHistory.unshift({reference,account:account.type.replace(' Account',''),date,reason,status:isFreeze?'Frozen':'Unfrozen'});renderAccounts();renderHistory();closeFreezeModal();document.getElementById('successTitle').textContent=`Account ${isFreeze?'Frozen':'Unfrozen'} Successfully`;document.getElementById('successDetails').innerHTML=`<div><span>Account</span><strong>${account.type}</strong></div><div><span>Account Number</span><strong>${account.masked}</strong></div><div><span>Status</span><strong class="text-yellow-700">${statusLabel}</strong></div><div><span>Reference ID</span><strong>${reference}</strong></div><div><span>Date & Time</span><strong>${date} | ${time}</strong></div>`;document.getElementById('successNextSteps').innerHTML=isFreeze?'<li>Online banking remains accessible.</li><li>Your account cannot perform transactions while frozen.</li><li>Contact VaultCore Support to reactivate your account.</li>':'<li>Your account is active again.</li><li>Deposits, withdrawals, and transfers are enabled.</li><li>Contact support if you did not request this change.</li>';document.getElementById('successSection').classList.remove('hidden');document.getElementById('successSection').scrollIntoView({behavior:'smooth',block:'start'});}
-loadAccountsFromApi();renderHistory();
+async function loadAccounts() {
+  accountMessage.textContent = 'Loading accounts…';
+  try {
+    accounts = await VaultCoreApi.request('/api/accounts/mine');
+    if (!accounts.length) {
+      accountList.innerHTML = '';
+      accountMessage.textContent = 'No accounts are linked to this customer.';
+      return;
+    }
+    accountMessage.textContent = '';
+    accountList.innerHTML = accounts.map(account => {
+      const status = statusName(account.status);
+      const canChangeStatus = ['ACTIVE', 'FROZEN'].includes(String(account.status).toUpperCase());
+      return `<article class="account-card ${status === 'Frozen' ? 'frozen' : ''}">
+        <div class="account-head"><div><div class="account-type">${escapeHtml(account.accountType)}</div>
+        <div class="account-number">Account Number: ******${escapeHtml(String(account.accountNumber).slice(-4))}</div></div>
+        <span class="status ${escapeHtml(status.toLowerCase())}">${escapeHtml(status)}</span></div>
+        <div class="account-balance">₹${Number(account.balance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+        <div class="account-footer"><span class="account-value">Account ID: ${escapeHtml(account.accountId)}</span>
+        ${canChangeStatus ? `<button type="button" class="${status === 'Frozen' ? 'primary-btn' : 'danger-btn'}" onclick="openAccountAction(${account.accountId})">${status === 'Frozen' ? 'Unfreeze Account' : 'Freeze Account'}</button>` : ''}</div>
+      </article>`;
+    }).join('');
+  } catch (error) {
+    accountList.innerHTML = '';
+    accountMessage.textContent = `Unable to load accounts: ${error.message || 'Please try again.'}`;
+  }
+}
+
+function openAccountAction(accountId) {
+  const account = accounts.find(item => item.accountId === accountId);
+  if (!account) return;
+  if (!['ACTIVE', 'FROZEN'].includes(String(account.status).toUpperCase())) return;
+  selectedAccountId = accountId;
+  selectedAction = statusName(account.status) === 'Frozen' ? 'UNFREEZE' : 'FREEZE';
+  document.getElementById('selectedAccount').textContent = account.accountType;
+  document.getElementById('selectedNumber').textContent = `******${String(account.accountNumber).slice(-4)}`;
+  document.getElementById('freezeReason').innerHTML = '<option value="">Select a reason</option>' +
+    actionReasons[selectedAction].map(reason => `<option>${escapeHtml(reason)}</option>`).join('');
+  document.getElementById('freezeReason').value = '';
+  document.getElementById('freezeRemarks').value = '';
+  document.getElementById('reasonError').textContent = '';
+  document.getElementById('modalTitle').textContent = `Confirm Account ${selectedAction === 'FREEZE' ? 'Freeze' : 'Unfreeze'}`;
+  document.getElementById('modalDescription').textContent = selectedAction === 'FREEZE'
+    ? 'Freezing will temporarily stop transactions on this account.'
+    : 'This will reactivate the selected account.';
+  document.getElementById('reasonLabel').textContent = `Reason for ${selectedAction === 'FREEZE' ? 'Freezing' : 'Unfreezing'}`;
+  document.getElementById('confirmActionButton').textContent = `Confirm ${selectedAction === 'FREEZE' ? 'Freeze' : 'Unfreeze'}`;
+  document.getElementById('confirmActionButton').className = selectedAction === 'FREEZE' ? 'danger-btn' : 'primary-btn';
+  document.getElementById('freezeModal').classList.remove('hidden');
+}
+
+function closeFreezeModal() {
+  document.getElementById('freezeModal').classList.add('hidden');
+  selectedAccountId = null;
+}
+
+async function confirmAccountAction() {
+  const reason = document.getElementById('freezeReason').value;
+  const errorMessage = document.getElementById('reasonError');
+  if (!selectedAccountId) return;
+  if (!reason) {
+    errorMessage.textContent = 'Please select a reason.';
+    return;
+  }
+
+  const button = document.getElementById('confirmActionButton');
+  button.disabled = true;
+  try {
+    const account = await VaultCoreApi.request(`/api/accounts/${selectedAccountId}/${selectedAction === 'FREEZE' ? 'freeze' : 'unfreeze'}`, {
+      method: 'POST',
+      body: JSON.stringify({ reason, remarks: document.getElementById('freezeRemarks').value.trim() })
+    });
+    closeFreezeModal();
+    document.getElementById('successTitle').textContent = `Account ${selectedAction === 'FREEZE' ? 'Frozen' : 'Unfrozen'} successfully`;
+    document.getElementById('successDetails').innerHTML = `<div><span>Account</span><strong>${escapeHtml(account.accountType)}</strong></div><div><span>Status</span><strong>${escapeHtml(statusName(account.status))}</strong></div>`;
+    document.getElementById('successSection').classList.remove('hidden');
+    await loadAccounts();
+  } catch (error) {
+    errorMessage.textContent = error.message || 'Unable to update account status.';
+  } finally {
+    button.disabled = false;
+  }
+}
+
+loadAccounts();
 </script>
 </body>
 </html>

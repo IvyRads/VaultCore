@@ -20,7 +20,7 @@ import lombok.Setter;
 public class Customer {
     @Id @GeneratedValue(strategy=GenerationType.IDENTITY) @Column(name="customer_id") private Integer customerId;
     @OneToOne(fetch=FetchType.LAZY) @JoinColumn(name="user_id", nullable=false) private User user;
-    @ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name="branch_id") private Branch branch;
+    @ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name="branch_id", nullable=false) private Branch branch;
     @Column(name="customer_number") private String customerNumber;
     @Column(name="created_at") private LocalDateTime createdAt;
 }

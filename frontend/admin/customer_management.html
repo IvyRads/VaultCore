@@ -8,7 +8,7 @@
     <script>
         tailwind.config = { theme: { extend: { colors: { vault: '#8A1538', gold: '#D4AF37', cream: '#F8F6F2', line: '#E7DED3', slate: '#5A6572', ink: '#20262E' } } } };
     </script>
-</head>
+<script src="../user/api.js"></script><script>VaultCoreApi.requireAuthentication();</script></head>
 <body class="min-h-screen bg-cream font-sans text-ink">
     <div class="flex min-h-screen">
         <aside class="hidden w-64 shrink-0 bg-ink p-5 text-white lg:block">
@@ -39,19 +39,17 @@
             <div class="mx-auto max-w-7xl p-5 sm:p-8">
                 <div id="statistics" class="mb-6 grid grid-cols-2 gap-4 xl:grid-cols-4"></div>
                 <section class="mb-6 rounded-xl border border-line bg-white p-5 shadow-sm">
-                    <div class="mb-4 flex items-center justify-between"><div><h2 class="font-bold text-ink">Search &amp; Filter Customers</h2><p class="text-xs text-slate">Ready for future database queries</p></div></div>
+                    <div class="mb-4 flex items-center justify-between"><div><h2 class="font-bold text-ink">Search &amp; Filter Customers</h2><p class="text-xs text-slate">Search by customer details or filter by branch ID.</p></div></div>
                     <form id="filterForm" class="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-                        <input id="searchInput" class="rounded-lg border border-line px-3 py-2.5 text-sm outline-vault xl:col-span-2" placeholder="Search by customer name, ID, email or phone..." aria-label="Search customers">
-                        <select id="branchFilter" class="rounded-lg border border-line bg-white px-3 py-2.5 text-sm"><option value="">All Branches</option><option>Trivandrum</option><option>Kochi</option><option>Kollam</option></select>
-                        <select id="statusFilter" class="rounded-lg border border-line bg-white px-3 py-2.5 text-sm"><option value="">All Statuses</option><option>Active</option><option>Inactive</option></select>
-                        <select id="accountFilter" class="rounded-lg border border-line bg-white px-3 py-2.5 text-sm"><option value="">All Accounts</option><option value="has">Has Account</option><option value="none">No Account</option></select>
+                        <input id="searchInput" class="rounded-lg border border-line px-3 py-2.5 text-sm outline-vault xl:col-span-2" placeholder="Customer number, name, phone, or email" aria-label="Search customers">
+                        <input id="branchFilter" type="number" min="1" class="rounded-lg border border-line bg-white px-3 py-2.5 text-sm" placeholder="Branch ID" aria-label="Filter by branch ID">
                         <div class="flex gap-2 xl:col-start-4 xl:col-span-2"><button class="rounded-lg bg-vault px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#6e102d]" type="submit">Search</button><button id="resetButton" class="rounded-lg border border-line px-5 py-2.5 text-sm font-semibold text-slate hover:bg-cream" type="button">Reset</button></div>
                     </form>
                 </section>
 
                 <section class="overflow-hidden rounded-xl border border-line bg-white shadow-sm">
                     <div class="flex items-center justify-between border-b border-line px-5 py-4"><div><h2 class="font-bold">Customers</h2><p id="resultCount" class="text-xs text-slate"></p></div><span class="rounded-full bg-cream px-3 py-1 text-xs font-semibold text-vault">Customer records</span></div>
-                    <div class="overflow-x-auto"><table class="w-full min-w-[850px] text-left text-sm"><thead class="bg-cream text-xs uppercase tracking-wide text-slate"><tr><th class="px-5 py-3">Customer ID</th><th class="px-5 py-3">Name</th><th class="px-5 py-3">Email</th><th class="px-5 py-3">Phone</th><th class="px-5 py-3">Branch</th><th class="px-5 py-3">Accounts</th><th class="px-5 py-3">Status</th><th class="px-5 py-3">Action</th></tr></thead><tbody id="customerRows" class="divide-y divide-line"></tbody></table></div>
+                    <div class="overflow-x-auto"><table class="w-full min-w-[750px] text-left text-sm"><thead class="bg-cream text-xs uppercase tracking-wide text-slate"><tr><th class="px-5 py-3">Customer ID</th><th class="px-5 py-3">Customer Number</th><th class="px-5 py-3">Name</th><th class="px-5 py-3">Phone</th><th class="px-5 py-3">Branch</th><th class="px-5 py-3">Action</th></tr></thead><tbody id="customerRows" class="divide-y divide-line"></tbody></table></div>
                     <div id="pagination" class="flex flex-wrap items-center justify-center gap-1 border-t border-line p-4"></div>
                 </section>
             </div>
@@ -62,12 +60,12 @@
         <div class="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-2xl bg-white shadow-2xl">
             <div class="sticky top-0 flex items-center justify-between border-b border-line bg-white px-6 py-4"><div><h2 id="detailTitle" class="font-bold text-vault">Customer Details</h2><p id="modalCustomerId" class="text-xs text-slate"></p></div><button class="text-xl text-slate" onclick="closeDetails()" aria-label="Close">×</button></div>
             <div id="detailContent" class="p-6"></div>
-            <div class="flex flex-wrap justify-end gap-3 border-t border-line p-5"><a id="editCustomerLink" class="rounded-lg border border-line px-4 py-2 text-sm font-semibold text-slate" href="#">Edit Customer</a><button id="deactivateButton" class="rounded-lg bg-vault px-4 py-2 text-sm font-semibold text-white">Deactivate Customer</button></div>
+            <div class="flex flex-wrap justify-end gap-3 border-t border-line p-5"><a id="customerTransactionsLink" class="rounded-lg bg-vault px-4 py-2 text-sm font-semibold text-white" href="#">View Transactions</a></div>
         </div>
     </div>
     <div id="confirmModal" class="fixed inset-0 z-30 hidden items-center justify-center bg-ink/60 p-4" role="dialog" aria-modal="true"><div class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl"><h2 class="text-lg font-bold text-vault">Deactivate Customer?</h2><p class="mt-3 text-sm leading-6 text-slate">Deactivating this customer will prevent them from accessing their VaultCore account. Customer records will be retained.</p><div class="mt-6 flex justify-end gap-3"><button class="rounded-lg border border-line px-4 py-2 text-sm" onclick="closeConfirmation()">Cancel</button><button class="rounded-lg bg-vault px-4 py-2 text-sm font-semibold text-white" onclick="confirmDeactivation()">Confirm Deactivation</button></div></div></div>
 
-    <script>
+    <script type="text/plain">
         // Replace this mock array with REST API data from the Spring Boot backend.
         const customers = [
             {id:'C1001',name:'Arjun Nair',email:'arjun@email.com',phone:'9876543210',branch:'Trivandrum',accounts:2,status:'Active',joined:'14 Jan 2024',verified:'Verified',accountData:[['1000234567','Savings','₹45,000','Active'],['1000238912','Current','₹82,000','Active']]},
@@ -93,6 +91,6 @@
         detailContent.addEventListener('click', event => { if (event.target.textContent === 'View Account') { event.preventDefault(); event.stopImmediatePropagation(); location.href = `account_details.html?account=${event.target.closest('tr').firstElementChild.textContent.trim()}`; } if (event.target.textContent === 'View All Transactions') { event.preventDefault(); event.stopImmediatePropagation(); location.href = `customer_transactions.html?customer=${selectedCustomer.id}`; } }, true);
         renderStats(); renderTable();
     </script>
-    <script>const branchParam=new URLSearchParams(location.search).get('branch');if(branchParam){branchFilter.value=branchParam;filterForm.requestSubmit();}</script>
+    <script src="customer-management.js"></script>
     </body>
 </html>

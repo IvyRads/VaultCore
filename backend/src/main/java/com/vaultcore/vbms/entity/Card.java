@@ -2,6 +2,7 @@ package com.vaultcore.vbms.entity;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -29,6 +30,7 @@ public class Card {
     private Account account;
 
     @Column(name = "card_number", nullable = false)
+    @JsonIgnore
     private String cardNumber;
 
     @Column(name = "card_type", nullable = false)
