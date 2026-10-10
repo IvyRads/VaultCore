@@ -370,28 +370,29 @@
       <div class="grid md:grid-cols-5 gap-4 items-center">
         <div class="md:col-span-2">
           <p class="muted-label">Customer</p>
-          <p class="text-xl font-bold text-[#8A1538]">Neha J Shibu</p>
+          <p id="customerName" class="text-xl font-bold text-[#8A1538]">Loading...</p>
         </div>
         <div>
           <p class="muted-label">Customer ID</p>
-          <p class="font-semibold text-[#20262E]">C1001</p>
+          <p id="customerNumber" class="font-semibold text-[#20262E]">Loading...</p>
         </div>
         <div>
           <p class="muted-label">Branch</p>
-          <p class="font-semibold text-[#20262E]">Trivandrum Main Branch</p>
+          <p id="customerBranch" class="font-semibold text-[#20262E]">Loading...</p>
         </div>
         <div>
           <p class="muted-label">Active Loans</p>
-          <p class="font-semibold text-[#20262E]">1</p>
+          <p id="activeLoans" class="font-semibold text-[#20262E]">Loading...</p>
         </div>
         <div class="md:col-span-5 border-t border-[#E7DED3] pt-4 mt-2 grid md:grid-cols-2 gap-3">
           <div>
             <p class="muted-label">Outstanding Amount</p>
-            <p class="text-2xl font-bold text-[#8A1538]">₹1,85,000</p>
+            <p id="totalOutstanding" class="text-2xl font-bold text-[#8A1538]">Loading...</p>
           </div>
           <div class="text-right md:text-left">
-            <p class="muted-label">Status</p>
-            <span class="inline-block mt-2 px-3 py-1 rounded-full bg-[#E7DED3] text-[#8A1538] font-semibold text-xs">Customer Active</span>
+            <p class="muted-label">Contact</p>
+            <p id="customerContact" class="font-semibold text-[#20262E]">Loading...</p>
+            <p id="customerAddress" class="text-sm text-[#5A6572] mt-1">Loading...</p>
           </div>
         </div>
       </div>
@@ -483,18 +484,9 @@
                 <p id="loanTenureError" class="error-text"></p>
               </div>
 
-              <div>
-                <label class="field-label block mb-2" for="monthlyIncome">Monthly Income</label>
-                <input id="monthlyIncome" class="input-box" type="number" min="1" placeholder="Enter monthly income" />
-                <p id="monthlyIncomeError" class="error-text"></p>
-              </div>
             </div>
 
-            <div class="mt-4">
-              <label class="field-label block mb-2" for="loanPurpose">Purpose</label>
-              <textarea id="loanPurpose" rows="3" placeholder="Tell us the purpose of this loan"></textarea>
-              <p id="loanPurposeError" class="error-text"></p>
-            </div>
+            <p id="loanApplicationError" class="error-text mt-3"></p>
 
             <div class="flex flex-col sm:flex-row gap-3 mt-6">
               <button type="submit" class="primary-btn px-5 py-3 font-semibold flex-1">Submit Application</button>
@@ -544,13 +536,17 @@
               <tr>
                 <th class="px-5 py-4 font-semibold">Loan ID</th>
                 <th class="px-5 py-4 font-semibold">Loan Type</th>
-                <th class="px-5 py-4 font-semibold">Amount</th>
+                <th class="px-5 py-4 font-semibold">Principal</th>
+                <th class="px-5 py-4 font-semibold">Rate</th>
+                <th class="px-5 py-4 font-semibold">Tenure</th>
                 <th class="px-5 py-4 font-semibold">EMI</th>
+                <th class="px-5 py-4 font-semibold">Outstanding</th>
                 <th class="px-5 py-4 font-semibold">Status</th>
+                <th class="px-5 py-4 font-semibold">Applied</th>
                 <th class="px-5 py-4 font-semibold">Action</th>
               </tr>
             </thead>
-            <tbody id="loanTableBody"></tbody>
+            <tbody id="loanTableBody"><tr><td class="px-5 py-4 text-[#5A6572]" colspan="10">Loading loans...</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -624,7 +620,7 @@
       <div class="w-16 h-16 mx-auto rounded-full bg-green-100 text-green-700 grid place-items-center text-3xl mb-4">✓</div>
       <h3 class="text-3xl font-bold text-[#8A1538]">Loan Application Submitted</h3>
       <div class="mt-5 space-y-3 text-left bg-[#F8F6F2] border border-[#E7DED3] rounded-xl p-4">
-        <p><span class="font-semibold text-[#8A1538]">Application ID:</span> <span id="successApplicationId">APP20260045</span></p>
+        <p><span class="font-semibold text-[#8A1538]">Application ID:</span> <span id="successApplicationId">—</span></p>
         <p><span class="font-semibold text-[#8A1538]">Loan Type:</span> <span id="successLoanType">Personal Loan</span></p>
         <p><span class="font-semibold text-[#8A1538]">Requested Amount:</span> <span id="successLoanAmount">₹2,00,000</span></p>
         <p><span class="font-semibold text-[#8A1538]">Status:</span> <span class="status-badge status-pending">Pending Review</span></p>
@@ -639,7 +635,6 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
-    // Mock data used for UI demo. Replace with Spring Boot REST API calls later.
     const loanCatalog = {
       'Personal Loan': { max: 500000, rate: 10.5, icon: '💰' },
       'Home Loan': { max: 5000000, rate: 8.5, icon: '🏠' },
@@ -647,12 +642,7 @@
       'Vehicle Loan': { max: 1000000, rate: 9, icon: '🚗' }
     };
 
-    const loanRows = [
-      { loanId: 'L001', loanType: 'Personal Loan', amount: 200000, emi: 6500, status: 'Active', approvedAmount: 200000, interestRate: 10.5, tenure: '3 Years', remainingBalance: 185000, applicationDate: '2026-07-18' },
-      { loanId: 'L002', loanType: 'Education Loan', amount: 300000, emi: 4200, status: 'Completed', approvedAmount: 300000, interestRate: 7.5, tenure: '5 Years', remainingBalance: 0, applicationDate: '2025-11-02' },
-      { loanId: 'L003', loanType: 'Vehicle Loan', amount: 500000, emi: 11000, status: 'Approved', approvedAmount: 500000, interestRate: 9, tenure: '5 Years', remainingBalance: 420000, applicationDate: '2026-08-12' },
-      { loanId: 'L004', loanType: 'Home Loan', amount: 1200000, emi: 18200, status: 'Pending', approvedAmount: 0, interestRate: 8.5, tenure: '10 Years', remainingBalance: 1200000, applicationDate: '2026-09-07' }
-    ];
+    let loanRows = [];
 
     const formatter = new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -664,41 +654,95 @@
       return formatter.format(value);
     }
 
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, character => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[character]);
+    }
+
+    function formatDate(value) {
+      return value ? new Date(value).toLocaleDateString('en-IN') : 'Unavailable';
+    }
+
     function renderLoanTable() {
       const tableBody = document.getElementById('loanTableBody');
       tableBody.innerHTML = '';
 
+      if (!loanRows.length) {
+        tableBody.innerHTML = '<tr><td class="px-5 py-4 text-[#5A6572]" colspan="10">You have no loan applications yet.</td></tr>';
+        updateLoanSummary();
+        return;
+      }
+
       loanRows.forEach((loan) => {
         const row = document.createElement('tr');
         row.innerHTML = `
-          <td class="px-5 py-4 text-[#20262E] font-semibold">${loan.loanId}</td>
-          <td class="px-5 py-4 text-[#20262E]">${loan.loanType}</td>
-          <td class="px-5 py-4 text-[#20262E]">${currency(loan.amount)}</td>
+          <td class="px-5 py-4 text-[#20262E] font-semibold">${escapeHtml(loan.loanId)}</td>
+          <td class="px-5 py-4 text-[#20262E]">${escapeHtml(loan.loanType)}</td>
+          <td class="px-5 py-4 text-[#20262E]">${currency(loan.principal)}</td>
+          <td class="px-5 py-4 text-[#20262E]">${escapeHtml(loan.interestRate)}% p.a.</td>
+          <td class="px-5 py-4 text-[#20262E]">${escapeHtml(`${loan.tenureMonths} months`)}</td>
           <td class="px-5 py-4 text-[#20262E]">${currency(loan.emi)}/month</td>
-          <td class="px-5 py-4"><span class="status-badge ${statusClass(loan.status)}">${loan.status}</span></td>
-          <td class="px-5 py-4"><button type="button" class="secondary-btn px-3 py-2 text-sm view-loan-btn" data-id="${loan.loanId}">View</button></td>
+          <td class="px-5 py-4 text-[#20262E]">${currency(loan.outstanding)}</td>
+          <td class="px-5 py-4"><span class="status-badge ${statusClass(loan.status)}">${escapeHtml(loan.status)}</span></td>
+          <td class="px-5 py-4 text-[#20262E]">${escapeHtml(formatDate(loan.appliedAt))}</td>
+          <td class="px-5 py-4"><button type="button" class="secondary-btn px-3 py-2 text-sm view-loan-btn" data-id="${escapeHtml(loan.loanId)}">View</button></td>
         `;
         tableBody.appendChild(row);
       });
 
       document.querySelectorAll('.view-loan-btn').forEach((button) => {
         button.addEventListener('click', (event) => {
-          const loanId = event.target.dataset.id;
-          const loan = loanRows.find((item) => item.loanId === loanId);
+          const loanId = event.currentTarget.dataset.id;
+          const loan = loanRows.find((item) => String(item.loanId) === loanId);
           openLoanDetailsModal(loan);
         });
       });
+      updateLoanSummary();
+    }
+
+    function updateLoanSummary() {
+      const activeCount = loanRows.filter(loan => String(loan.status).toUpperCase() === 'ACTIVE').length;
+      const outstanding = loanRows.reduce((total, loan) => total + Number(loan.outstanding || 0), 0);
+      document.getElementById('activeLoans').textContent = String(activeCount);
+      document.getElementById('totalOutstanding').textContent = currency(outstanding);
+    }
+
+    async function loadLoanPage() {
+      try {
+        const [profile, loans] = await Promise.all([
+          VaultCoreApi.request('/api/customers/me/profile'),
+          VaultCoreApi.request('/api/loans/mine')
+        ]);
+        document.getElementById('customerName').textContent =
+          `${profile.firstName || ''} ${profile.lastName || ''}`.trim() || 'Unavailable';
+        document.getElementById('customerNumber').textContent = profile.customerNumber || 'Unavailable';
+        document.getElementById('customerBranch').textContent = profile.branchName || 'Unavailable';
+        document.getElementById('customerContact').textContent =
+          [profile.email, profile.phone].filter(Boolean).join(' · ') || 'Unavailable';
+        document.getElementById('customerAddress').textContent = profile.address || 'Unavailable';
+        loanRows = Array.isArray(loans) ? loans : [];
+        renderLoanTable();
+      } catch (error) {
+        document.getElementById('customerName').textContent = `Unable to load: ${error.message}`;
+        document.getElementById('customerNumber').textContent = 'Unavailable';
+        document.getElementById('customerBranch').textContent = 'Unavailable';
+        document.getElementById('customerContact').textContent = 'Unavailable';
+        document.getElementById('customerAddress').textContent = 'Unavailable';
+        document.getElementById('loanTableBody').innerHTML =
+          `<tr><td class="px-5 py-4 text-[#5A6572]" colspan="10">${escapeHtml(`Unable to load loans: ${error.message}`)}</td></tr>`;
+      }
     }
 
     function statusClass(status) {
       const statusMap = {
-        Pending: 'status-pending',
-        Approved: 'status-approved',
-        Active: 'status-active',
-        Completed: 'status-completed',
-        Rejected: 'status-rejected'
+        PENDING: 'status-pending',
+        APPROVED: 'status-approved',
+        ACTIVE: 'status-active',
+        COMPLETED: 'status-completed',
+        REJECTED: 'status-rejected'
       };
-      return statusMap[status] || 'status-pending';
+      return statusMap[String(status).toUpperCase()] || 'status-pending';
     }
 
     function clearErrors() {
@@ -714,8 +758,6 @@
       const selectedLoanType = document.getElementById('loanType').value.trim();
       const requestedAmount = Number(document.getElementById('requestedAmount').value);
       const tenure = document.getElementById('loanTenure').value.trim();
-      const monthlyIncome = Number(document.getElementById('monthlyIncome').value);
-      const purpose = document.getElementById('loanPurpose').value.trim();
 
       if (!selectedLoanType) {
         document.getElementById('loanTypeError').textContent = 'Please select a loan type.';
@@ -735,16 +777,6 @@
 
       if (!tenure) {
         document.getElementById('loanTenureError').textContent = 'Please select a valid loan tenure.';
-        isValid = false;
-      }
-
-      if (!monthlyIncome || monthlyIncome <= 0) {
-        document.getElementById('monthlyIncomeError').textContent = 'Please enter your monthly income.';
-        isValid = false;
-      }
-
-      if (!purpose) {
-        document.getElementById('loanPurposeError').textContent = 'Please provide the loan purpose.';
         isValid = false;
       }
 
@@ -787,7 +819,7 @@
         <div class="grid md:grid-cols-2 gap-4">
           <div>
             <label class="field-label block mb-2">Requested Amount</label>
-            <input class="input-box" type="number" value="200000" id="modalRequestedAmount" />
+            <input class="input-box" type="number" min="1" id="modalRequestedAmount" />
           </div>
           <div>
             <label class="field-label block mb-2">Loan Tenure</label>
@@ -798,14 +830,6 @@
               <option value="5 Years">5 Years</option>
               <option value="10 Years">10 Years</option>
             </select>
-          </div>
-          <div>
-            <label class="field-label block mb-2">Monthly Income</label>
-            <input class="input-box" type="number" value="60000" id="modalMonthlyIncome" />
-          </div>
-          <div>
-            <label class="field-label block mb-2">Purpose</label>
-            <input class="input-box" type="text" value="Home/Personal requirement" id="modalPurpose" />
           </div>
         </div>
         <div class="mt-5 flex gap-3 justify-end">
@@ -818,26 +842,19 @@
 
       document.getElementById('submitModalApplication').addEventListener('click', () => {
         const amount = Number(document.getElementById('modalRequestedAmount').value);
-        const monthlyIncome = Number(document.getElementById('modalMonthlyIncome').value);
-        const tenure = document.getElementById('modalLoanTenure').value;
-        const purpose = document.getElementById('modalPurpose').value.trim();
+        const tenure = Number(document.getElementById('modalLoanTenure').value.split(' ')[0]) * 12;
 
         if (!amount || amount <= 0 || amount > stats.max) {
           alert('Requested amount is invalid or exceeds the loan limit.');
           return;
         }
 
-        if (!monthlyIncome || monthlyIncome <= 0) {
-          alert('Please enter a valid monthly income.');
+        if (!tenure) {
+          alert('Please select a valid loan tenure.');
           return;
         }
 
-        if (!tenure || !purpose) {
-          alert('Please complete all required fields.');
-          return;
-        }
-
-        completeLoanSubmission(type, amount, tenure, purpose);
+        completeLoanSubmission(type, amount, tenure, null);
       });
 
       document.getElementById('cancelModalApplication').addEventListener('click', () => {
@@ -853,15 +870,15 @@
       const content = document.getElementById('loanDetailsContent');
       content.innerHTML = `
         <div class="grid md:grid-cols-2 gap-4">
-          <div><p class="muted-label">Loan ID</p><p class="font-semibold text-[#20262E]">${loan.loanId}</p></div>
-          <div><p class="muted-label">Loan Type</p><p class="font-semibold text-[#20262E]">${loan.loanType}</p></div>
-          <div><p class="muted-label">Approved Amount</p><p class="font-semibold text-[#20262E]">${currency(loan.approvedAmount || loan.amount)}</p></div>
+          <div><p class="muted-label">Loan ID</p><p class="font-semibold text-[#20262E]">${escapeHtml(loan.loanId)}</p></div>
+          <div><p class="muted-label">Loan Type</p><p class="font-semibold text-[#20262E]">${escapeHtml(loan.loanType)}</p></div>
+          <div><p class="muted-label">Principal</p><p class="font-semibold text-[#20262E]">${currency(loan.principal)}</p></div>
           <div><p class="muted-label">Interest Rate</p><p class="font-semibold text-[#20262E]">${loan.interestRate}% p.a.</p></div>
-          <div><p class="muted-label">Tenure</p><p class="font-semibold text-[#20262E]">${loan.tenure}</p></div>
+          <div><p class="muted-label">Tenure</p><p class="font-semibold text-[#20262E]">${escapeHtml(`${loan.tenureMonths} months`)}</p></div>
           <div><p class="muted-label">Monthly EMI</p><p class="font-semibold text-[#20262E]">${currency(loan.emi)}/month</p></div>
-          <div><p class="muted-label">Remaining Balance</p><p class="font-semibold text-[#20262E]">${currency(loan.remainingBalance || 0)}</p></div>
-          <div><p class="muted-label">Status</p><p class="font-semibold text-[#20262E]">${loan.status}</p></div>
-          <div class="md:col-span-2"><p class="muted-label">Application Date</p><p class="font-semibold text-[#20262E]">${loan.applicationDate}</p></div>
+          <div><p class="muted-label">Outstanding</p><p class="font-semibold text-[#20262E]">${currency(loan.outstanding)}</p></div>
+          <div><p class="muted-label">Status</p><p class="font-semibold text-[#20262E]">${escapeHtml(loan.status)}</p></div>
+          <div class="md:col-span-2"><p class="muted-label">Application Date</p><p class="font-semibold text-[#20262E]">${escapeHtml(formatDate(loan.appliedAt))}</p></div>
         </div>
       `;
 
@@ -872,36 +889,25 @@
       document.getElementById('loanDetailsModal').classList.remove('show');
     }
 
-    function completeLoanSubmission(type, amount, tenure, purpose) {
-      const applicationId = `APP${new Date().getFullYear()}${String(Math.floor(Math.random() * 90000) + 10000)}`;
-
-      // Future integration point:
-      // POST /api/loans
-      // body: { customer_id, loan_type, requested_amount, tenure, purpose, monthly_income }
-      // Spring Boot API -> INSERT INTO loans ... status = 'Pending'
-      // backend then returns applicationId and status
-
-      document.getElementById('successApplicationId').textContent = applicationId;
-      document.getElementById('successLoanType').textContent = type;
-      document.getElementById('successLoanAmount').textContent = currency(amount);
-      document.getElementById('successCard').classList.add('show');
-      document.getElementById('loanModal').classList.remove('show');
-
-      const newLoan = {
-        loanId: 'L' + String(loanRows.length + 1).padStart(3, '0'),
-        loanType: type,
-        amount: amount,
-        emi: Math.round(calculateEmi(amount, loanCatalog[type].rate, Number(tenure.split(' ')[0]))),
-        status: 'Pending',
-        approvedAmount: 0,
-        interestRate: loanCatalog[type].rate,
-        tenure: tenure,
-        remainingBalance: amount,
-        applicationDate: new Date().toISOString().slice(0, 10)
-      };
-
-      loanRows.unshift(newLoan);
-      renderLoanTable();
+    async function completeLoanSubmission(type, amount, tenureMonths, errorElement) {
+      if (errorElement) errorElement.textContent = '';
+      try {
+        const loan = await VaultCoreApi.request('/api/loans', {
+          method: 'POST',
+          body: JSON.stringify({ loanType: type, principal: amount, tenureMonths })
+        });
+        document.getElementById('successApplicationId').textContent = loan.loanId;
+        document.getElementById('successLoanType').textContent = loan.loanType;
+        document.getElementById('successLoanAmount').textContent = currency(loan.principal);
+        loanRows.unshift(loan);
+        renderLoanTable();
+        document.getElementById('loanForm').reset();
+        document.getElementById('successCard').classList.add('show');
+        document.getElementById('loanModal').classList.remove('show');
+      } catch (error) {
+        if (errorElement) errorElement.textContent = error.message || 'Unable to submit loan application.';
+        else alert(error.message || 'Unable to submit loan application.');
+      }
     }
 
     function setSuccessScreenVisibility(visible) {
@@ -917,15 +923,10 @@
 
       const selectedType = document.getElementById('loanType').value;
       const amount = Number(document.getElementById('requestedAmount').value);
-      const tenure = document.getElementById('loanTenure').value;
-      const purpose = document.getElementById('loanPurpose').value.trim();
+      const tenureMonths = Number(document.getElementById('loanTenure').value.split(' ')[0]) * 12;
 
-      // Future integration point:
-      // const payload = { loan_type: selectedType, requested_amount: amount, tenure, purpose, monthly_income: ... };
-      // fetch('/api/loans', { method: 'POST', body: JSON.stringify(payload) });
-
-      if (selectedType && amount && tenure && purpose) {
-        completeLoanSubmission(selectedType, amount, tenure, purpose);
+      if (selectedType && amount && tenureMonths) {
+        completeLoanSubmission(selectedType, amount, tenureMonths, document.getElementById('loanApplicationError'));
       }
     });
 
@@ -1030,7 +1031,7 @@
       }
     });
 
-    renderLoanTable();
+    if (VaultCoreApi.requireAuthentication()) loadLoanPage();
     updateEmiDisplay();
   </script>
 </body>
