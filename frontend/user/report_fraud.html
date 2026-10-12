@@ -60,7 +60,7 @@ async function loadReports() {
     reportMessage.textContent = reports.length ? '' : 'No fraud reports submitted.';
     reportRows.innerHTML = reports.map((report, index) => `<tr>
       <td>${escapeHtml(report.reportId)}</td><td>${escapeHtml(report.fraudType)}</td>
-      <td>${escapeHtml(report.account?.accountType || '—')}</td><td>${escapeHtml(report.createdAt || '—')}</td>
+      <td>${escapeHtml(report.accountNumber || report.accountId || '—')}</td><td>${escapeHtml(report.createdAt || '—')}</td>
       <td>${escapeHtml(report.status)}</td><td><button type="button" class="view-btn" data-report-index="${index}">View</button></td>
     </tr>`).join('');
   } catch (error) {
@@ -165,7 +165,7 @@ async function submitReport() {
 
 function viewReport(index) {
   const report = reports[index];
-  document.getElementById('reportDetails').innerHTML = `<div><span>Report ID</span><strong>${escapeHtml(report.reportId)}</strong></div><div><span>Account</span><strong>${escapeHtml(report.account?.accountType || '—')}</strong></div><div><span>Fraud Type</span><strong>${escapeHtml(report.fraudType)}</strong></div><div><span>Incident Date</span><strong>${escapeHtml(report.incidentDate)}</strong></div><div><span>Submitted</span><strong>${escapeHtml(report.createdAt)}</strong></div><div><span>Status</span><strong>${escapeHtml(report.status)}</strong></div><div class="full"><span>Description</span><strong>${escapeHtml(report.description)}</strong></div><div class="full"><span>Related Transaction</span><strong>${escapeHtml(report.transaction?.transactionId ?? 'None')}</strong></div>`;
+  document.getElementById('reportDetails').innerHTML = `<div><span>Report ID</span><strong>${escapeHtml(report.reportId)}</strong></div><div><span>Account</span><strong>${escapeHtml(report.accountNumber || report.accountId || '—')}</strong></div><div><span>Fraud Type</span><strong>${escapeHtml(report.fraudType)}</strong></div><div><span>Incident Date</span><strong>${escapeHtml(report.incidentDate)}</strong></div><div><span>Submitted</span><strong>${escapeHtml(report.createdAt)}</strong></div><div><span>Status</span><strong>${escapeHtml(report.status)}</strong></div><div class="full"><span>Description</span><strong>${escapeHtml(report.description)}</strong></div><div class="full"><span>Related Transaction</span><strong>${escapeHtml(report.transactionId ?? 'None')}</strong></div>`;
   document.getElementById('detailsModal').classList.remove('hidden');
 }
 
