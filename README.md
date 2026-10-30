@@ -17,7 +17,7 @@ Set `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET`, and `FRONTEND_ORIGIN` 
 mvn -f backend/pom.xml spring-boot:run
 ```
 
-The API is at `http://localhost:8080`. The frontend must call the API, never the database directly. See [API_MAPPING.md](API_MAPPING.md).
+The API is at `http://localhost:8080`. The frontend must call the API, never the database directly. See[API_MAPPING.md](API_MAPPING.md).
 
 ## Security
 
